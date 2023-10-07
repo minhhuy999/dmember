@@ -1,45 +1,85 @@
-import { StyleSheet, Text, View, Button, Image, TouchableOpacity, TextInput, FlatList } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View, Image, TextInput, FlatList, ViewToken, ScrollView } from 'react-native'
+import React, { useState } from 'react'
 import color from '../Color/color'
-
-const Item = [
-    {
-        id: '1',
-        img: require('../Image/Boost.png'),
-        title: 'Immune Boost',
-        note: 'Siêu phẩm tăng cường sức đề kháng toàn diện',
-        pointm: '1,790,000 Dpoint'
-    },
-    {
-        id: '2',
-        img: require('../Image/Dfix.png'),
-        title: 'Dfix',
-        note: 'Trà giảm cân thiên nhiên',
-        pointm: '1,790,000 Dpoint'
-    },
-    {
-        id: '3',
-        img: require('../Image/CellMask.png'),
-        title: 'Brilliant Cell Mask',
-        note: 'Mặt nạ tinh chất cô đặc trắng da, mờ thâm',
-        pointm: '1,790,000 Dpoint'
-    },
-]
-
-const renderItem = ({ item, index }: any) => {
-    return (
-        <View style={styles.BoxItem}>
-            <Image source={item.img} style={{ width: 127, height: 112 }} />
-            <View style={{ width: 240, justifyContent: 'center', padding: 10 }}>
-                <Text style={styles.Texttitle}>{item.title}</Text>
-                <Text style={styles.TextNote}>{item.note}</Text>
-                <Text style={styles.TextPointmust}>{item.pointm}</Text>
-            </View>
-        </View>
-    )
-}
+import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated'
+import AniSreenitem from './AnimationList/AniSreenitem'
 
 const ScreenPoint = () => {
+
+    const Item = [
+        {
+            id: '1',
+            img: require('../Image/Boost.png'),
+            title: 'Immune Boost',
+            note: 'Siêu phẩm tăng cường sức đề kháng toàn diện',
+            pointm: '1,790,000 Dpoint'
+        },
+        {
+            id: '2',
+            img: require('../Image/Dfix.png'),
+            title: 'Dfix',
+            note: 'Trà giảm cân thiên nhiên',
+            pointm: '1,790,000 Dpoint'
+        },
+        {
+            id: '3',
+            img: require('../Image/CellMask.png'),
+            title: 'Brilliant Cell Mask',
+            note: 'Mặt nạ tinh chất cô đặc trắng da, mờ thâm',
+            pointm: '1,790,000 Dpoint'
+        },
+        {
+            id: '4',
+            img: require('../Image/Boost.png'),
+            title: 'Immune Boost',
+            note: 'Siêu phẩm tăng cường sức đề kháng toàn diện',
+            pointm: '1,790,000 Dpoint'
+        },
+        {
+            id: '5',
+            img: require('../Image/Dfix.png'),
+            title: 'Dfix',
+            note: 'Trà giảm cân thiên nhiên',
+            pointm: '1,790,000 Dpoint'
+        },
+        {
+            id: '6',
+            img: require('../Image/CellMask.png'),
+            title: 'Brilliant Cell Mask',
+            note: 'Mặt nạ tinh chất cô đặc trắng da, mờ thâm',
+            pointm: '1,790,000 Dpoint'
+        },
+        {
+            id: '7',
+            img: require('../Image/Boost.png'),
+            title: 'Immune Boost',
+            note: 'Siêu phẩm tăng cường sức đề kháng toàn diện',
+            pointm: '1,790,000 Dpoint'
+        },
+        {
+            id: '8',
+            img: require('../Image/Dfix.png'),
+            title: 'Dfix',
+            note: 'Trà giảm cân thiên nhiên',
+            pointm: '1,790,000 Dpoint'
+        },
+        {
+            id: '9',
+            img: require('../Image/CellMask.png'),
+            title: 'Brilliant Cell Mask',
+            note: 'Mặt nạ tinh chất cô đặc trắng da, mờ thâm',
+            pointm: '1,790,000 Dpoint'
+        },
+    ]
+
+    // const translateY = useSharedValue(0);
+
+    const viewableItems:any = useSharedValue<ViewToken[]>([]);
+
+    // const scrollHandler = useAnimatedScrollHandler((event) => {
+    //     translateY.value = event.contentOffset.y;
+    // });
+
     return (
         <View style={styles.backgr}>
             <View style={styles.titleBox}>
@@ -57,14 +97,22 @@ const ScreenPoint = () => {
                 <Image source={require('../Icon/cart.png')} style={{ height: 25, width: 25, marginLeft: 10 }} />
             </View>
             <Text style={styles.muc}>Có thể đổi</Text>
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, marginBottom: 100 }}>
                 <FlatList
                     data={Item}
-                    keyExtractor={(item) => item.id}
-                    renderItem={renderItem}
+                    // scrollEnabled={false}
+                    showsVerticalScrollIndicator={false}
+                    onViewableItemsChanged={({ viewableItems: vItems }) => {
+                        viewableItems.value = vItems;
+                    }}
+                    keyExtractor={(item) => item.id.toString()}
+                    renderItem={({ item }) => {
+                        return <AniSreenitem item={item} viewableItems={viewableItems} />;
+                    }}
                 />
             </View>
         </View>
+
     )
 }
 
@@ -74,7 +122,7 @@ const styles = StyleSheet.create({
     backgr: {
         backgroundColor: color.background,
         flex: 1,
-        padding: 10
+        padding: 10,
     },
     titleBox: {
         height: 50, width: '100%',
@@ -126,26 +174,26 @@ const styles = StyleSheet.create({
         paddingVertical: 1,
         textAlign: 'center'
     },
-    boxpoint:{
-        flexDirection: 'row', 
-        backgroundColor: 'white', 
-        position: 'absolute', right: 12, top: 1, 
-        padding: 8, 
+    boxpoint: {
+        flexDirection: 'row',
+        backgroundColor: 'white',
+        position: 'absolute', right: 12, top: 1,
+        padding: 8,
         borderRadius: 20
     },
-    boxSearch:{
-        flexDirection: 'row', 
-        width: '100%', 
-        justifyContent: 'center', alignItems: 'center', 
-        paddingTop: 10 
+    boxSearch: {
+        flexDirection: 'row',
+        width: '100%',
+        justifyContent: 'center', alignItems: 'center',
+        paddingTop: 10
     },
-    inputSearch:{
-        flexDirection: 'row', 
-        backgroundColor: 'white', 
-        width: '88%', 
-        paddingLeft: 20, 
-        height: 40, 
-        borderRadius: 10, 
-        alignItems: 'center' 
+    inputSearch: {
+        flexDirection: 'row',
+        backgroundColor: 'white',
+        width: '88%',
+        paddingLeft: 20,
+        height: 40,
+        borderRadius: 10,
+        alignItems: 'center'
     }
 })

@@ -110,35 +110,52 @@ export default ScreenHome
 
 const styles = StyleSheet.create({
     Box1: {
-        height: 140, width: '100%', paddingLeft: 23, paddingRight: 23, paddingTop: 20, paddingBottom: 20
+        height: 140, width: '100%', 
+        paddingLeft: 23, paddingRight: 23, paddingTop: 20, paddingBottom: 20
     },
     Box2: {
-        height: 260, width: '100%', paddingLeft: 23, paddingRight: 23
+        height: 260, width: '100%', 
+        paddingLeft: 23, paddingRight: 23
     },
     Box3: {
-        height: 290, width: '100%', paddingLeft: 23, paddingRight: 23, paddingBottom: 20, paddingTop: 25
+        height: 290, width: '100%', 
+        paddingLeft: 23, paddingRight: 23, paddingBottom: 20, paddingTop: 25
     },
     backgr: {
         backgroundColor: color.background,
         flex: 1
     },
     Textb1Dss: {
-        color: 'black', fontSize: 14, fontWeight: '400'
+        color: 'black', 
+        fontSize: 14, 
+        fontWeight: '400'
     },
     Textb1cp: {
-        color: 'black', fontSize: 17, fontWeight: '500'
+        color: 'black', 
+        fontSize: 17, 
+        fontWeight: '500'
     },
     Textb1100: {
-        color: color.green, fontSize: 11, fontWeight: '400'
+        color: color.green, 
+        fontSize: 11, 
+        fontWeight: '400'
     },
     Textb1vnd: {
-        color: color.green, fontSize: 17, fontWeight: '600'
+        color: color.green, 
+        fontSize: 17, 
+        fontWeight: '600'
     },
     Imgb1: {
-        width: 100, height: 90, marginRight: 10
+        width: 100, height: 90, 
+        marginRight: 10
     },
     Indexitem: {
-        width: '100%', height: 55, backgroundColor: 'white', marginVertical: 5, borderRadius: 10, flexDirection: 'row', justifyContent: 'center', alignItems: 'center'
+        width: '100%', height: 55, 
+        backgroundColor: 'white', 
+        marginVertical: 5, 
+        borderRadius: 10, 
+        flexDirection: 'row', 
+        justifyContent: 'center', alignItems: 'center'
     },
     Imgb2: {
         width: 35, height: 35, margin: 10

@@ -1,13 +1,19 @@
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import color from '../../Color/color'
-import { useNavigation } from '@react-navigation/native';
-import { FlatList } from 'react-native-gesture-handler';
-import CheckBox from '@react-native-community/checkbox';
+import { useNavigation } from '@react-navigation/native'
+import { FlatList } from 'react-native-gesture-handler'
+import CheckBox from '@react-native-community/checkbox'
+import realmHS from '../../Realm/realmHistoryS'
+import { addMember, loadAddMember, removeMB } from '../../Realm/StorageServices'
+
 
 const ScreenChuyenTien = ({ navigation }: any) => {
 
-    const navigationGoback = useNavigation();
+    const [memberCount, setMemberCount] = useState(0)
+    const [DataMemBer, setDataMemBer] = useState([])
+    const navigationGoback = useNavigation()
+    const AddMB = realmHS.objects('AddMember')
 
     const datamember = [
         {
@@ -36,26 +42,56 @@ const ScreenChuyenTien = ({ navigation }: any) => {
         },
     ]
 
+    useEffect(() => {
+        AddMB.addListener(listener)
+        updateCheckboxState()
+        return () => {
+            AddMB.removeListener(listener)
+        }
+    }, [])
 
-    // const [toggleCheckBox, setToggleCheckBox] = useState(datamember.map(() => false));
-    const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+    const listener = (newTasks: any) => {
+        loadAddMember()
+            .then((tasks: any) => {
+                setSelectedMembers(tasks.map((member: any) => member.id))
+                setDataMemBer(tasks)
+                setMemberCount(tasks.length - 2)
+                console.log(AddMB)
+            })
+    }
+
+    const updateCheckboxState = () => {
+        const updatedDataMemBer:any = [...datamember] // Tạo một bản sao của danh sách thành viên
+        updatedDataMemBer.forEach((item:any) => {
+            item.isSelected = selectedMembers.includes(item.id)
+        })
+    }
+
+
+    const [selectedMembers, setSelectedMembers] = useState<string[]>([])
 
     const toggleMemberSelection = (id: string) => {
-        // Check if the member is already selected
         if (selectedMembers.includes(id)) {
-            // If selected, remove from the selected members
-            setSelectedMembers((prevSelected) =>
-                prevSelected.filter((memberId) => memberId !== id)
-            );
+            // Xóa thành viên khỏi Realm khi checkbox bị tắt
+            removeMB(id).then(() => {
+                console.log('Member đã được xóa khỏi cơ sở dữ liệu Realm.')
+                setSelectedMembers((prevSelected) =>
+                    prevSelected.filter((memberId) => memberId !== id)
+                )
+            })
         } else {
-            // If not selected, add to the selected members
-            setSelectedMembers((prevSelected) => [...prevSelected, id]);
+            // Thêm thành viên vào Realm khi checkbox được bật
+            addMember(id).then(() => {
+                console.log('Member đã được thêm vào cơ sở dữ liệu Realm.')
+                setSelectedMembers((prevSelected) => [...prevSelected, id])
+            })
         }
-    };
+    }
+
 
     const rendermember = ({ item, index }: any) => {
 
-        const isSelected = selectedMembers.includes(item.id);
+        const isSelected = selectedMembers.includes(item.id)
 
         return (
             <View style={styles.rendermember}>
@@ -64,16 +100,6 @@ const ScreenChuyenTien = ({ navigation }: any) => {
                     <Text style={{ color: 'black', fontSize: 15, fontWeight: '500' }}>{item.name}</Text>
                     <Text style={{ color: 'rgba(0, 0, 0, 0.50)', fontSize: 12, fontWeight: '400' }}>{item.phone}</Text>
                 </View>
-                {/* <CheckBox
-                    disabled={false}
-                    value={toggleCheckBox[index]}
-                    onValueChange={(newValue) => {
-                        const updatedCheckBoxState = [...toggleCheckBox];
-                        updatedCheckBoxState[index] = newValue;
-                        setToggleCheckBox(updatedCheckBoxState);
-                    }}
-                    tintColors={{ true: 'black', false: 'black' }}
-                /> */}
                 <CheckBox
                     disabled={false}
                     value={isSelected}
@@ -84,16 +110,13 @@ const ScreenChuyenTien = ({ navigation }: any) => {
         )
     }
 
-    const dataAddmember = datamember.filter((item) =>
-        selectedMembers.includes(item.id)
-    );
-
     const renderAddmember = ({ item, index }: any) => {
+        const member: any = datamember.find((mb) => mb.id === item.id)
         if (index < 2) {
-            const truncatedName = item.name.length > 12 ? item.name.slice(0, 12) + '...' : item.name;
+            const truncatedName = member.name.length > 12 ? member.name.slice(0, 12) + '...' : member.name
             return (
                 <View style={styles.renderadd}>
-                    <Image source={item.avata} style={{ width: 38, height: 38, borderRadius: 38 }} />
+                    <Image source={member.avata} style={{ width: 38, height: 38, borderRadius: 38 }} />
                     <Text style={{ color: 'black', fontSize: 10, fontWeight: '500' }}>{truncatedName}</Text>
                 </View>
             )
@@ -101,16 +124,14 @@ const ScreenChuyenTien = ({ navigation }: any) => {
             return (
                 <View style={styles.renderadd}>
                     <View style={styles.rendertotal}>
-                        <Text>+1</Text>
-                        <Image source={item.avata} style={{ width: 1, height: 1}} />
+                        <Text>+{memberCount}</Text>
                     </View>
+                    <Text style={{ color: 'black', fontSize: 10, fontWeight: '500' }}></Text>
                 </View>
             )
         } else {
             return (
-                <View>
-
-                </View>
+                <View></View>
             )
         }
     }
@@ -146,13 +167,13 @@ const ScreenChuyenTien = ({ navigation }: any) => {
             <View style={{ backgroundColor: 'white', padding: 20, justifyContent: 'space-between', flexDirection: 'row' }}>
                 <View style={{ flex: 1 }}>
                     <FlatList
-                        data={dataAddmember}
-                        keyExtractor={(item) => item.id}
+                        data={AddMB}
+                        keyExtractor={(item: any) => item.id.toString()}
                         renderItem={renderAddmember}
                         horizontal={true}
                     />
                 </View>
-                <TouchableOpacity onPress={()=>navigation.navigate('ScreenChTienB2')} style={{ backgroundColor: 'black', padding: 10, borderRadius: 10, width: 100, justifyContent: 'center', alignItems: 'center' }}>
+                <TouchableOpacity onPress={() => navigation.navigate('ScreenChTienB2')} style={{ backgroundColor: 'black', padding: 10, borderRadius: 10, width: 100, justifyContent: 'center', alignItems: 'center' }}>
                     <Text style={{ color: 'white' }}>Tiếp tục</Text>
                 </TouchableOpacity>
             </View>
@@ -180,23 +201,23 @@ const styles = StyleSheet.create({
         fontSize: 21,
         fontWeight: '500'
     },
-    renderadd:{
-        alignItems: 'center', justifyContent: 'center', 
-        width: 70, 
+    renderadd: {
+        alignItems: 'center', justifyContent: 'center',
+        width: 70,
         marginRight: 2
     },
-    rendertotal:{
-        width: 38, height: 38, 
-        borderRadius: 38, 
+    rendertotal: {
+        width: 38, height: 38,
+        borderRadius: 38,
         backgroundColor: color.bluemedium,
-        justifyContent:'center',alignItems:'center'
+        justifyContent: 'center', alignItems: 'center'
     },
-    rendermember:{
-        padding: 10, 
-        backgroundColor: 'white', 
-        flexDirection: 'row', 
-        borderRadius: 5, 
-        alignItems: 'center', 
+    rendermember: {
+        padding: 10,
+        backgroundColor: 'white',
+        flexDirection: 'row',
+        borderRadius: 5,
+        alignItems: 'center',
         marginBottom: 8
     }
 })

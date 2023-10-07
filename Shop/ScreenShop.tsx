@@ -1,6 +1,10 @@
 import { StyleSheet, Text, View, Image, TextInput, ScrollView, FlatList, TouchableOpacity } from 'react-native'
 import React, { useState, useRef, useEffect } from 'react'
 import color from '../Color/color'
+import realmHS from '../Realm/realmHistoryS';
+import { addSPStore } from '../Realm/StorageServices';
+import SearchAnimation from './AnimationShop/SearchAnimation';
+import Animated, { runOnJS, useAnimatedScrollHandler, useSharedValue, withSpring } from 'react-native-reanimated';
 
 const ScreenShop = ({ navigation }: any) => {
 
@@ -11,6 +15,24 @@ const ScreenShop = ({ navigation }: any) => {
     const [activeDotIndex2, setActiveDotIndex2] = useState(0);
     const flatListRef: any = useRef(null);
     const flatListRef2: any = useRef(null);
+
+    const addSP = realmHS.objects('AddProduct')
+
+    const translateY: any = useSharedValue(0);
+    const [pagingEnabled, setPagingEnabled] = useState(false);
+
+    const scrollHandler = useAnimatedScrollHandler({
+        onScroll: (event) => {
+            translateY.value = event.contentOffset.y;
+        },
+        onEndDrag: (e) => {
+            if (translateY.value < 100) {
+                runOnJS(setPagingEnabled)(true);
+            } else {
+                runOnJS(setPagingEnabled)(false);
+            }
+        },
+    });
 
     const DataImg = [
         {
@@ -52,21 +74,21 @@ const ScreenShop = ({ navigation }: any) => {
 
     const TopItem = [
         {
-            id: '1',
+            id: '8',
             img: require('../SanPham/PhanP.png'),
             name: 'Phấn phủ trang điểm siêu mịn',
             gia: '523,000',
             chietkhau: '53,000'
         },
         {
-            id: '2',
+            id: '9',
             img: require('../SanPham/SonAe.png'),
             name: 'Son Aery Jo Art Lipstick',
             gia: '523,000',
             chietkhau: '53,000'
         },
         {
-            id: '3',
+            id: '10',
             img: require('../SanPham/TrangD.png'),
             name: 'Son Aery Jo Art Lipstick',
             gia: '523,000',
@@ -165,7 +187,7 @@ const ScreenShop = ({ navigation }: any) => {
 
     const renderTopItem = ({ item, index }: any) => {
         return (
-            <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct')}>
+            <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { item })}>
                 <View style={styles.ItemTopSP}>
                     <Image source={item.img} style={{ width: 110, height: 105, marginVertical: 10 }} />
                     <Text style={styles.ItemnameSP}>{item.name}</Text>
@@ -177,9 +199,9 @@ const ScreenShop = ({ navigation }: any) => {
                         <Text style={styles.ItemtextSP}>Chiết khấu:</Text>
                         <Text style={styles.ItemTextCK}>  {item.chietkhau}</Text>
                     </View>
-                    <View style={styles.Add}>
+                    <TouchableOpacity style={styles.Add} onPress={() => handleAddToCart(item)}>
                         <Text style={{ color: 'white' }}>+</Text>
-                    </View>
+                    </TouchableOpacity>
                 </View>
             </TouchableOpacity>
         )
@@ -199,7 +221,7 @@ const ScreenShop = ({ navigation }: any) => {
     const renderSP = ({ item, index }: any) => {
         if (index < 5) {
             return (
-                <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct')}>
+                <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { item })}>
                     <View style={styles.renderSp}>
                         <Image source={item.img} style={{ height: 130, width: 132 }} />
                         <Text style={styles.ItemnameSP}>{item.name}</Text>
@@ -211,9 +233,9 @@ const ScreenShop = ({ navigation }: any) => {
                             <Text style={styles.ItemtextSP}>Chiết khấu: </Text>
                             <Text style={styles.ItemTextCK}>{item.chietkhau}</Text>
                         </View>
-                        <View style={styles.Add}>
+                        <TouchableOpacity style={styles.Add} onPress={() => handleAddToCart(item)}>
                             <Text style={{ color: 'white' }}>+</Text>
-                        </View>
+                        </TouchableOpacity>
                     </View>
                 </TouchableOpacity>
             )
@@ -268,6 +290,19 @@ const ScreenShop = ({ navigation }: any) => {
         })
     }
 
+
+    const handleAddToCart = (item: any) => {
+        const existingProduct: any = addSP.filtered(`id == '${item.id}'`)[0]
+        if (existingProduct) {
+            realmHS.write(() => {
+                existingProduct.soluong += 1
+            })
+        } else {
+            addSPStore(item.id, 1)
+        }
+        console.log('Sản phẩm đã được thêm vào cơ sở dữ liệu Realm.')
+    }
+
     useEffect(() => {
         const timer = setInterval(() => {
             const nextIndex = (currentIndex + 1) % DataImg.length;
@@ -285,17 +320,8 @@ const ScreenShop = ({ navigation }: any) => {
     return (
 
         <View style={styles.backgr}>
-            <View style={styles.BoxSreach}>
-                <TouchableOpacity onPress={() => navigation.navigate('ScreenSproduct')} style={{ flexDirection: 'row', backgroundColor: 'white', width: '80%', paddingLeft: 20, height: 40, borderRadius: 10, alignItems: 'center', marginBottom: 10 }}>
-                    <Image source={require('../Icon/search.png')} />
-                    <TextInput style={{ paddingLeft: 10 }}></TextInput>
-                </TouchableOpacity>
-                <Image source={require('../Icon/Bell.png')} style={{ height: 25, width: 25, marginLeft: 10 }} />
-                <TouchableOpacity onPress={() => navigation.navigate('ScreenStore')}>
-                    <Image source={require('../Icon/cart.png')} style={{ height: 25, width: 25, marginLeft: 10 }} />
-                </TouchableOpacity>
-            </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <SearchAnimation translateY={translateY} />
+            <Animated.ScrollView showsVerticalScrollIndicator={false} onScroll={scrollHandler} pagingEnabled={pagingEnabled}>
                 <View style={{ width: '98%', height: 200, marginTop: 15, alignItems: 'center' }}>
                     <FlatList
                         ref={flatListRef}
@@ -308,7 +334,7 @@ const ScreenShop = ({ navigation }: any) => {
                     />
                     <View style={styles.dot}>{renderDot()}</View>
                 </View>
-                <View style={{marginBottom:20}}>
+                <View style={{ marginBottom: 20 }}>
                     <View style={styles.BoxItem}>
                         <TouchableOpacity>
                             <View style={styles.Item}>
@@ -393,7 +419,7 @@ const ScreenShop = ({ navigation }: any) => {
                         initialNumToRender={5}
                     />
                 </View>
-            </ScrollView>
+            </Animated.ScrollView>
         </View>
     )
 }
@@ -499,13 +525,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 2, right: 2
     },
-    BoxSreach: {
-        flexDirection: 'row',
-        width: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingTop: 10
-    },
     line: {
         flexDirection: 'row',
         width: '100%',
@@ -547,5 +566,5 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         justifyContent: 'center',
         alignItems: 'center'
-    }
+    },
 })

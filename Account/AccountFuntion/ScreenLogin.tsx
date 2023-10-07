@@ -1,10 +1,39 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, } from 'react-native';
 import color from '../../Color/color';
+import Animated, { Extrapolate, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated';
 
 const ScreenLogin = ({ navigation }: any) => {
     const [isPhoneInputFocused, setPhoneInputFocused] = useState(false);
     const [isPasswordInputFocused, setPasswordInputFocused] = useState(false);
+    const opacityVector = useSharedValue(0)
+
+    const rStyle = useAnimatedStyle(() => {
+
+        const opacity = interpolate(
+            opacityVector.value,
+            [0, 3000],
+            [0, 1],
+            Extrapolate.CLAMP
+        );
+
+        const translate = interpolate(
+            opacityVector.value,
+            [0,3000],
+            [200,0],
+            Extrapolate.CLAMP
+        )
+
+        return {
+            opacity,
+            transform: [{ translateX:translate }]
+        };
+    });
+
+    useEffect(() => {
+        opacityVector.value = withTiming(3000,{duration:1500});
+    }, []);
+
 
     return (
         <View style={{ flex: 1, backgroundColor: color.background, padding: 20 }}>
@@ -74,10 +103,12 @@ const ScreenLogin = ({ navigation }: any) => {
                         />
                     </View>
                 </View>
-                <Image
-                    source={require('../../Image/humanLogin.png')}
-                    style={{ height: 240, width: 110, position: 'absolute', right: 18, bottom: -5 }}
-                />
+                <Animated.View style={[rStyle,{position: 'absolute', right: 18, bottom: -5}]}>
+                    <Image
+                        source={require('../../Image/humanLogin.png')}
+                        style={{ height: 240, width: 110,}}
+                    />
+                </Animated.View>
             </View>
             <View
                 style={{
@@ -94,7 +125,7 @@ const ScreenLogin = ({ navigation }: any) => {
                         padding: 15,
                         borderRadius: 35,
                     }}
-                    onPress={()=>navigation.navigate('HomeScreen')}>
+                    onPress={() => navigation.navigate('HomeScreen')}>
                     <Text style={{ color: 'white', fontSize: 15, fontWeight: '600' }}>
                         Đăng nhập
                     </Text>
@@ -126,7 +157,7 @@ const ScreenLogin = ({ navigation }: any) => {
                     </Text>
                 </TouchableOpacity>
             </View>
-        </View>
+        </View >
     );
 };
 

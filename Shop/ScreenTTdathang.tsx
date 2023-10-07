@@ -4,49 +4,106 @@ import color from '../Color/color';
 import { useNavigation } from '@react-navigation/native';
 import { RadioButton } from 'react-native-paper';
 import { ScrollView } from 'react-native-gesture-handler';
+import realmHS from '../Realm/realmHistoryS';
 
 const ScreenTTdathang = ({ navigation }: any) => {
 
     const navigationGoback = useNavigation();
 
     const [checked, setChecked] = React.useState('first');
+    const addSP = realmHS.objects('AddProduct')
 
-    const datalist = [
+    const SanPham = [
         {
             id: '1',
             img: require('../SanPham/NTTpink.png'),
-            name: 'Dearanchy-Purifying Pure - Cleasing Water - Nước tẩy trang làm sạch, khỏe da',
-            giaban: '412,500',
-            chietkhau: '412,500',
-            soluong: '1',
+            name: 'Nước tẩy trang Dearanchy Purifying Pure Cleansing 30ml',
+            gia: '523,000',
+            chietkhau: '53,000'
         },
         {
             id: '2',
             img: require('../SanPham/NTTred.png'),
-            name: 'Dearanchy-Purifying Oil to - Foarm Cleanser - Dầu tẩy trang làm sạch sâu.',
-            giaban: '412,500',
-            chietkhau: '412,500',
-            soluong: '1',
-        }
+            name: 'Dầu tẩy trang Dearanchy Purifying Pure Cleansing 30ml',
+            gia: '523,000',
+            chietkhau: '53,000'
+        },
+        {
+            id: '3',
+            img: require('../SanPham/SRMdermaPH.png'),
+            name: 'Sữa rửa mặt tạo bọt Dearanchy Purifying Derma PH Care 150ml',
+            gia: '523,000',
+            chietkhau: '53,000'
+        },
+        {
+            id: '4',
+            img: require('../SanPham/Gel.png'),
+            name: 'Gel rửa mặt cho da dầu mụn 150ml',
+            gia: '523,000',
+            chietkhau: '53,000'
+        },
+        {
+            id: '5',
+            img: require('../SanPham/SRMvita.png'),
+            name: 'Sữa rửa mặt vitamin làm trắng Dearanchy Moisture Vita 150ml',
+            gia: '523,000',
+            chietkhau: '53,000'
+        },
+        {
+            id: '6',
+            img: require('../SanPham/SRMvita.png'),
+            name: 'Sữa rửa mặt vitamin làm trắng Dearanchy Moisture Vita 150ml',
+            gia: '523,000',
+            chietkhau: '53,000'
+        },
+        {
+            id: '7',
+            img: require('../SanPham/Gel.png'),
+            name: 'Gel rửa mặt cho da dầu mụn 150ml',
+            gia: '523,000',
+            chietkhau: '53,000'
+        },
+        {
+            id: '8',
+            img: require('../SanPham/PhanP.png'),
+            name: 'Phấn phủ trang điểm siêu mịn',
+            gia: '523,000',
+            chietkhau: '53,000'
+        },
+        {
+            id: '9',
+            img: require('../SanPham/SonAe.png'),
+            name: 'Son Aery Jo Art Lipstick',
+            gia: '523,000',
+            chietkhau: '53,000'
+        },
+        {
+            id: '10',
+            img: require('../SanPham/TrangD.png'),
+            name: 'Son Aery Jo Art Lipstick',
+            gia: '523,000',
+            chietkhau: '53,000'
+        },
     ]
 
     const renderlist = ({ item, index }: any) => {
+        const product: any = SanPham.find((sp) => sp.id === item.id);
         return (
             <View style={{ backgroundColor: 'white', width: '100%', height: 90, borderRadius: 10, flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-                <Image source={item.img} style={{ width: 53, height: 53, paddingVertical: 10, marginLeft: 5 }} />
+                <Image source={product.img} style={{ width: 53, height: 53, paddingVertical: 10, marginLeft: 5 }} />
                 <View style={{ width: 280, padding: 5, height: 80 }}>
                     <View style={{ height: 40 }}>
-                        <Text style={styles.Text1}>{item.name}</Text>
+                        <Text style={styles.Text1}>{product.name}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', height: 30 }}>
                         <View style={{ height: 30, width: '75%' }}>
                             <View style={{ flexDirection: 'row' }}>
                                 <Text style={styles.Text2}>Giá bán: </Text>
-                                <Text style={{color:color.organge,fontSize:12,fontWeight:'400'}}>{item.giaban}</Text>
+                                <Text style={{color:color.organge,fontSize:12,fontWeight:'400'}}>{product.gia}</Text>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
                                 <Text style={styles.Text2}>Chiết khấu: </Text>
-                                <Text style={{color:color.blue,fontSize:12,fontWeight:'400'}}>{item.chietkhau}</Text>
+                                <Text style={{color:color.blue,fontSize:12,fontWeight:'400'}}>{product.chietkhau}</Text>
                             </View>
                         </View>
                         <View style={{ height: 30, justifyContent: 'flex-end' }}>
@@ -117,8 +174,8 @@ const ScreenTTdathang = ({ navigation }: any) => {
                 </View>
                 <View>
                     <FlatList
-                        data={datalist}
-                        keyExtractor={(item) => item.id}
+                        data={addSP}
+                        keyExtractor={(item: any) => item.id.toString()}
                         renderItem={renderlist}
                         scrollEnabled={false}
                     />

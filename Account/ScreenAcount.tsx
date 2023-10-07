@@ -84,7 +84,7 @@ const ScreenAcount = ({ navigation }: any) => {
                 <Text style={styles.title}>Tài Khoản</Text>
                 <Image source={require('../Icon/User.png')} style={styles.avata} />
             </View>
-            <View style={{ padding: 24, height: 620, width: '100%', backgroundColor: 'white', borderTopLeftRadius: 30, borderTopRightRadius: 30 }}>
+            <View style={{ padding: 24, height: '100%', width: '100%', backgroundColor: 'white', borderTopLeftRadius: 30, borderTopRightRadius: 30 }}>
                 <View style={{ marginTop: 40, width: '100%' }}>
                     <Text style={{ fontSize: 17, fontWeight: '600', color: 'black', textAlign: 'center' }}>Account 1</Text>
                     <View style={{ padding: 20, alignItems: 'center', justifyContent: 'center', }}>
@@ -103,27 +103,6 @@ const ScreenAcount = ({ navigation }: any) => {
                     />
                 </View>
             </View>
-            {isModal ?
-                <View style={{ padding: 20, backgroundColor: 'white', width: '100%', height: 550, position: 'absolute', bottom: 0, borderRadius: 30,borderWidth:0.5 }}>
-                    <TouchableOpacity onPress={()=>setisModal(false)}>
-                        <Image source={require('../Icon/xsmall.png')} style={{ width: 12, height: 12 }} />
-                    </TouchableOpacity>
-                    <View style={{alignItems:'center',paddingHorizontal:50}}>
-                        <Image source={require('../Image/shareapp.png')}/>
-                        <Image source={require('../Image/go.png')}/>
-                        <Text style={{color:'black',fontSize:17,fontWeight:'500',marginVertical:10,textAlign:'center'}}>Mời bạn bè bằng mã giới thiệu của bạn</Text>
-                        <View style={{backgroundColor:color.bluehidden,borderRadius:20,flexDirection:'row',width:'100%',justifyContent:'space-between',padding:10,paddingHorizontal:20}}>
-                            <Text style={{color:'black'}}>09337910161</Text>
-                            <Text>Sao chép</Text>
-                        </View>
-                        <Text style={{width:'100%',color:'black',fontSize:17,fontWeight:'500',marginVertical:10}}>Link chia sẻ:</Text>
-                        <View style={{flexDirection:'row',width:'100%',alignItems:'center'}}>
-                            <Text style={{color:'black',backgroundColor:color.bluehidden,borderRadius:20,justifyContent:'space-between',padding:10,paddingHorizontal:20}}>https://sees.asia/70jg1w</Text>
-                            <Image source={require('../Icon/copyshare.png')} style={{marginLeft:20}}/>
-                        </View>
-                    </View>
-                </View>
-                : ''}
         </View>
     )
 }

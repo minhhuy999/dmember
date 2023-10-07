@@ -1,17 +1,24 @@
 import { StyleSheet, FlatList, ScrollView, Text, View, Image, TextInput, TouchableOpacity } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
-import color from '../Color/color';
-import { useNavigation } from '@react-navigation/native';
+import color from '../Color/color'
+import { useNavigation } from '@react-navigation/native'
+import realmHS from '../Realm/realmHistoryS'
+import { addSPStore } from '../Realm/StorageServices'
 
-const ScreenDetailProduct = ({ navigation }: any) => {
+const ScreenDetailProduct = ({ navigation, route }: any) => {
 
-    const [currentIndex2, setCurrentIndex2] = useState(0);
-    const [activeDotIndex2, setActiveDotIndex2] = useState(0);
+    const [soLuong, setSoLuong] = useState(1)
+    const [currentIndex2, setCurrentIndex2] = useState(0)
+    const [activeDotIndex2, setActiveDotIndex2] = useState(0)
 
-    const scrollViewRef: any = useRef(null);
-    const flatListRef2: any = useRef(null);
+    const scrollViewRef: any = useRef(null)
+    const flatListRef2: any = useRef(null)
 
-    const navigationGoback = useNavigation();
+    const addSP = realmHS.objects('AddProduct')
+
+    const navigationGoback = useNavigation()
+
+    const { item } = route.params || {}
 
     const SanPham = [
         {
@@ -81,9 +88,20 @@ const ScreenDetailProduct = ({ navigation }: any) => {
         },
     ]
 
+    const tangSoLuong = () => {
+        setSoLuong(soLuong + 1)
+    }
+
+    const giamSoLuong = () => {
+        if (soLuong > 1) {
+            setSoLuong(soLuong - 1)
+        }
+    }
+
+
     const renderTopItem = ({ item, index }: any) => {
         return (
-            <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct')}>
+            <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { item })}>
                 <View style={styles.ItemTopSP}>
                     <Image source={item.img} style={{ width: 110, height: 105, marginVertical: 10 }} />
                     <Text style={styles.ItemnameSP}>{item.name}</Text>
@@ -112,7 +130,7 @@ const ScreenDetailProduct = ({ navigation }: any) => {
 
     const renderDot2 = () => {
         return Imgmore.map((dot, index) => {
-            const isActive = index === activeDotIndex2;
+            const isActive = index === activeDotIndex2
             return (
                 <View
                     key={index}
@@ -129,19 +147,31 @@ const ScreenDetailProduct = ({ navigation }: any) => {
     }
 
     const scrollToTop = () => {
-        scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
-    };
+        scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true })
+    }
 
 
     useEffect(() => {
         const timer = setInterval(() => {
-            const nextIndex2 = (currentIndex2 + 1) % Imgmore.length;
-            setCurrentIndex2(nextIndex2);
-            setActiveDotIndex2(nextIndex2);
-            flatListRef2.current.scrollToIndex({ index: nextIndex2 });
-        }, 3000);
-        return () => clearInterval(timer);
-    }, [currentIndex2]);
+            const nextIndex2 = (currentIndex2 + 1) % Imgmore.length
+            setCurrentIndex2(nextIndex2)
+            setActiveDotIndex2(nextIndex2)
+            flatListRef2.current.scrollToIndex({ index: nextIndex2 })
+        }, 3000)
+        return () => clearInterval(timer)
+    }, [currentIndex2])
+
+    const handleAddToCart = (item: any) => {
+        const existingProduct: any = addSP.filtered(`id == '${item.id}'`)[0]
+        if (existingProduct) {
+            realmHS.write(() => {
+                existingProduct.soluong += soLuong
+            })
+        } else {
+            addSPStore(item.id, soLuong)
+        }
+        console.log('Sản phẩm đã được thêm vào cơ sở dữ liệu Realm.')
+    }
 
     return (
         <View>
@@ -157,7 +187,7 @@ const ScreenDetailProduct = ({ navigation }: any) => {
                         <TouchableOpacity style={{ position: 'absolute', right: 40, }}>
                             <Image source={require('../Icon/down.png')} style={{ height: 20, width: 18 }} />
                         </TouchableOpacity>
-                        <TouchableOpacity style={{ position: 'absolute', right: 0, }} onPress={()=>navigation.navigate('ScreenStore')}>
+                        <TouchableOpacity style={{ position: 'absolute', right: 0, }} onPress={() => navigation.navigate('ScreenStore')}>
                             <Image source={require('../Icon/cart.png')} style={{ width: 26, height: 25 }} />
                         </TouchableOpacity>
                     </View>
@@ -188,17 +218,17 @@ const ScreenDetailProduct = ({ navigation }: any) => {
                     <View style={{ width: '100%', height: 100, justifyContent: 'center' }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <View style={styles.Boxtotal}>
+                                <TouchableOpacity onPress={giamSoLuong} style={styles.Boxtotal}>
                                     <Text style={styles.Texttotal}>-</Text>
-                                </View>
-                                <Text style={{ paddingHorizontal: 10, color: 'black', fontSize: 17, fontWeight: '500' }}>1</Text>
-                                <View style={styles.Boxtotal}>
+                                </TouchableOpacity>
+                                <Text style={{ paddingHorizontal: 10, color: 'black', fontSize: 17, fontWeight: '500' }}>{soLuong}</Text>
+                                <TouchableOpacity onPress={tangSoLuong} style={styles.Boxtotal}>
                                     <Text style={styles.Texttotal}>+</Text>
-                                </View>
+                                </TouchableOpacity>
                             </View>
                             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                                 <TouchableOpacity
-                                    style={styles.ButtonThem}>
+                                    style={styles.ButtonThem} onPress={() => handleAddToCart(item)}>
                                     <Text style={{ color: 'white', fontSize: 15, fontWeight: '600' }}>
                                         Thêm
                                     </Text>
@@ -208,7 +238,7 @@ const ScreenDetailProduct = ({ navigation }: any) => {
                     </View>
                     <View style={{ backgroundColor: 'white', borderRadius: 10, width: '100%', marginBottom: 20, paddingHorizontal: 15 }}>
                         <View style={{ width: '100%', padding: 10 }}>
-                            <Text style={styles.muc}>Dearanchy-Purifying Pure - Cleasing Water - Nước tẩy trang làm sạch, khỏe da</Text>
+                            <Text style={styles.muc}>{item?.name}</Text>
                             <View style={{ width: '100%', alignItems: 'center' }}>
                                 <View style={{ height: 1, width: '80%', backgroundColor: color.graymedium, marginVertical: 10 }}></View>
                                 <View style={{ flexDirection: 'row', width: '100%' }}>
@@ -220,9 +250,9 @@ const ScreenDetailProduct = ({ navigation }: any) => {
                                         <Text style={styles.textDetail}>Hoa hồng thành viên mới</Text>
                                     </View>
                                     <View style={{ height: '100%', width: '40%' }}>
-                                        <Text style={{ textAlign: 'right', color: 'black', fontSize: 15, fontWeight: '600', paddingTop: 10 }}>412,500</Text>
+                                        <Text style={{ textAlign: 'right', color: 'black', fontSize: 15, fontWeight: '600', paddingTop: 10 }}>{item?.gia}</Text>
                                         <Text style={{ textAlign: 'right', color: 'black', fontSize: 15, fontWeight: '600', paddingTop: 10 }}>309,375</Text>
-                                        <Text style={{ textAlign: 'right', color: color.blue, fontSize: 15, fontWeight: '600', paddingTop: 10 }}>103,125</Text>
+                                        <Text style={{ textAlign: 'right', color: color.blue, fontSize: 15, fontWeight: '600', paddingTop: 10 }}>{item?.chietkhau}</Text>
                                         <Text style={{ textAlign: 'right', color: color.green, fontSize: 15, fontWeight: '600', paddingTop: 10 }}>12,375</Text>
                                         <Text style={{ textAlign: 'right', color: color.green, fontSize: 15, fontWeight: '600', paddingTop: 10 }}>12,375</Text>
                                     </View>
@@ -303,7 +333,7 @@ const ScreenDetailProduct = ({ navigation }: any) => {
                     <View>
                         <View style={{ justifyContent: 'center', alignItems: 'center', height: 120 }}>
                             <TouchableOpacity
-                            onPress={()=>navigation.navigate('ScreenBieumau')}
+                                onPress={() => navigation.navigate('ScreenBieumau')}
                                 style={styles.ButtonTao}>
                                 <Text style={{ color: 'white', fontSize: 15, fontWeight: '600' }}>
                                     Tạo bài viết mẫu
@@ -313,9 +343,9 @@ const ScreenDetailProduct = ({ navigation }: any) => {
                     </View>
                 </View>
             </ScrollView>
-            <TouchableOpacity style={styles.scrollButton} onPress={scrollToTop}>
-                <Image source={require('../Icon/totop.png')} style={{width:20,height:20,borderRadius:2}}/>
-            </TouchableOpacity>
+            {/* <TouchableOpacity style={styles.scrollButton} onPress={scrollToTop}>
+                <Image source={require('../Icon/totop.png')} style={{ width: 20, height: 20, borderRadius: 2 }} />
+            </TouchableOpacity> */}
         </View>
     )
 }
@@ -399,27 +429,27 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.2)',
         borderRadius: 5,
     },
-    Boxtotal:{
+    Boxtotal: {
         width: 24, height: 24, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 7
     },
-    Texttotal:{
+    Texttotal: {
         color: 'black', fontSize: 17, fontWeight: '500'
     },
-    ButtonThem:{
+    ButtonThem: {
         backgroundColor: 'black',
         width: 150,
         alignItems: 'center',
         padding: 15,
         borderRadius: 10,
     },
-    ButtonTao:{
+    ButtonTao: {
         backgroundColor: 'black',
         width: 200,
         alignItems: 'center',
         padding: 15,
         borderRadius: 10,
     },
-    textchucnang:{
+    textchucnang: {
         justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', paddingBottom: 20
     }
 })

@@ -3,10 +3,11 @@ import React, { useState } from 'react'
 import color from '../Color/color'
 import { FlatList } from 'react-native-gesture-handler';
 
-const ScreenOder = ({navigation}:any) => {
+const ScreenOder = ({ navigation }: any) => {
 
     const [selectedCategory1, setSelectedCategory1] = useState('Hoàn thành');
     const [selectedCategory2, setSelectedCategory2] = useState('Tất cả');
+
 
     const dataimg = [
         {
@@ -30,7 +31,6 @@ const ScreenOder = ({navigation}:any) => {
             img: require('../SanPham/NTTpink.png')
         },
     ]
-
     const datalist = [
         {
             id: '1',
@@ -42,6 +42,18 @@ const ScreenOder = ({navigation}:any) => {
             tongtien: '2,200,000',
         }
     ]
+    const datatinhtrang = [
+        { id: '1', name: 'Chờ thanh toán' },
+        { id: '2', name: 'Hoàn thành' },
+        { id: '3', name: 'Đã hủy' }
+    ]
+
+    const datatloai = [
+        { id: '1', name: 'Tất cả' },
+        { id: '2', name: 'Dcash' },
+        { id: '3', name: 'Dpoint' },
+        { id: '4', name: 'Dcredit' }
+    ]
 
     const handleCategorySelect1 = (category: any) => {
         setSelectedCategory1(category);
@@ -51,9 +63,6 @@ const ScreenOder = ({navigation}:any) => {
         setSelectedCategory2(category);
     };
 
-    const SearchBuy = () => {
-    };
-
     const renderimg = ({ item, index }: any) => {
         if (index < 4) {
             return (
@@ -61,14 +70,14 @@ const ScreenOder = ({navigation}:any) => {
                     <Image source={item.img} style={{ width: 34, height: 34 }} />
                 </View>
             )
-        }else if(index==4){
+        } else if (index == 4) {
             return (
                 <View style={{ alignItems: 'center', justifyContent: 'center', width: 40, height: 40, backgroundColor: color.bluemedium, borderRadius: 40, marginRight: 5, marginBottom: 10 }}>
                     <Text>+1</Text>
                 </View>
             )
-        }else{
-            return(
+        } else {
+            return (
                 <View>
                 </View>
             )
@@ -77,7 +86,7 @@ const ScreenOder = ({navigation}:any) => {
 
     const renderlist = ({ item, index }: any) => {
         return (
-            <TouchableOpacity onPress={()=>navigation.navigate('ScreenDetailorder')} style={styles.boxrenderlist}>
+            <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailorder')} style={styles.boxrenderlist}>
                 <View style={{ flexDirection: 'row' }}>
                     <View style={styles.boximglist}>
                         <Image source={require('../Image/humangh.png')} style={{ width: 28, height: 28 }} />
@@ -88,8 +97,8 @@ const ScreenOder = ({navigation}:any) => {
                     </View>
                 </View>
                 <View style={styles.line}></View>
-                <View style={{flexDirection:'row'}}>
-                    <View style={{width:'90%'}}>
+                <View style={{ flexDirection: 'row' }}>
+                    <View style={{ width: '90%' }}>
                         <FlatList
                             data={dataimg}
                             keyExtractor={(item) => item.id}
@@ -105,8 +114,8 @@ const ScreenOder = ({navigation}:any) => {
                             </View>
                         </View>
                     </View>
-                    <View style={{alignItems:'flex-end',width:'10%',paddingTop:15}}>
-                        <Image source={require('../Icon/arrow.png')} style={{height:13,width:7}}/>
+                    <View style={{ alignItems: 'flex-end', width: '10%', paddingTop: 15 }}>
+                        <Image source={require('../Icon/arrow.png')} style={{ height: 13, width: 7 }} />
                     </View>
                 </View>
                 <View style={styles.line}></View>
@@ -118,6 +127,25 @@ const ScreenOder = ({navigation}:any) => {
         )
     }
 
+    const rendertrangthaiSP = ({ item, index }: any) => {
+        return (
+            <TouchableOpacity onPress={() => handleCategorySelect1(item.name)} style={{ paddingHorizontal: 15, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={[styles.textSearch, selectedCategory1 === item.name && styles.selectedText]} >
+                    {item.name}
+                </Text>
+            </TouchableOpacity>
+        )
+    }
+
+    const renderloaiSP = ({ item, index }: any) => {
+        return (
+            <TouchableOpacity onPress={() => handleCategorySelect2(item.name)} style={{ paddingHorizontal: 15, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={[styles.textSearch, selectedCategory2 === item.name && styles.selectedTextBuy]}
+                >{item.name}</Text>
+            </TouchableOpacity>
+        )
+    }
+
     return (
         <View style={styles.backgr}>
             <View style={styles.titleBox}>
@@ -125,37 +153,21 @@ const ScreenOder = ({navigation}:any) => {
             </View>
             <View style={{ width: '100%', height: 110 }}>
                 <View style={{ width: '100%', height: 100, backgroundColor: 'white', borderRadius: 10, justifyContent: 'center', padding: 5 }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', flex: 1, alignItems: 'center' }}>
-                        <TouchableOpacity onPress={() => SearchBuy()}>
-                            <Text
-                                style={[styles.textSearch, selectedCategory1 === "Chờ thanh toán" && styles.selectedText]}
-                                onPress={() => handleCategorySelect1("Chờ thanh toán")}
-                            >
-                                Chờ thanh toán
-                            </Text>
-                        </TouchableOpacity>
-                        <Text
-                            style={[styles.textSearch, selectedCategory1 === "Hoàn thành" && styles.selectedText]}
-                            onPress={() => handleCategorySelect1("Hoàn thành")}
-                        >
-                            Hoàn thành
-                        </Text>
-                        <Text
-                            style={[styles.textSearch, selectedCategory1 === "Đã hủy" && styles.selectedText]}
-                            onPress={() => handleCategorySelect1("Đã hủy")}
-                        >
-                            Đã hủy
-                        </Text>
+                    <View style={{ justifyContent: 'space-between', flex: 1, alignItems: 'center' }}>
+                        <FlatList
+                            data={datatinhtrang}
+                            keyExtractor={(item) => item.id.toString()}
+                            renderItem={rendertrangthaiSP}
+                            horizontal
+                        />
                     </View>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', flex: 1, alignItems: 'center' }}>
-                        <Text style={[styles.textSearch, selectedCategory2 === "Tất cả" && styles.selectedTextBuy]}
-                            onPress={() => handleCategorySelect2("Tất cả")}>Tất cả</Text>
-                        <Text style={[styles.textSearch, selectedCategory2 === "Dcash" && styles.selectedTextBuy]}
-                            onPress={() => handleCategorySelect2("Dcash")}>Dcash</Text>
-                        <Text style={[styles.textSearch, selectedCategory2 === "Dpoint" && styles.selectedTextBuy]}
-                            onPress={() => handleCategorySelect2("Dpoint")}>Dpoint</Text>
-                        <Text style={[styles.textSearch, selectedCategory2 === "Dcredit" && styles.selectedTextBuy]}
-                            onPress={() => handleCategorySelect2("Dcredit")}>Dcredit</Text>
+                    <View style={{ flex: 1, alignItems: 'center' }}>
+                        <FlatList
+                            data={datatloai}
+                            keyExtractor={(item) => item.id.toString()}
+                            renderItem={renderloaiSP}
+                            horizontal
+                        />
                     </View>
                 </View>
             </View>
@@ -221,13 +233,13 @@ const styles = StyleSheet.create({
         color: 'black',
         fontWeight: '400'
     },
-    boxrenderlist:{
-        borderRadius: 10, backgroundColor: 'white', width: '100%', padding: 20 
+    boxrenderlist: {
+        borderRadius: 10, backgroundColor: 'white', width: '100%', padding: 20
     },
-    boximglist:{
+    boximglist: {
         alignItems: 'center', justifyContent: 'center', width: 40, height: 40, backgroundColor: color.bluemedium, borderRadius: 40, marginRight: 15
     },
-    line:{
+    line: {
         width: '100%', height: 1, backgroundColor: color.gray, marginVertical: 10
     }
 })

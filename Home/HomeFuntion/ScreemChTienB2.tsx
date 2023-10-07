@@ -1,16 +1,36 @@
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import color from '../../Color/color'
 import { useNavigation } from '@react-navigation/native';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
+import realmHS from '../../Realm/realmHistoryS';
+import { loadAddMember, removeMB } from '../../Realm/StorageServices';
 
 const ScreenChTienB2 = ({ navigation }: any) => {
 
     const navigationGoback = useNavigation();
     const [selectedCategory1, setSelectedCategory1] = useState('');
+    const [DataMemBer, setDataMemBer] = useState([])
     const [inputValue, setInputValue] = useState('');
+    const AddMB = realmHS.objects('AddMember')
 
-    const dataAddmember = [
+    useEffect(() => {
+        AddMB.addListener(listener)
+        return () => {
+            AddMB.removeListener(listener)
+        }
+    }, [])
+
+    const listener = (newTasks: any) => {
+        loadAddMember()
+            .then((tasks: any) => {
+                setDataMemBer(tasks)
+                console.log(AddMB)
+            })
+    }
+    
+
+    const datamember = [
         {
             id: '1',
             avata: require('../../Image/LKN.png'),
@@ -23,17 +43,39 @@ const ScreenChTienB2 = ({ navigation }: any) => {
             name: 'Thanh toán Dstore Hồ Chí Minh',
             phone: '1500015000',
         },
+        {
+            id: '3',
+            avata: require('../../Image/Global.png'),
+            name: 'Dstore Global',
+            phone: '190070030',
+        },
+        {
+            id: '4',
+            avata: require('../../Image/LAU.png'),
+            name: 'Lê Ánh Uyên',
+            phone: '0839020007',
+        },
     ]
+
     const renderAddmember = ({ item, index }: any) => {
-        const truncatedName = item.name.length > 12 ? item.name.slice(0, 12) + '...' : item.name;
+        const member: any = datamember.find((sp) => sp.id === item.id);
+        const truncatedName = member.name.length > 12 ? member.name.slice(0, 12) + '...' : member.name;
         return (
             <View style={{ alignItems: 'center', justifyContent: 'center', width: 70, marginRight: 2 }}>
-                <Image source={item.avata} style={{ width: 54, height: 54, borderRadius: 38 }} />
+                <Image source={member.avata} style={{ width: 54, height: 54, borderRadius: 38 }} />
                 <Text style={{ color: 'black', fontSize: 10, fontWeight: '500' }}>{truncatedName}</Text>
-                <Image source={require('../../Icon/X.png')} style={{ width: 7, height: 7, position: 'absolute', right: 17, top: 2 }} />
+                <TouchableOpacity style={{ position: 'absolute', right: 10, top: 2 }} onPress={()=>handleDeleteMB(item.id)}>
+                    <Image source={require('../../Icon/X.png')} style={{ width: 10, height: 10 }} />
+                </TouchableOpacity>
             </View>
         )
     }
+
+
+    const handleDeleteMB = (id: string) => {
+        removeMB(id)
+    };
+
 
     const handleCategorySelect1 = (category: any) => {
         setSelectedCategory1(category);
@@ -57,8 +99,8 @@ const ScreenChTienB2 = ({ navigation }: any) => {
                 <Text style={{ marginVertical: 20, color: 'black', fontSize: 17, fontWeight: '400' }}>Người nhận</Text>
                 <View>
                     <FlatList
-                        data={dataAddmember}
-                        keyExtractor={(item) => item.id}
+                        data={AddMB}
+                        keyExtractor={(item: any) => item.id.toString()}
                         renderItem={renderAddmember}
                         horizontal={true}
                     />
@@ -94,9 +136,9 @@ const ScreenChTienB2 = ({ navigation }: any) => {
                 <View style={{ padding: 10, backgroundColor: 'white', borderRadius: 10, borderStyle: 'dashed', borderWidth: 1 }}>
                     <TextInput multiline={true}></TextInput>
                 </View>
-                <View style={{flex:1,alignItems:'center',justifyContent:'center',marginTop:100}}>
-                    <TouchableOpacity onPress={()=>navigation.navigate('ScreenXacNhanCt')} style={{backgroundColor:'black',width:150,padding:15,alignItems:'center',justifyContent:'center',borderRadius:10}}>
-                        <Text style={{color:'white'}}>Chuyển</Text>
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: 100 }}>
+                    <TouchableOpacity onPress={() => navigation.navigate('ScreenXacNhanCt')} style={{ backgroundColor: 'black', width: 150, padding: 15, alignItems: 'center', justifyContent: 'center', borderRadius: 10 }}>
+                        <Text style={{ color: 'white' }}>Chuyển</Text>
                     </TouchableOpacity>
                 </View>
             </ScrollView>
