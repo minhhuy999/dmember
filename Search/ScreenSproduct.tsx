@@ -7,6 +7,8 @@ import { addSPStore, addTask, getListTasks, loadAddSPData, removeTask } from '..
 import realmHS from '../Realm/realmHistoryS'
 import unidecode from 'unidecode'
 import Animated, { Extrapolate, FadeIn, FadeOut, Layout, interpolate, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
+import { MotiView } from 'moti'
+import LottieView from 'lottie-react-native'
 
 const ScreenSproduct = ({ navigation }: any) => {
 
@@ -22,6 +24,8 @@ const ScreenSproduct = ({ navigation }: any) => {
     const [animateHistory, setAnimateHistory] = useState(true)
     const [sortedHistory, setSortedHistory] = useState([])
     const [showAnimatedBox, setShowAnimatedBox] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
+
     const scale = useSharedValue(0);
 
     const SanPham = [
@@ -131,10 +135,17 @@ const ScreenSproduct = ({ navigation }: any) => {
         } else {
             addSPStore(item.id, 1)
         }
-        scale.value = withSpring(1,{ duration: 1500 }, () => {
+        scale.value = withSpring(1, { duration: 1500 }, () => {
             scale.value = withTiming(0);
         });
         setShowAnimatedBox(true);
+        setIsPlaying(true);
+
+        // Tắt animation Lottie sau khoảng thời gian ngắn (ví dụ: 2 giây)
+        setTimeout(() => {
+            setIsPlaying(false);
+        }, 1700);
+
         console.log('Sản phẩm đã được thêm vào cơ sở dữ liệu Realm.')
     }
 
@@ -145,7 +156,12 @@ const ScreenSproduct = ({ navigation }: any) => {
     const renderSP = ({ item, index }: any) => {
         return (
             <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { item })}>
-                <View style={{ elevation: 5, backgroundColor: 'white', height: 229, width: 169, borderRadius: 10, paddingHorizontal: 20, paddingVertical: 10, marginRight: 15, marginBottom: 15 }}>
+                <MotiView
+                    style={{ elevation: 5, backgroundColor: 'white', height: 229, width: 169, borderRadius: 10, paddingHorizontal: 20, paddingVertical: 10, marginRight: 15, marginBottom: 15 }}
+                    from={{ opacity: 0, translateY: 50 }}
+                    animate={{ opacity: 1, translateY: 0 }}
+                    transition={{ delay: index * 400 }}
+                >
                     <Image source={item.img} style={{ height: 130, width: 132 }} />
                     <Text style={styles.ItemnameSP}>{item.name}</Text>
                     <View style={{ flexDirection: 'row', marginTop: 2 }}>
@@ -159,7 +175,7 @@ const ScreenSproduct = ({ navigation }: any) => {
                     <TouchableOpacity style={styles.Add} onPress={() => handleAddToCart(item)}>
                         <Text style={{ color: 'white' }}>+</Text>
                     </TouchableOpacity>
-                </View>
+                </MotiView>
             </TouchableOpacity>
         )
     }
@@ -234,11 +250,13 @@ const ScreenSproduct = ({ navigation }: any) => {
                     />
                 </View>
             </ScrollView>
-            <Animated.View style={[showAnimatedBox ? {} : { display: 'none' },{ alignItems: 'center', justifyContent: 'center', width: 200, height: 100, backgroundColor: 'rgba(0, 0, 0, 0.8)', position: 'absolute', top: 350, left: 100, borderRadius: 20 },rStyle]}>
-                <View style={{ marginBottom: 10, width: 50, height: 50, backgroundColor: 'rgba(225, 225, 225, 0.7)', borderRadius: 25, justifyContent: 'center', alignItems: 'center' }}>
+            <Animated.View style={[showAnimatedBox ? {} : { display: 'none' }, { alignItems: 'center', justifyContent: 'center', width: 200, height: 100, backgroundColor: 'rgba(225, 225, 225, 0.8)', position: 'absolute', top: 350, left: 100, borderRadius: 20 }, rStyle]}>
+                {/* <View style={{ marginBottom: 10, width: 50, height: 50, backgroundColor: 'rgba(225, 225, 225, 0.7)', borderRadius: 25, justifyContent: 'center', alignItems: 'center' }}>
                     <Image source={require('../Icon/check.png')} style={{ height: 40, width: 40 }} />
-                </View>
-                <Text style={{ color: 'white' }}>Da them san pham</Text>
+                </View> */}
+                {isPlaying && (
+                    <LottieView style={{ width: 100, height: 50 }} source={require('../LottieView/animation_lni9djrn.json')} autoPlay loop={false} />)}
+                <Text style={{ color: 'black' }}>Da them san pham</Text>
             </Animated.View>
         </View>
     )

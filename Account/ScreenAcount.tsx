@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList } from 'react-native'
 import React, { useState } from 'react'
 import color from '../Color/color'
+import { MotiView } from 'moti/build'
 
 const ScreenAcount = ({ navigation }: any) => {
 
@@ -70,10 +71,15 @@ const ScreenAcount = ({ navigation }: any) => {
                     navigation.navigate('ScreenTintuc');
                 }
             }}>
-                <View style={styles.item}>
+                <MotiView
+                    style={styles.item}
+                    from={{ opacity: 0, translateX: 50 }}
+                    animate={{ opacity: 1, translateX: 0 }}
+                    transition={{ delay: index * 200 }}
+                >
                     <Image source={item.icon} />
                     <Text style={styles.textitem}>{item.textitem}</Text>
-                </View>
+                </MotiView>
             </TouchableOpacity>
         )
     }

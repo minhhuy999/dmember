@@ -1,8 +1,6 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React, { useEffect, useRef } from 'react'
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-
-import * as Animatable from 'react-native-animatable';
 import ScreenHome from '../Home/ScreenHome';
 import ScreenShop from '../Shop/ScreenShop';
 import ScreenPoint from '../Point/ScreenPoint';

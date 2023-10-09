@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity } from 'react-native'
 import React from 'react'
 import color from '../Color/color'
+import LottieView from 'lottie-react-native'
 
 const ScreenHome = ({navigation}:any) => {
     return (
@@ -17,7 +18,8 @@ const ScreenHome = ({navigation}:any) => {
                                 </View>
                                 <Text style={styles.Textb1vnd}>48,000,000 VND</Text>
                             </View>
-                            <Image source={require('../Image/Computer.png')} style={styles.Imgb1} />
+                            <LottieView  style={styles.Imgb1} source={require('../LottieView/animation_lnid99f2.json')} autoPlay/>
+                            {/* <Image source={require('../Image/Computer.png')} style={styles.Imgb1} /> */}
                         </View>
                     </View>
                 </View>
@@ -146,7 +148,7 @@ const styles = StyleSheet.create({
         fontWeight: '600'
     },
     Imgb1: {
-        width: 100, height: 90, 
+        width: 100, height: 100, 
         marginRight: 10
     },
     Indexitem: {

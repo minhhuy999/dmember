@@ -4,6 +4,7 @@ import color from '../Color/color'
 import { useNavigation } from '@react-navigation/native'
 import realmHS from '../Realm/realmHistoryS'
 import { addSPStore } from '../Realm/StorageServices'
+import Card from './AnimatedDetailPd/Card'
 
 const ScreenDetailProduct = ({ navigation, route }: any) => {
 
@@ -65,26 +66,26 @@ const ScreenDetailProduct = ({ navigation, route }: any) => {
         },
     ]
 
-    const Imgmore = [
+    const data = [
         {
-            id: '1',
-            img: require('../SanPham/NTTpink.png')
+            // id: '1',
+            image: require('../SanPham/NTTpink.png')
         },
         {
-            id: '2',
-            img: require('../SanPham/NTTpink.png')
+            // id: '2',
+            image: require('../SanPham/NTTred.png')
         },
         {
-            id: '3',
-            img: require('../SanPham/NTTpink.png')
+            // id: '3',
+            image: require('../SanPham/SonAe.png')
         },
         {
-            id: '4',
-            img: require('../SanPham/NTTpink.png')
+            // id: '4',
+            image: require('../SanPham/Gel.png')
         },
         {
-            id: '5',
-            img: require('../SanPham/NTTpink.png')
+            // id: '5',
+            image: require('../SanPham/TrangD.png')
         },
     ]
 
@@ -128,38 +129,38 @@ const ScreenDetailProduct = ({ navigation, route }: any) => {
         )
     }
 
-    const renderDot2 = () => {
-        return Imgmore.map((dot, index) => {
-            const isActive = index === activeDotIndex2
-            return (
-                <View
-                    key={index}
-                    style={{
-                        marginHorizontal: 2,
-                        backgroundColor: isActive ? 'white' : 'black',
-                        height: 2,
-                        width: 15,
-                        borderRadius: 5
-                    }}
-                ></View>
-            )
-        })
-    }
+    // const renderDot2 = () => {
+    //     return Imgmore.map((dot, index) => {
+    //         const isActive = index === activeDotIndex2
+    //         return (
+    //             <View
+    //                 key={index}
+    //                 style={{
+    //                     marginHorizontal: 2,
+    //                     backgroundColor: isActive ? 'white' : 'black',
+    //                     height: 2,
+    //                     width: 15,
+    //                     borderRadius: 5
+    //                 }}
+    //             ></View>
+    //         )
+    //     })
+    // }
 
     const scrollToTop = () => {
         scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true })
     }
 
 
-    useEffect(() => {
-        const timer = setInterval(() => {
-            const nextIndex2 = (currentIndex2 + 1) % Imgmore.length
-            setCurrentIndex2(nextIndex2)
-            setActiveDotIndex2(nextIndex2)
-            flatListRef2.current.scrollToIndex({ index: nextIndex2 })
-        }, 3000)
-        return () => clearInterval(timer)
-    }, [currentIndex2])
+    // useEffect(() => {
+    //     const timer = setInterval(() => {
+    //         const nextIndex2 = (currentIndex2 + 1) % Imgmore.length
+    //         setCurrentIndex2(nextIndex2)
+    //         setActiveDotIndex2(nextIndex2)
+    //         flatListRef2.current.scrollToIndex({ index: nextIndex2 })
+    //     }, 3000)
+    //     return () => clearInterval(timer)
+    // }, [currentIndex2])
 
     const handleAddToCart = (item: any) => {
         const existingProduct: any = addSP.filtered(`id == '${item.id}'`)[0]
@@ -197,7 +198,7 @@ const ScreenDetailProduct = ({ navigation, route }: any) => {
                                 <View style={{ width: 151, height: 290, backgroundColor: color.background, justifyContent: 'center', alignItems: 'center' }}></View>
                             </View>
                         </View>
-                        <View style={{ alignItems: 'center', justifyContent: 'center', position: 'absolute', bottom: 70, width: 100, left: 118 }}>
+                        {/* <View style={{ alignItems: 'center', justifyContent: 'center', position: 'absolute', bottom: 70, width: 100, left: 118 }}>
                             <FlatList
                                 ref={flatListRef2}
                                 data={Imgmore}
@@ -207,9 +208,10 @@ const ScreenDetailProduct = ({ navigation, route }: any) => {
                                 pagingEnabled={true}
                                 showsHorizontalScrollIndicator={false}
                             />
-                        </View>
-                        <View style={{ backgroundColor: 'rgba(255, 255, 255, 0.3)', width: 250, height: 160, position: 'absolute', bottom: 60, borderRadius: 20 }}></View>
-                        <View style={{ flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'center', position: 'absolute', bottom: 70 }}>{renderDot2()}</View>
+                        </View> */}
+                        <Card data={data} maxVisibleItems={3}/>
+                        {/* <View style={{ backgroundColor: 'rgba(255, 255, 255, 0.3)', width: 250, height: 160, position: 'absolute', bottom: 60, borderRadius: 20 }}></View> */}
+                        {/* <View style={{ flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'center', position: 'absolute', bottom: 70 }}>{renderDot2()}</View> */}
                         <View style={{ flexDirection: 'row', paddingVertical: 10 }}>
                             <Text style={{ color: 'black', fontSize: 21, fontWeight: '400' }}>Giá bán: </Text>
                             <Text style={{ color: 'white', fontSize: 21, fontWeight: '600' }}>412,500</Text>
@@ -365,7 +367,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 10,
         paddingBottom: 20,
-        height: 70
+        height: 70,
+        marginBottom:20,
     },
     title: {
         color: 'black',
