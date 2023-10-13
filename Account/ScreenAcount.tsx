@@ -1,11 +1,43 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import color from '../Color/color'
 import { MotiView } from 'moti/build'
+import { logout, retrieveUserData } from '../AsysncStorage/AsysncUser'
+import { useFocusEffect } from '@react-navigation/native'
 
 const ScreenAcount = ({ navigation }: any) => {
 
     const [isModal, setisModal] = useState(false)
+    const [fullname, setfullname] = useState('');
+    const [email, setemail] = useState('');
+    const [userId, setuserId] = useState('')
+    const [Sex, setSex] = useState('')
+    const [Mobile, setMobile] = useState('')
+
+
+    const logout1 = async () => {
+        logout()
+        setfullname('');
+        setemail('');
+    };
+
+    useFocusEffect(
+        React.useCallback(() => {
+            const fetchData = async () => {
+                const userData = await retrieveUserData();
+                if (userData) {
+                    const { fullname, email, user_id, sex, mobile } = userData;
+                    setfullname(fullname);
+                    setemail(email);
+                    setuserId(user_id);
+                    setSex(sex);
+                    setMobile(mobile);
+                }
+            };
+            fetchData();
+        }, [])
+    );
+    
 
     const Item = [
         {
@@ -88,12 +120,21 @@ const ScreenAcount = ({ navigation }: any) => {
         <View style={styles.backgr}>
             <View style={styles.titleBox}>
                 <Text style={styles.title}>Tài Khoản</Text>
-                <Image source={require('../Icon/User.png')} style={styles.avata} />
+                <TouchableOpacity style={{ position: 'absolute', right: 20, top: 20 }} onPress={logout1}>
+                    <Image source={require('../Icon/logout.png')} style={{ height: 30, width: 30 }} />
+                </TouchableOpacity>
             </View>
+            <Image source={require('../Image/imgAccount.png')} style={styles.avata} />
             <View style={{ padding: 24, height: '100%', width: '100%', backgroundColor: 'white', borderTopLeftRadius: 30, borderTopRightRadius: 30 }}>
                 <View style={{ marginTop: 40, width: '100%' }}>
-                    <Text style={{ fontSize: 17, fontWeight: '600', color: 'black', textAlign: 'center' }}>Account 1</Text>
-                    <View style={{ padding: 20, alignItems: 'center', justifyContent: 'center', }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'center', marginLeft: '9%' }}>
+                        <Text style={{ fontSize: 17, fontWeight: '600', color: 'black', textAlign: 'center' }}>{fullname}</Text>
+                        {fullname.trim() !== '' && (
+                            <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => navigation.navigate('ScreenDtUser', { fullname, email, userId, Sex, Mobile })}>
+                                <Image source={require('../Icon/detailuser.png')} style={{ width: 25, height: 25 }} />
+                            </TouchableOpacity>)}
+                    </View>
+                    <View style={{ paddingHorizontal: 20, alignItems: 'center', justifyContent: 'center', }}>
                         <TouchableOpacity onPress={() => navigation.navigate('ScreenLogin')} style={{ width: 190, height: 56, backgroundColor: color.green, borderRadius: 10, justifyContent: 'center', alignItems: 'center' }}>
                             <Text style={{ color: 'white', fontSize: 15, fontWeight: '600' }}>Đăng nhập ngay</Text>
                         </TouchableOpacity>
@@ -119,6 +160,7 @@ const styles = StyleSheet.create({
     backgr: {
         backgroundColor: color.background,
         flex: 1,
+        alignItems: 'center'
     },
     titleBox: {
         height: 110, width: '100%', alignItems: 'center'
@@ -136,7 +178,7 @@ const styles = StyleSheet.create({
         height: 100,
         width: 100,
         position: 'absolute',
-        top: 65, zIndex: 900,
+        top: 64, zIndex: 900,
         borderRadius: 100,
         borderColor: 'white',
         borderWidth: 2,

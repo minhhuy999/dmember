@@ -47,7 +47,7 @@ const AnimatedCard = ({
         return {
             transform: [
                 {
-                    translateY: index === prevIndex.value ? translateY2 : translateY,
+                    translateX: index === prevIndex.value ? translateY2 : translateY,
                 },
                 { scale },
             ],

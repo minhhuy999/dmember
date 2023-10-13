@@ -1,12 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, } from 'react-native';
-import color from '../../Color/color';
-import Animated, { Extrapolate, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated';
+import React, { useEffect, useState } from 'react'
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, } from 'react-native'
+import color from '../../Color/color'
+import Animated, { Extrapolate, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import axios from 'axios'
+import { logout, saveUserDataToStorage } from '../../AsysncStorage/AsysncUser'
 
-const ScreenLogin = ({ navigation }: any) => {
-    const [isPhoneInputFocused, setPhoneInputFocused] = useState(false);
-    const [isPasswordInputFocused, setPasswordInputFocused] = useState(false);
+const ScreenLogin = ({ navigation, route }: any) => {
+
+    const { APIkey, Domain } = route.params
+
+    const [username, setUsername] = useState('')
+    const [password, setPassword] = useState('')
+    const [error, seterror] = useState('')
+
+    const formData = new FormData()
+    formData.append('app_name', 'khttest')
+    formData.append('username', username)
+    formData.append('password', password)
+
+    const [isPhoneInputFocused, setPhoneInputFocused] = useState(false)
+    const [isPasswordInputFocused, setPasswordInputFocused] = useState(false)
     const opacityVector = useSharedValue(0)
+    const scale = useSharedValue(0);
 
     const rStyle = useAnimatedStyle(() => {
 
@@ -15,29 +31,81 @@ const ScreenLogin = ({ navigation }: any) => {
             [0, 3000],
             [0, 1],
             Extrapolate.CLAMP
-        );
+        )
 
         const translate = interpolate(
             opacityVector.value,
-            [0,3000],
-            [200,0],
+            [0, 3000],
+            [200, 0],
             Extrapolate.CLAMP
         )
 
         return {
             opacity,
-            transform: [{ translateX:translate }]
-        };
-    });
+            transform: [{ translateX: translate }]
+        }
+    })
+
+    const errorStyle = useAnimatedStyle(()=>{
+        const scaleItem = interpolate(
+            scale.value,
+            [0,1500],
+            [-100,0],
+            Extrapolate.CLAMP
+        )
+        const opacity = interpolate(
+            scale.value,
+            [0, 1500],
+            [0, 1],
+            Extrapolate.CLAMP
+        )
+        return {
+            opacity,
+            transform:[{translateY:scaleItem}]
+        }
+    })
+
+    const handleLogin = async () => {
+        const loginUrl = `${Domain}/client_init/login?apikey=${APIkey}`;
+        try {
+            const response = await axios.post(loginUrl, formData, {
+                headers: {
+                    Accept: "application/x-www-form-urlencoded",
+                },
+            });
+            if (response.status === 200 && response.data.message === 'success') {
+                console.log(response.data.message);
+                const userData = response.data.data;
+                saveUserDataToStorage(userData);
+                navigation.navigate('ShopScreen');
+            } else if (response.status === 200) {
+                console.log(response.data.message);
+                scale.value = withSpring(1500, { duration: 2000 }, () => {
+                    scale.value = withTiming(0);
+                });
+                seterror(response.data.message)
+            }
+        } catch (error) {
+            console.error('Lỗi kết nối đến máy chủ:', error);
+        }
+    };
+
 
     useEffect(() => {
-        opacityVector.value = withTiming(3000,{duration:1500});
-    }, []);
+        opacityVector.value = withTiming(3000, { duration: 1500 })
+        const fullURL = `${Domain}/client_init/login?apikey=${APIkey}`
+        console.log('Full URL Register:', fullURL)
+    }, [])
 
 
     return (
         <View style={{ flex: 1, backgroundColor: color.background, padding: 20 }}>
-            <View style={{ flexDirection: 'row', marginTop: 150, height: 200 }}>
+            <Animated.View style={[{ width: '100%',justifyContent:'center',alignItems:'center'},errorStyle]}>
+                <View style={styles.boxtextanimation}>
+                    <Text style={{color:'white'}}>{error}</Text>
+                </View>
+            </Animated.View>
+            <View style={{ flexDirection: 'row', marginTop: 120, height: 200 }}>
                 <View>
                     <Image
                         source={require('../../IconUser/XinChao.png')}
@@ -66,10 +134,12 @@ const ScreenLogin = ({ navigation }: any) => {
                             placeholder="Số điện thoại"
                             style={styles.TextLogin}
                             onFocus={() => {
-                                setPhoneInputFocused(true);
-                                setPasswordInputFocused(false);
+                                setPhoneInputFocused(true)
+                                setPasswordInputFocused(false)
                             }}
                             onBlur={() => setPhoneInputFocused(false)}
+                            onChangeText={(text) => setUsername(text)}
+                            value={username}
                         />
                     </View>
                     <View
@@ -96,17 +166,19 @@ const ScreenLogin = ({ navigation }: any) => {
                             secureTextEntry={true}
                             style={styles.TextLogin}
                             onFocus={() => {
-                                setPasswordInputFocused(true);
-                                setPhoneInputFocused(false);
+                                setPasswordInputFocused(true)
+                                setPhoneInputFocused(false)
                             }}
                             onBlur={() => setPasswordInputFocused(false)}
+                            onChangeText={(text) => setPassword(text)}
+                            value={password}
                         />
                     </View>
                 </View>
-                <Animated.View style={[rStyle,{position: 'absolute', right: 18, bottom: -5}]}>
+                <Animated.View style={[rStyle, { position: 'absolute', right: 18, bottom: -5 }]}>
                     <Image
                         source={require('../../Image/humanLogin.png')}
-                        style={{ height: 240, width: 110,}}
+                        style={{ height: 240, width: 110, }}
                     />
                 </Animated.View>
             </View>
@@ -125,7 +197,7 @@ const ScreenLogin = ({ navigation }: any) => {
                         padding: 15,
                         borderRadius: 35,
                     }}
-                    onPress={() => navigation.navigate('HomeScreen')}>
+                    onPress={handleLogin}>
                     <Text style={{ color: 'white', fontSize: 15, fontWeight: '600' }}>
                         Đăng nhập
                     </Text>
@@ -157,11 +229,12 @@ const ScreenLogin = ({ navigation }: any) => {
                     </Text>
                 </TouchableOpacity>
             </View>
-        </View >
-    );
-};
 
-export default ScreenLogin;
+        </View >
+    )
+}
+
+export default ScreenLogin
 
 const styles = StyleSheet.create({
     TextLogin: {
@@ -175,4 +248,11 @@ const styles = StyleSheet.create({
         backgroundColor: color.organge,
         opacity: 0.5,
     },
-});
+    boxtextanimation:{
+        alignItems:'center',justifyContent:'center',
+        paddingHorizontal:20,
+        height:50, 
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        borderRadius:20
+    }
+})
