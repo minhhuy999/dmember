@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, } from 'react-native'
 import color from '../../Color/color'
-import Animated, { Extrapolate, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import Animated, { Extrapolate, interpolate, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import axios from 'axios'
-import { logout, saveUserDataToStorage } from '../../AsysncStorage/AsysncUser'
+import { saveUserDataToStorage } from '../../AsysncStorage/AsysncUser'
 
 const ScreenLogin = ({ navigation, route }: any) => {
 
@@ -77,7 +76,7 @@ const ScreenLogin = ({ navigation, route }: any) => {
                 console.log(response.data.message);
                 const userData = response.data.data;
                 saveUserDataToStorage(userData);
-                navigation.navigate('ShopScreen');
+                navigation.navigate('ScreenShop');
             } else if (response.status === 200) {
                 console.log(response.data.message);
                 scale.value = withSpring(1500, { duration: 2000 }, () => {

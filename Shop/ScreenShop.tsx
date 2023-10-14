@@ -1,12 +1,21 @@
-import { StyleSheet, Text, View, Image, TextInput, ScrollView, FlatList, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity } from 'react-native'
 import React, { useState, useRef, useEffect } from 'react'
 import color from '../Color/color'
 import realmHS from '../Realm/realmHistoryS';
 import { addSPStore } from '../Realm/StorageServices';
 import SearchAnimation from './AnimationShop/SearchAnimation';
-import Animated, { runOnJS, useAnimatedScrollHandler, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { runOnJS, useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
+import { getAPIandDOMAIN } from '../AsysncStorage/AsysncAPI';
+import axios from 'axios';
 
 const ScreenShop = ({ navigation }: any) => {
+
+    // const { APIkey, Domain } = route.params
+    // const [APIkey, setAPIkey] = useState<string>('')
+    // const [Domain, setDomain] = useState<string>('')
+    // const apiProductlist = `${Domain}/client_product/list_all?apikey=${APIkey}`
+    // const formData = new FormData()
+    // formData.append('app_name', 'khttest')
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [currentIndex2, setCurrentIndex2] = useState(0);
@@ -15,6 +24,8 @@ const ScreenShop = ({ navigation }: any) => {
     const [activeDotIndex2, setActiveDotIndex2] = useState(0);
     const flatListRef: any = useRef(null);
     const flatListRef2: any = useRef(null);
+
+    // const [dataId, setdataId] = useState<any>([])
 
     const addSP = realmHS.objects('AddProduct')
 
@@ -317,6 +328,31 @@ const ScreenShop = ({ navigation }: any) => {
         return () => clearInterval(timer);
     }, [currentIndex, currentIndex2]);
 
+    // useEffect(() => {
+    //     getAPIandDOMAIN({ setAPIkey, setDomain })
+    // }, [])
+
+    // const checkapishop = () => {
+    //     console.log('Da ket noi duoc Shop: ', apiProductlist)
+        // getAPIShop()
+    // }
+
+    // const getAPIShop = async () => {
+    //     try {
+    //         const response = await axios.post(apiProductlist, formData, {
+    //             headers: {
+    //                 Accept: 'application/x-www-form-urlencoded',
+    //             },
+    //         })
+    //         if (response.status === 200) {
+    //             setdataId(JSON.stringify(response.data.data.theme))
+    //             console.log(dataId);
+    //         }
+    //     } catch (error) {
+    //         console.error('There was a problem with the operation:', error);
+    //     }
+    // };
+
     return (
 
         <View style={styles.backgr}>
@@ -369,6 +405,9 @@ const ScreenShop = ({ navigation }: any) => {
                             </View>
                         </TouchableOpacity>
                     </View>
+                </View>
+                <View>
+                    {/* <Text>{dataId}</Text> */}
                 </View>
                 <View style={styles.muc}>
                     <Text style={styles.title}>SẢN PHẨM BÁN CHẠY</Text>

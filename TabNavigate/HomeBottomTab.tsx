@@ -1,25 +1,11 @@
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import ScreenHome from '../Home/ScreenHome';
-import ScreenShop from '../Shop/ScreenShop';
-import ScreenPoint from '../Point/ScreenPoint';
-import ScreenOder from '../Order/ScreenOder';
-import ScreenAcount from '../Account/ScreenAcount';
 import SplashScreen from 'react-native-splash-screen';
-import Animated, { Extrapolate, interpolate, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { Extrapolate, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
-const TabArr = [
-    { route: 'HomeScreen', label: 'Home', type: require('../Icon/Home.png'), component: ScreenHome },
-    { route: 'ShopScreen', label: 'Shop', type: require('../Icon/Shop.png'), component: ScreenShop },
-    { route: 'PointScreen', label: 'Point', type: require('../Icon/Point.png'), component: ScreenPoint },
-    { route: 'OrderScreen', label: 'Order', type: require('../Icon/Order.png'), component: ScreenOder },
-    { route: 'AccountScreen', label: 'Account', type: require('../Icon/Profilebt.png'), component: ScreenAcount },
-];
-
-const Tab = createBottomTabNavigator();
 
 const HomeBottomTab = (props: any) => {
+
     const translateY = useSharedValue(0);
     const { item, onPress, accessibilityState } = props;
     const focused = accessibilityState.selected;
@@ -90,27 +76,7 @@ const HomeBottomTab = (props: any) => {
     )
 }
 
-export default function AnimTab1() {
-    return (
-        <Tab.Navigator
-            screenOptions={{
-                headerShown: false,
-                tabBarStyle: styles.tabBar,
-            }} initialRouteName='ShopScreen'
-        >
-            {TabArr.map((item, index) => {
-                return (
-                    <Tab.Screen key={index} name={item.route} component={item.component}
-                        options={{
-                            tabBarShowLabel: false,
-                            tabBarButton: (props: any) => <HomeBottomTab {...props} item={item} />
-                        }}
-                    />
-                )
-            })}
-        </Tab.Navigator>
-    )
-}
+export default HomeBottomTab
 
 const styles = StyleSheet.create({
     container: {
@@ -125,7 +91,7 @@ const styles = StyleSheet.create({
         right: 16,
         left: 16,
         borderRadius: 16,
-        elevation:5
+        elevation: 5
     },
     btn: {
         marginTop: 20,

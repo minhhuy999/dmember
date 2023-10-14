@@ -4,6 +4,7 @@ import color from '../Color/color'
 import LottieView from 'lottie-react-native'
 
 const ScreenHome = ({navigation}:any) => {
+
     return (
         <ScrollView style={{ backgroundColor: color.background }}>
             <View style={styles.backgr}>
@@ -67,7 +68,7 @@ const ScreenHome = ({navigation}:any) => {
                                 </View>
                                 <Text style={styles.Texticon}>Xác nhận thanh toán</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.itemIconBox} onPress={()=>navigation.navigate('AnimationBottom')}>
+                            <TouchableOpacity style={styles.itemIconBox}>
                                 <View style={styles.itemIcon}>
                                     <Image source={require('../Icon/cardchecklist.png')} style={styles.Icon} />
                                 </View>
@@ -99,7 +100,6 @@ const ScreenHome = ({navigation}:any) => {
                                 </View>
                                 <Text style={styles.Texticon}>Rút Dcash</Text>
                             </TouchableOpacity>
-
                         </View>
                     </View>
                 </View>
