@@ -2,13 +2,14 @@ import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, FlatList } 
 import React, { useEffect, useState } from 'react'
 import color from '../Color/color';
 import { useNavigation } from '@react-navigation/native';
-import { Swipeable } from 'react-native-gesture-handler';
 import realmHS from '../Realm/realmHistoryS';
 import { loadAddSPData, removeSP, updateSLSP } from '../Realm/StorageServices';
 import DeletedAnimation from './AnimationShop/DeletedAnimation';
 
 
-const ScreenStore = ({ navigation }: any) => {
+const ScreenStore = ({ navigation,route }: any) => {
+
+    const { data } = route.params 
 
     useEffect(() => {
         addSP.addListener(listener);
@@ -48,7 +49,7 @@ const ScreenStore = ({ navigation }: any) => {
                             data={addSP}
                             keyExtractor={(item: any) => item.id.toString()}
                             renderItem={({ item }) => {
-                                return <DeletedAnimation item={item} />;
+                                return <DeletedAnimation item={item} data={data}/>;
                             }}
                             showsVerticalScrollIndicator={false}
                         />

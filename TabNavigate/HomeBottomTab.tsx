@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import SplashScreen from 'react-native-splash-screen';
-import Animated, { Extrapolate, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Extrapolate, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 
 
 const HomeBottomTab = (props: any) => {
@@ -49,7 +48,6 @@ const HomeBottomTab = (props: any) => {
     })
 
     useEffect(() => {
-        SplashScreen.hide();
         if (focused) {
             translateY.value = withTiming(10);
         } else {

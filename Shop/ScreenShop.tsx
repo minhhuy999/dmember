@@ -5,17 +5,18 @@ import realmHS from '../Realm/realmHistoryS';
 import { addSPStore } from '../Realm/StorageServices';
 import SearchAnimation from './AnimationShop/SearchAnimation';
 import Animated, { runOnJS, useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
-import { getAPIandDOMAIN } from '../AsysncStorage/AsysncAPI';
+import { getAPIKeyAndDomainFromStorage, getAPIandDOMAIN } from '../AsysncStorage/AsysncAPI';
 import axios from 'axios';
+import { useFocusEffect } from '@react-navigation/native';
+
 
 const ScreenShop = ({ navigation }: any) => {
 
-    // const { APIkey, Domain } = route.params
-    // const [APIkey, setAPIkey] = useState<string>('')
-    // const [Domain, setDomain] = useState<string>('')
-    // const apiProductlist = `${Domain}/client_product/list_all?apikey=${APIkey}`
-    // const formData = new FormData()
-    // formData.append('app_name', 'khttest')
+    const [APIkey, setAPIkey] = useState<any>(null)
+    const [Domain, setDomain] = useState<any>(null)
+    const formData = new FormData()
+    formData.append('app_name', 'khttest')
+    const apiProductlist = `${Domain}/client_product/list_all?apikey=${APIkey}`;
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [currentIndex2, setCurrentIndex2] = useState(0);
@@ -25,7 +26,8 @@ const ScreenShop = ({ navigation }: any) => {
     const flatListRef: any = useRef(null);
     const flatListRef2: any = useRef(null);
 
-    // const [dataId, setdataId] = useState<any>([])
+    const [dataProduct, setdataProduct] = useState<any>([])
+    const [dataicontopic1, setdataicontopic1] = useState<any>([])
 
     const addSP = realmHS.objects('AddProduct')
 
@@ -183,7 +185,16 @@ const ScreenShop = ({ navigation }: any) => {
     const renderItemImg = ({ item, index }: any) => {
         return (
             <View style={{ flex: 1 }}>
-                <Image source={item.img} style={{ width: 365, height: 185 }} />
+                <FlatList
+                    data={item.slide_list}
+                    keyExtractor={(slide) => slide.id}
+                    horizontal={true}
+                    pagingEnabled={true}
+                    renderItem={({ item: slide }) => {
+                        return (
+                            <Image source={{ uri: slide.banner }} style={{ width: 355, height: 240 }} />
+                        )
+                    }} />
             </View>
         )
     }
@@ -234,15 +245,15 @@ const ScreenShop = ({ navigation }: any) => {
             return (
                 <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { item })}>
                     <View style={styles.renderSp}>
-                        <Image source={item.img} style={{ height: 130, width: 132 }} />
-                        <Text style={styles.ItemnameSP}>{item.name}</Text>
+                        <Image source={{ uri: item.img_1 }} style={{ height: 130, width: 132, borderRadius: 5 }} />
+                        <Text style={styles.ItemnameSP}>{item.product_name}</Text>
                         <View style={{ flexDirection: 'row', marginTop: 2 }}>
                             <Text style={styles.ItemtextSP}>Giá bán: </Text>
-                            <Text style={styles.ItemTextGia}>{item.gia}</Text>
+                            <Text style={styles.ItemTextGia}>{item.price}</Text>
                         </View>
                         <View style={{ flexDirection: 'row', marginTop: 2 }}>
                             <Text style={styles.ItemtextSP}>Chiết khấu: </Text>
-                            <Text style={styles.ItemTextCK}>{item.chietkhau}</Text>
+                            <Text style={styles.ItemTextCK}>{item.price_cal_commission}</Text>
                         </View>
                         <TouchableOpacity style={styles.Add} onPress={() => handleAddToCart(item)}>
                             <Text style={{ color: 'white' }}>+</Text>
@@ -265,23 +276,23 @@ const ScreenShop = ({ navigation }: any) => {
         }
     }
 
-    const renderDot = () => {
-        return DataImg.map((dot, index) => {
-            const isActive = index === activeDotIndex;
-            return (
-                <View
-                    key={index}
-                    style={{
-                        marginHorizontal: 2,
-                        backgroundColor: 'white',
-                        height: isActive ? 10 : 7,
-                        width: isActive ? 10 : 7,
-                        borderRadius: 5
-                    }}
-                ></View>
-            )
-        })
-    }
+    // const renderDot = () => {
+    //     return DataImg.map((dot, index) => {
+    //         const isActive = index === activeDotIndex;
+    //         return (
+    //             <View
+    //                 key={index}
+    //                 style={{
+    //                     marginHorizontal: 2,
+    //                     backgroundColor: 'white',
+    //                     height: isActive ? 10 : 7,
+    //                     width: isActive ? 10 : 7,
+    //                     borderRadius: 5
+    //                 }}
+    //             ></View>
+    //         )
+    //     })
+    // }
 
     const renderDot2 = () => {
         return DataImg2.map((dot, index) => {
@@ -301,113 +312,155 @@ const ScreenShop = ({ navigation }: any) => {
         })
     }
 
-
+    const rendertopic = ({ item, index }: any) => {
+        return (
+            <View style={{ width: '100%', alignItems: 'center' }}>
+                <FlatList
+                    data={item.category_1_list}
+                    keyExtractor={(category) => category.id}
+                    horizontal={true}
+                    renderItem={({ item: category }) => {
+                        return (
+                            <TouchableOpacity style={{ marginHorizontal: 10 }}>
+                                <View style={styles.Item}>
+                                    <View style={styles.BoxItemImage}>
+                                        <Image source={{ uri: category.icon }} style={{ width: 33, height: 31 }} />
+                                    </View>
+                                    <Text style={styles.TextItem}>{category.name}</Text>
+                                </View>
+                            </TouchableOpacity>
+                        )
+                    }} />
+            </View>
+        )
+    }
     const handleAddToCart = (item: any) => {
-        const existingProduct: any = addSP.filtered(`id == '${item.id}'`)[0]
+        const existingProduct: any = addSP.filtered(`id == '${item.product_id}'`)[0]
         if (existingProduct) {
             realmHS.write(() => {
                 existingProduct.soluong += 1
             })
         } else {
-            addSPStore(item.id, 1)
+            addSPStore(item.product_id, 1)
         }
         console.log('Sản phẩm đã được thêm vào cơ sở dữ liệu Realm.')
     }
 
+
     useEffect(() => {
         const timer = setInterval(() => {
-            const nextIndex = (currentIndex + 1) % DataImg.length;
+            // const nextIndex = (currentIndex + 1) % DataImg.length;
             const nextIndex2 = (currentIndex2 + 1) % DataImg2.length;
-            setCurrentIndex(nextIndex);
+            // setCurrentIndex(nextIndex);
             setCurrentIndex2(nextIndex2);
-            setActiveDotIndex(nextIndex);
+            // setActiveDotIndex(nextIndex);
             setActiveDotIndex2(nextIndex2);
-            flatListRef.current.scrollToIndex({ index: nextIndex });
+            // flatListRef.current.scrollToIndex({ index: nextIndex });
             flatListRef2.current.scrollToIndex({ index: nextIndex2 });
         }, 3000);
         return () => clearInterval(timer);
     }, [currentIndex, currentIndex2]);
 
-    // useEffect(() => {
-    //     getAPIandDOMAIN({ setAPIkey, setDomain })
-    // }, [])
+    useEffect(() => {
+        const fetchData = async () => {
+            await getAPIandDOMAIN({ setAPIkey, setDomain }).then(() => {
+                if (APIkey != null && Domain != null) {
+                    getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain });
+                }
+            });
+        };
+        fetchData();
+    }, [])
 
-    // const checkapishop = () => {
-    //     console.log('Da ket noi duoc Shop: ', apiProductlist)
-        // getAPIShop()
-    // }
+    useFocusEffect(
+        React.useCallback(() => {
+            getAPIShop();
+        }, [APIkey, Domain])
+    );
 
-    // const getAPIShop = async () => {
-    //     try {
-    //         const response = await axios.post(apiProductlist, formData, {
-    //             headers: {
-    //                 Accept: 'application/x-www-form-urlencoded',
-    //             },
-    //         })
-    //         if (response.status === 200) {
-    //             setdataId(JSON.stringify(response.data.data.theme))
-    //             console.log(dataId);
-    //         }
-    //     } catch (error) {
-    //         console.error('There was a problem with the operation:', error);
-    //     }
-    // };
+    const getAPIShop = async () => {
+        if (APIkey && Domain) {
+            try {
+                const response = await axios.post(apiProductlist, formData, {
+                    headers: {
+                        'Accept': 'application/x-www-form-urlencoded',
+                    },
+                });
+                if (response.status === 200) {
+                    const dataProduct = response.data.data.l;
+                    const icontopic1 = response.data.data.theme
+                    setdataProduct(dataProduct);
+                    setdataicontopic1(icontopic1)
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            } catch (error) {
+                console.error('There was a problem with the operation:', error);
+            }
+        }
+    };
 
     return (
 
         <View style={styles.backgr}>
-            <SearchAnimation translateY={translateY} />
+            <SearchAnimation translateY={translateY} data={dataProduct} />
             <Animated.ScrollView showsVerticalScrollIndicator={false} onScroll={scrollHandler} pagingEnabled={pagingEnabled}>
                 <View style={{ width: '98%', height: 200, marginTop: 15, alignItems: 'center' }}>
                     <FlatList
                         ref={flatListRef}
-                        data={DataImg}
+                        data={dataicontopic1.slice(0, 1)}
                         keyExtractor={(item) => item.id}
                         renderItem={renderItemImg}
-                        horizontal={true}
-                        pagingEnabled={true}
+                        scrollEnabled={false}
                         showsHorizontalScrollIndicator={false}
                     />
-                    <View style={styles.dot}>{renderDot()}</View>
+                    {/* <View style={styles.dot}>{renderDot()}</View> */}
                 </View>
                 <View style={{ marginBottom: 20 }}>
                     <View style={styles.BoxItem}>
-                        <TouchableOpacity>
-                            <View style={styles.Item}>
-                                <View style={styles.BoxItemImage}>
-                                    <Image source={require('../Image/khotd.png')} style={{ width: 33, height: 31 }} />
-                                </View>
-                                <Text style={styles.TextItem}>Kho tiêu dùng</Text>
-                            </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity>
-                            <View style={styles.Item}>
-                                <View style={styles.BoxItemImage}>
-                                    <Image source={require('../Image/khoqt.png')} style={{ width: 33, height: 31 }} />
-                                </View>
-                                <Text style={styles.TextItem}>Kho quà tặng - KM</Text>
-                            </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity>
-                            <View style={styles.Item}>
-                                <View style={styles.BoxItemImage}>
-                                    <Image source={require('../Image/khokn.png')} style={{ width: 33, height: 31 }} />
-                                </View>
-                                <Text style={styles.TextItem}>Kho khởi nghề</Text>
-                            </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity>
-                            <View style={styles.Item}>
-                                <View style={styles.BoxItemImage}>
-                                    <Image source={require('../Image/khosi.png')} style={{ width: 33, height: 31 }} />
-                                </View>
-                                <Text style={styles.TextItem}>Kho sỉ</Text>
-                            </View>
-                        </TouchableOpacity>
+                        <FlatList
+                            data={dataicontopic1.slice(0, 1)}
+                            keyExtractor={(item) => item.id}
+                            scrollEnabled={false}
+                            renderItem={rendertopic}
+                        />
                     </View>
                 </View>
                 <View>
-                    {/* <Text>{dataId}</Text> */}
+                    {/* <FlatList
+                        data={dataicontopic1.slice(0, 1)}
+                        keyExtractor={(item) => item.id}
+                        scrollEnabled={false}
+                        renderItem={({ item, index }: any) => {
+                            console.log(
+                                JSON.stringify(
+                                    item.category_1_list
+                                    )
+                                    )
+                            if (item.category_1_list) {
+                                item.category_1_list.forEach((category:any) => {
+                                    console.log(`Category Name: ${category.name}`);
+                                });
+                            }
+                            return (
+                                <View style={{ width: '100%', backgroundColor: 'blue', marginVertical: 20 }}>
+                                    <FlatList
+                                        data={item.category_1_list}
+                                        keyExtractor={(category) => category.id}
+                                        renderItem={({ item: category }) => {
+                                            return (
+                                                <View>
+                                                    <Image source={{ uri: category.icon }} style={{ height: 38, width: 38 }} />
+                                                    <Text key={category.id}>{category.name}</Text>
+                                                </View>
+                                            )
+                                        }}
+                                    />
+                                </View>
+                            )
+                        }}
+                    /> */}
+                    {/* <Text>{JSON.stringify(dataicontopic1)}</Text> */}
                 </View>
                 <View style={styles.muc}>
                     <Text style={styles.title}>SẢN PHẨM BÁN CHẠY</Text>
@@ -447,10 +500,10 @@ const ScreenShop = ({ navigation }: any) => {
                         showsHorizontalScrollIndicator={false}
                     />
                 </View>
-                <View style={{ marginTop: 10, width: '100%', height: 800 }}>
+                <View style={{ marginTop: 10, width: '100%', marginBottom: 100 }}>
                     <FlatList
-                        data={SanPham}
-                        keyExtractor={(item) => item.id}
+                        data={dataProduct}
+                        keyExtractor={(item) => item.product_id}
                         renderItem={renderSP}
                         showsVerticalScrollIndicator={false}
                         numColumns={2}
@@ -480,10 +533,8 @@ const styles = StyleSheet.create({
         padding: 15,
         marginTop: 10,
         backgroundColor: 'white',
-        width: '98%', height: 110,
+        width: '98%',
         borderRadius: 10,
-        flexDirection: 'row',
-        justifyContent: 'space-between'
     },
     BoxItemImage: {
         width: 46, height: 46,

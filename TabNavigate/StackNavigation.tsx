@@ -33,6 +33,7 @@ import ScreenDsviec from '../Account/AccountFuntion/ScreenDsviec'
 import ScreenDtcongviec from '../Detailcongviec/ScreenDtcongviec'
 import ScreenDtUser from '../Detailaccount/ScreenDtUser'
 import AnimTab1 from './AnimTab1'
+import ScreenShop from '../Shop/ScreenShop'
 
 const Stack = createNativeStackNavigator()
 
@@ -41,15 +42,15 @@ const option = () => ({
     headerShown: false,
 })
 
-const StackNavigation = ({APIkey,Domain}:any) => {
+const StackNavigation = () => {
 
     return (
         <NavigationContainer>
             <Stack.Navigator screenOptions={option}>
-                <Stack.Screen name='AnimTab1' component={AnimTab1} initialParams={{ APIkey, Domain }} />
-                <Stack.Screen name='ScreenLogin' component={ScreenLogin} initialParams={{ APIkey, Domain }} />
+                <Stack.Screen name='AnimTab1' component={AnimTab1}  />
+                <Stack.Screen name='ScreenLogin' component={ScreenLogin} />
                 <Stack.Screen name='ScreenMissPass' component={ScreenMissPass} />
-                <Stack.Screen name='ScreenRegister' component={ScreenRegister} initialParams={{ APIkey, Domain }} />
+                <Stack.Screen name='ScreenRegister' component={ScreenRegister} />
                 <Stack.Screen name='ScreenTTdcredit' component={ScreenTTdcredit} />
                 <Stack.Screen name='ScreenRdcash' component={ScreenRdcash} />
                 <Stack.Screen name='ScreenHistoryRdcash' component={ScreenHistoryRdcash} />

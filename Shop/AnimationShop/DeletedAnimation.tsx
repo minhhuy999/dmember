@@ -1,12 +1,15 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import color from '../../Color/color';
 import { removeSP, updateSLSP } from '../../Realm/StorageServices';
 import realmHS from '../../Realm/realmHistoryS';
 import Animated, { Extrapolate, interpolate, runOnJS, useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
+import axios from 'axios';
+import { getAPIKeyAndDomainFromStorage, getAPIandDOMAIN } from '../../AsysncStorage/AsysncAPI';
+import { useFocusEffect } from '@react-navigation/native';
 
-const DeletedAnimation = ({ item }: any) => {
+const DeletedAnimation = ({ item,data }: any) => {
 
     const translateX = useSharedValue(0);
     const addSP = realmHS.objects('AddProduct')
@@ -28,80 +31,7 @@ const DeletedAnimation = ({ item }: any) => {
         }
     };
 
-    const SanPham = [
-        {
-            id: '1',
-            img: require('../../SanPham/NTTpink.png'),
-            name: 'Nước tẩy trang Dearanchy Purifying Pure Cleansing 30ml',
-            gia: '523,000',
-            chietkhau: '53,000'
-        },
-        {
-            id: '2',
-            img: require('../../SanPham/NTTred.png'),
-            name: 'Dầu tẩy trang Dearanchy Purifying Pure Cleansing 30ml',
-            gia: '523,000',
-            chietkhau: '53,000'
-        },
-        {
-            id: '3',
-            img: require('../../SanPham/SRMdermaPH.png'),
-            name: 'Sữa rửa mặt tạo bọt Dearanchy Purifying Derma PH Care 150ml',
-            gia: '523,000',
-            chietkhau: '53,000'
-        },
-        {
-            id: '4',
-            img: require('../../SanPham/Gel.png'),
-            name: 'Gel rửa mặt cho da dầu mụn 150ml',
-            gia: '523,000',
-            chietkhau: '53,000'
-        },
-        {
-            id: '5',
-            img: require('../../SanPham/SRMvita.png'),
-            name: 'Sữa rửa mặt vitamin làm trắng Dearanchy Moisture Vita 150ml',
-            gia: '523,000',
-            chietkhau: '53,000'
-        },
-        {
-            id: '6',
-            img: require('../../SanPham/SRMvita.png'),
-            name: 'Sữa rửa mặt vitamin làm trắng Dearanchy Moisture Vita 150ml',
-            gia: '523,000',
-            chietkhau: '53,000'
-        },
-        {
-            id: '7',
-            img: require('../../SanPham/Gel.png'),
-            name: 'Gel rửa mặt cho da dầu mụn 150ml',
-            gia: '523,000',
-            chietkhau: '53,000'
-        },
-        {
-            id: '8',
-            img: require('../../SanPham/PhanP.png'),
-            name: 'Phấn phủ trang điểm siêu mịn',
-            gia: '523,000',
-            chietkhau: '53,000'
-        },
-        {
-            id: '9',
-            img: require('../../SanPham/SonAe.png'),
-            name: 'Son Aery Jo Art Lipstick',
-            gia: '523,000',
-            chietkhau: '53,000'
-        },
-        {
-            id: '10',
-            img: require('../../SanPham/TrangD.png'),
-            name: 'Son Aery Jo Art Lipstick',
-            gia: '523,000',
-            chietkhau: '53,000'
-        },
-    ]
-
-    const product: any = SanPham.find((sp) => sp.id === item.id);
+    const product: any = data.find((sp:any) => sp.product_id === item.id);
 
     const handleDeleteSP = (id: string) => {
         removeSP(id)
@@ -156,18 +86,18 @@ const DeletedAnimation = ({ item }: any) => {
                     </TouchableOpacity>
                 </Animated.View>
                 <Animated.View style={[styles.boxrenderSp, rStyle]}>
-                    <Image source={product.img} style={{ width: 80, height: 80 }} />
+                    <Image source={{uri:product.img_1}} style={{ width: 80, height: 80 ,borderRadius:5,marginRight:10 }} />
                     <View style={{ flex: 1 }}>
-                        <Text style={{ color: 'black', fontSize: 13, fontWeight: '500', flex: 1 }}>{product.name}</Text>
+                        <Text style={{ color: 'black', fontSize: 13, fontWeight: '500', flex: 1 }}>{product.product_name}</Text>
                         <View style={{ flexDirection: 'row' }}>
                             <View>
                                 <View style={{ flexDirection: 'row' }}>
                                     <Text style={styles.text1render}>Giá bán: </Text>
-                                    <Text style={styles.texxt2render}>{product.gia}</Text>
+                                    <Text style={styles.texxt2render}>{product.price}</Text>
                                 </View>
                                 <View style={{ flexDirection: 'row' }}>
                                     <Text style={styles.text1render}>Chiết khấu: </Text>
-                                    <Text style={styles.texxt2render}>{product.chietkhau}</Text>
+                                    <Text style={styles.texxt2render}>{product.price_cal_commission}</Text>
                                 </View>
                             </View>
                             <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>

@@ -12,9 +12,10 @@ const SIZE: any = width * 0.77;
 
 interface PageProps {
     translateY: any;
+    data:any
 }
 
-const SearchAnimation: React.FC<PageProps> = ({ translateY }) => {
+const SearchAnimation: React.FC<PageProps> = ({ translateY,data }) => {
     const navigation: any = useNavigation();
     const addSP = realmHS.objects('AddProduct')
 
@@ -77,14 +78,14 @@ const SearchAnimation: React.FC<PageProps> = ({ translateY }) => {
         <Animated.View style={styles.BoxSreach}>
             <Animated.View style={[rStyle, styles.BoxIcon]} />
             <Animated.View style={[styles.BoxSreachAnimation, rTextStyle]}>
-                <Typewriter delay={100} infinite />
+                <Typewriter data={data} delay={100} infinite />
             </Animated.View>
             <Image source={require('../../Icon/search.png')} style={{ position: 'absolute', left: 10 }} />
             <Animated.View style={[IconStyle]}>
                 <Image source={require('../../Icon/Bell.png')} style={{ height: 25, width: 25, marginLeft: 10, marginBottom: 10 }} />
             </Animated.View>
             <Animated.View style={[IconStyle]}>
-                <TouchableOpacity onPress={() => navigation.navigate('ScreenStore')}>
+                <TouchableOpacity onPress={() => navigation.navigate('ScreenStore',{data})}>
                     <Image source={require('../../Icon/cart.png')} style={{ height: 25, width: 25, marginLeft: 10, marginBottom: 10 }} />
                     {addSP.length > 0 && <View style={styles.dotstore}></View>}
                 </TouchableOpacity>

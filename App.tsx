@@ -1,23 +1,23 @@
 import { StyleSheet } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
-import { getAPIandDOMAIN } from './AsysncStorage/AsysncAPI'
 import StackNavigation from './TabNavigate/StackNavigation'
+import { Provider } from 'react-redux';
+import store from './Redux/store'
+import SplashScreen from 'react-native-splash-screen';
 
 const App = () => {
 
-
-  const [APIkey, setAPIkey] = useState<string>('')
-  const [Domain, setDomain] = useState<string>('')
-
   useEffect(() => {
-    getAPIandDOMAIN({setAPIkey,setDomain})
-  }, [])
+      SplashScreen.hide();
+  })
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <StackNavigation APIkey={APIkey} Domain={Domain}/>
-    </GestureHandlerRootView>
+    <Provider store={store}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <StackNavigation />
+      </GestureHandlerRootView>
+    </Provider>
   )
 }
 

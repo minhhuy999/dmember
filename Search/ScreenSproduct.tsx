@@ -10,8 +10,9 @@ import Animated, { Extrapolate, FadeIn, FadeOut, Layout, interpolate, useAnimate
 import { MotiView } from 'moti'
 import LottieView from 'lottie-react-native'
 
-const ScreenSproduct = ({ navigation }: any) => {
+const ScreenSproduct = ({ navigation, route }: any) => {
 
+    const { data } = route.params
     const navigationGoback = useNavigation()
     const [name, setName] = useState('')
 
@@ -26,60 +27,7 @@ const ScreenSproduct = ({ navigation }: any) => {
     const [showAnimatedBox, setShowAnimatedBox] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
 
-    const scale = useSharedValue(0);
-
-    const SanPham = [
-        {
-            id: '1',
-            img: require('../SanPham/NTTpink.png'),
-            name: 'Nước tẩy trang Dearanchy Purifying Pure Cleansing 30ml',
-            gia: '523,000',
-            chietkhau: '53,000'
-        },
-        {
-            id: '2',
-            img: require('../SanPham/NTTred.png'),
-            name: 'Dầu tẩy trang Dearanchy Purifying Pure Cleansing 30ml',
-            gia: '523,000',
-            chietkhau: '53,000'
-        },
-        {
-            id: '3',
-            img: require('../SanPham/SRMdermaPH.png'),
-            name: 'Sữa rửa mặt tạo bọt Dearanchy Purifying Derma PH Care 150ml',
-            gia: '523,000',
-            chietkhau: '53,000'
-        },
-        {
-            id: '4',
-            img: require('../SanPham/Gel.png'),
-            name: 'Gel rửa mặt cho da dầu mụn 150ml',
-            gia: '523,000',
-            chietkhau: '53,000'
-        },
-        {
-            id: '5',
-            img: require('../SanPham/SRMvita.png'),
-            name: 'Sữa rửa mặt vitamin làm trắng Dearanchy Moisture Vita 150ml',
-            gia: '523,000',
-            chietkhau: '53,000'
-        },
-        {
-            id: '6',
-            img: require('../SanPham/SRMvita.png'),
-            name: 'Sữa rửa mặt vitamin làm trắng Dearanchy Moisture Vita 150ml',
-            gia: '523,000',
-            chietkhau: '53,000'
-        },
-        {
-            id: '7',
-            img: require('../SanPham/Gel.png'),
-            name: 'Gel rửa mặt cho da dầu mụn 150ml',
-            gia: '523,000',
-            chietkhau: '53,000'
-        },
-    ]
-
+    const scale = useSharedValue(0)
 
     useEffect(() => {
         initialMode.current = false
@@ -108,13 +56,13 @@ const ScreenSproduct = ({ navigation }: any) => {
             })
     }
 
-    const [filteredSanPham, setFilteredSanPham] = useState(SanPham)
+    const [filteredSanPham, setFilteredSanPham] = useState(data)
 
     const handleSearch = () => {
         const searchKeywords = unidecode(name.toLowerCase()).split(' ')
-        const normalizedSanPham = SanPham.map((item) => unidecode(item.name.toLowerCase()))
+        const normalizedSanPham = data.map((item:any) => unidecode(item.product_name.toLowerCase()))
 
-        const filteredItems = SanPham.filter((item, index) => {
+        const filteredItems = data.filter((item:any, index:any) => {
             const itemName = normalizedSanPham[index]
             return searchKeywords.every((keyword) => itemName.includes(keyword))
         })
@@ -127,13 +75,13 @@ const ScreenSproduct = ({ navigation }: any) => {
     }
 
     const handleAddToCart = (item: any) => {
-        const existingProduct: any = addSP.filtered(`id == '${item.id}'`)[0]
+        const existingProduct: any = addSP.filtered(`id == '${item.product_id}'`)[0]
         if (existingProduct) {
             realmHS.write(() => {
                 existingProduct.soluong += 1
             })
         } else {
-            addSPStore(item.id, 1)
+            addSPStore(item.product_id, 1)
         }
         scale.value = withSpring(1, { duration: 1500 }, () => {
             scale.value = withTiming(0);
@@ -153,6 +101,13 @@ const ScreenSproduct = ({ navigation }: any) => {
         removeTask(id)
     }
 
+    function limitText(text:any, maxLength:any) {
+        if (text.length <= maxLength) {
+            return text;
+        }
+        return text.slice(0, maxLength) + '...'; 
+    }
+
     const renderSP = ({ item, index }: any) => {
         return (
             <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { item })}>
@@ -162,15 +117,15 @@ const ScreenSproduct = ({ navigation }: any) => {
                     animate={{ opacity: 1, translateY: 0 }}
                     transition={{ delay: index * 400 }}
                 >
-                    <Image source={item.img} style={{ height: 130, width: 132 }} />
-                    <Text style={styles.ItemnameSP}>{item.name}</Text>
+                    <Image source={{ uri: item.img_1 }} style={{ height: 130, width: 132,borderRadius:5 }} />
+                    <Text style={styles.ItemnameSP}>{limitText(item.product_name, 50)}</Text>
                     <View style={{ flexDirection: 'row', marginTop: 2 }}>
                         <Text style={styles.ItemtextSP}>Giá bán: </Text>
-                        <Text style={styles.ItemTextGia}>{item.gia}</Text>
+                        <Text style={styles.ItemTextGia}>{item.price}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', marginTop: 2 }}>
                         <Text style={styles.ItemtextSP}>Chiết khấu: </Text>
-                        <Text style={styles.ItemTextCK}>{item.chietkhau}</Text>
+                        <Text style={styles.ItemTextCK}>{item.price_cal_commission}</Text>
                     </View>
                     <TouchableOpacity style={styles.Add} onPress={() => handleAddToCart(item)}>
                         <Text style={{ color: 'white' }}>+</Text>
@@ -226,9 +181,6 @@ const ScreenSproduct = ({ navigation }: any) => {
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={{ marginVertical: 10, flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text style={{ color: 'black', fontSize: 15, fontWeight: '500' }}>Tìm kiếm gần đây</Text>
-                    {/* <TouchableOpacity onPress={handelremove}>
-                        <Text style={{ color: 'red', fontSize: 15, fontWeight: '500' }}>Xóa</Text>
-                    </TouchableOpacity> */}
                 </View>
                 <View>
                     <FlatList
@@ -242,7 +194,7 @@ const ScreenSproduct = ({ navigation }: any) => {
                 <View style={{ width: '100%' }}>
                     <FlatList
                         data={filteredSanPham}
-                        keyExtractor={(item) => item.id}
+                        keyExtractor={(item) => item.product_id}
                         renderItem={renderSP}
                         showsVerticalScrollIndicator={false}
                         numColumns={2}
@@ -275,7 +227,7 @@ const styles = StyleSheet.create({
         fontSize: 10,
         fontWeight: '500',
         color: 'black',
-        marginTop: 10
+        marginTop: 10,
     },
     ItemtextSP: {
         color: 'black',

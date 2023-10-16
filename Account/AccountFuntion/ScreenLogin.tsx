@@ -4,13 +4,14 @@ import color from '../../Color/color'
 import Animated, { Extrapolate, interpolate, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import axios from 'axios'
 import { saveUserDataToStorage } from '../../AsysncStorage/AsysncUser'
+import { getAPIKeyAndDomainFromStorage } from '../../AsysncStorage/AsysncAPI'
 
-const ScreenLogin = ({ navigation, route }: any) => {
-
-    const { APIkey, Domain } = route.params
+const ScreenLogin = ({ navigation }: any) => {
 
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
+    const [APIkey, setAPIkey] = useState<string>('')
+    const [Domain, setDomain] = useState<string>('')
     const [error, seterror] = useState('')
 
     const formData = new FormData()
@@ -45,11 +46,11 @@ const ScreenLogin = ({ navigation, route }: any) => {
         }
     })
 
-    const errorStyle = useAnimatedStyle(()=>{
+    const errorStyle = useAnimatedStyle(() => {
         const scaleItem = interpolate(
             scale.value,
-            [0,1500],
-            [-100,0],
+            [0, 1500],
+            [-100, 0],
             Extrapolate.CLAMP
         )
         const opacity = interpolate(
@@ -60,7 +61,7 @@ const ScreenLogin = ({ navigation, route }: any) => {
         )
         return {
             opacity,
-            transform:[{translateY:scaleItem}]
+            transform: [{ translateY: scaleItem }]
         }
     })
 
@@ -91,17 +92,16 @@ const ScreenLogin = ({ navigation, route }: any) => {
 
 
     useEffect(() => {
+        getAPIKeyAndDomainFromStorage({setAPIkey,setDomain})
         opacityVector.value = withTiming(3000, { duration: 1500 })
-        const fullURL = `${Domain}/client_init/login?apikey=${APIkey}`
-        console.log('Full URL Register:', fullURL)
     }, [])
 
 
     return (
         <View style={{ flex: 1, backgroundColor: color.background, padding: 20 }}>
-            <Animated.View style={[{ width: '100%',justifyContent:'center',alignItems:'center'},errorStyle]}>
+            <Animated.View style={[{ width: '100%', justifyContent: 'center', alignItems: 'center' }, errorStyle]}>
                 <View style={styles.boxtextanimation}>
-                    <Text style={{color:'white'}}>{error}</Text>
+                    <Text style={{ color: 'white' }}>{error}</Text>
                 </View>
             </Animated.View>
             <View style={{ flexDirection: 'row', marginTop: 120, height: 200 }}>
@@ -247,11 +247,11 @@ const styles = StyleSheet.create({
         backgroundColor: color.organge,
         opacity: 0.5,
     },
-    boxtextanimation:{
-        alignItems:'center',justifyContent:'center',
-        paddingHorizontal:20,
-        height:50, 
+    boxtextanimation: {
+        alignItems: 'center', justifyContent: 'center',
+        paddingHorizontal: 20,
+        height: 50,
         backgroundColor: 'rgba(0, 0, 0, 0.6)',
-        borderRadius:20
+        borderRadius: 20
     }
 })

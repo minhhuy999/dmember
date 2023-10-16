@@ -51,6 +51,8 @@ const styles = StyleSheet.create({
         right: 16,
         left: 16,
         borderRadius: 16,
-        elevation: 5
+        elevation: 5,
+        borderColor:'rgba(0, 0, 0, 0.2)',
+        borderWidth:5,
     },
 })

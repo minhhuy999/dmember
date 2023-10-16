@@ -3,12 +3,14 @@ import React, { useEffect, useState } from 'react'
 import color from '../../Color/color'
 import { useNavigation } from '@react-navigation/native'
 import { ScrollView } from 'react-native-gesture-handler'
+import { getAPIKeyAndDomainFromStorage } from '../../AsysncStorage/AsysncAPI'
 
-const ScreenRegister = ({ route }: any) => {
+const ScreenRegister = () => {
 
     const navigation: any = useNavigation()
     const [selectedItemIndex, setSelectedItemIndex] = useState(-1)
-    const { APIkey, Domain } = route.params
+    const [APIkey, setAPIkey] = useState<string>('')
+    const [Domain, setDomain] = useState<string>('')
 
     const [fullname, setFullname] = useState('')
     const [password, setPassword] = useState('')
@@ -80,8 +82,7 @@ const ScreenRegister = ({ route }: any) => {
     ]
 
     useEffect(() => {
-        const fullURL = `${Domain}/client_init/register?apikey=${APIkey}`;
-        console.log('Full URL Register:', fullURL);
+        getAPIKeyAndDomainFromStorage({setAPIkey,setDomain})
     }, []);
 
     const checktext = () => {
@@ -132,7 +133,9 @@ const ScreenRegister = ({ route }: any) => {
                 return response.json();
             })
             .then((data) => {
-                if (data.message === 'Số điện thoại đã tồn tại, vui lòng chọn số điện thoại khác.' || data.message === 'Mã giới thiệu không tồn tại.') {
+                if (data.message === 'Số điện thoại đã tồn tại, vui lòng chọn số điện thoại khác.' 
+                || data.message === 'Mã giới thiệu không tồn tại.'
+                || data.message === 'Vui lòng nhập số điện thoại.') {
                     setApiErrorMessage(data.message);
                 } else {
                     setApiErrorMessage('');
