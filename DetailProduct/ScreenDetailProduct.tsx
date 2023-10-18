@@ -1,25 +1,27 @@
 import { StyleSheet, FlatList, ScrollView, Text, View, Image, TextInput, TouchableOpacity } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import color from '../Color/color'
-import { useNavigation } from '@react-navigation/native'
+import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import realmHS from '../Realm/realmHistoryS'
 import { addSPStore } from '../Realm/StorageServices'
 import Card from './AnimatedDetailPd/Card'
+import { getAPIKeyAndDomainFromStorage, getAPIandDOMAIN } from '../AsysncStorage/AsysncAPI'
+import axios from 'axios'
 
 const ScreenDetailProduct = ({ navigation, route }: any) => {
 
     const [soLuong, setSoLuong] = useState(1)
-    const [currentIndex2, setCurrentIndex2] = useState(0)
-    const [activeDotIndex2, setActiveDotIndex2] = useState(0)
-
     const scrollViewRef: any = useRef(null)
-    const flatListRef2: any = useRef(null)
-
     const addSP = realmHS.objects('AddProduct')
-
     const navigationGoback = useNavigation()
-
     const { item } = route.params || {}
+
+    const [APIkey, setAPIkey] = useState<any>(null)
+    const [Domain, setDomain] = useState<any>(null)
+    const formData = new FormData()
+    formData.append('app_name', 'khttest')
+    const apiProductlist = `${Domain}/client_product/list_all?apikey=${APIkey}`
+    const [imageUrls, setImageUrls] = useState<any>([])
 
     const SanPham = [
         {
@@ -65,7 +67,6 @@ const ScreenDetailProduct = ({ navigation, route }: any) => {
             chietkhau: '53,000'
         },
     ]
-
     const data = [
         {
             // id: '1',
@@ -92,7 +93,6 @@ const ScreenDetailProduct = ({ navigation, route }: any) => {
     const tangSoLuong = () => {
         setSoLuong(soLuong + 1)
     }
-
     const giamSoLuong = () => {
         if (soLuong > 1) {
             setSoLuong(soLuong - 1)
@@ -123,55 +123,77 @@ const ScreenDetailProduct = ({ navigation, route }: any) => {
     }
 
 
-    const renderImgmore = ({ item, index }: any) => {
-        return (
-            <Image source={item.img} style={{ width: 100, height: 252 }} />
-        )
-    }
-
-    // const renderDot2 = () => {
-    //     return Imgmore.map((dot, index) => {
-    //         const isActive = index === activeDotIndex2
-    //         return (
-    //             <View
-    //                 key={index}
-    //                 style={{
-    //                     marginHorizontal: 2,
-    //                     backgroundColor: isActive ? 'white' : 'black',
-    //                     height: 2,
-    //                     width: 15,
-    //                     borderRadius: 5
-    //                 }}
-    //             ></View>
-    //         )
-    //     })
+    // const renderImgmore = ({ item, index }: any) => {
+    //     return (
+    //         <Image source={item.img} style={{ width: 100, height: 252 }} />
+    //     )
     // }
 
-    const scrollToTop = () => {
-        scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true })
-    }
-
-
-    // useEffect(() => {
-    //     const timer = setInterval(() => {
-    //         const nextIndex2 = (currentIndex2 + 1) % Imgmore.length
-    //         setCurrentIndex2(nextIndex2)
-    //         setActiveDotIndex2(nextIndex2)
-    //         flatListRef2.current.scrollToIndex({ index: nextIndex2 })
-    //     }, 3000)
-    //     return () => clearInterval(timer)
-    // }, [currentIndex2])
+    // const scrollToTop = () => {
+    //     scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true })
+    // }
 
     const handleAddToCart = (item: any) => {
-        const existingProduct: any = addSP.filtered(`id == '${item.id}'`)[0]
+        const existingProduct: any = addSP.filtered(`id == '${item.product_id}'`)[0]
         if (existingProduct) {
             realmHS.write(() => {
                 existingProduct.soluong += soLuong
             })
         } else {
-            addSPStore(item.id, soLuong)
+            addSPStore(item.product_id, soLuong)
         }
         console.log('Sản phẩm đã được thêm vào cơ sở dữ liệu Realm.')
+    }
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await getAPIandDOMAIN({ setAPIkey, setDomain }).then(() => {
+                if (APIkey != null && Domain != null) {
+                    getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain })
+                }
+            })
+        }
+        fetchData()
+    }, [])
+
+    useFocusEffect(
+        React.useCallback(() => {
+            getAPIShop()
+        }, [APIkey, Domain])
+    )
+
+    const getAPIShop = async () => {
+        if (APIkey && Domain) {
+            try {
+                const response = await axios.post(apiProductlist, formData, {
+                    headers: {
+                        'Accept': 'application/x-www-form-urlencoded',
+                    },
+                })
+                if (response.status === 200) {
+                    const dataProduct = response.data.data.l
+                    const product = dataProduct.find((item1:any) => item1.product_id === item.product_id)
+                    const imageUrls = []
+                    if (product.img_1) {
+                        imageUrls.push(product.img_1)
+                    }
+                    if (product.img_2) {
+                        imageUrls.push(product.img_2)
+                    }
+                    if (product.img_3) {
+                        imageUrls.push(product.img_3)
+                    }
+                    if (product.img_4) {
+                        imageUrls.push(product.img_4)
+                    }
+                    setImageUrls(imageUrls)
+                } else {
+                    throw new Error('Network response was not ok')
+                }
+            } catch (error) {
+                console.error('There was a problem with the operation:', error)
+            }
+        }
     }
 
     return (
@@ -198,23 +220,11 @@ const ScreenDetailProduct = ({ navigation, route }: any) => {
                                 <View style={{ width: 151, height: 290, backgroundColor: color.background, justifyContent: 'center', alignItems: 'center' }}></View>
                             </View>
                         </View>
-                        {/* <View style={{ alignItems: 'center', justifyContent: 'center', position: 'absolute', bottom: 70, width: 100, left: 118 }}>
-                            <FlatList
-                                ref={flatListRef2}
-                                data={Imgmore}
-                                keyExtractor={(item) => item.id}
-                                renderItem={renderImgmore}
-                                horizontal={true}
-                                pagingEnabled={true}
-                                showsHorizontalScrollIndicator={false}
-                            />
-                        </View> */}
-                        <Card data={data} maxVisibleItems={3}/>
-                        {/* <View style={{ backgroundColor: 'rgba(255, 255, 255, 0.3)', width: 250, height: 160, position: 'absolute', bottom: 60, borderRadius: 20 }}></View> */}
-                        {/* <View style={{ flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'center', position: 'absolute', bottom: 70 }}>{renderDot2()}</View> */}
+                        <Card data={imageUrls} maxVisibleItems={3}/>
+                        <View>{}</View>
                         <View style={{ flexDirection: 'row', paddingVertical: 10 }}>
                             <Text style={{ color: 'black', fontSize: 21, fontWeight: '400' }}>Giá bán: </Text>
-                            <Text style={{ color: 'white', fontSize: 21, fontWeight: '600' }}>412,500</Text>
+                            <Text style={{ color: 'white', fontSize: 21, fontWeight: '600' }}>{item?.price}</Text>
                         </View>
                     </View>
                     <View style={{ width: '100%', height: 100, justifyContent: 'center' }}>
@@ -240,7 +250,7 @@ const ScreenDetailProduct = ({ navigation, route }: any) => {
                     </View>
                     <View style={{ backgroundColor: 'white', borderRadius: 10, width: '100%', marginBottom: 20, paddingHorizontal: 15 }}>
                         <View style={{ width: '100%', padding: 10 }}>
-                            <Text style={styles.muc}>{item?.name}</Text>
+                            <Text style={styles.muc}>{item?.product_name}</Text>
                             <View style={{ width: '100%', alignItems: 'center' }}>
                                 <View style={{ height: 1, width: '80%', backgroundColor: color.graymedium, marginVertical: 10 }}></View>
                                 <View style={{ flexDirection: 'row', width: '100%' }}>
@@ -252,9 +262,9 @@ const ScreenDetailProduct = ({ navigation, route }: any) => {
                                         <Text style={styles.textDetail}>Hoa hồng thành viên mới</Text>
                                     </View>
                                     <View style={{ height: '100%', width: '40%' }}>
-                                        <Text style={{ textAlign: 'right', color: 'black', fontSize: 15, fontWeight: '600', paddingTop: 10 }}>{item?.gia}</Text>
+                                        <Text style={{ textAlign: 'right', color: 'black', fontSize: 15, fontWeight: '600', paddingTop: 10 }}>{item?.price}</Text>
                                         <Text style={{ textAlign: 'right', color: 'black', fontSize: 15, fontWeight: '600', paddingTop: 10 }}>309,375</Text>
-                                        <Text style={{ textAlign: 'right', color: color.blue, fontSize: 15, fontWeight: '600', paddingTop: 10 }}>{item?.chietkhau}</Text>
+                                        <Text style={{ textAlign: 'right', color: color.blue, fontSize: 15, fontWeight: '600', paddingTop: 10 }}>{item?.price_cal_commission}</Text>
                                         <Text style={{ textAlign: 'right', color: color.green, fontSize: 15, fontWeight: '600', paddingTop: 10 }}>12,375</Text>
                                         <Text style={{ textAlign: 'right', color: color.green, fontSize: 15, fontWeight: '600', paddingTop: 10 }}>12,375</Text>
                                     </View>

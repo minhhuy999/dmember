@@ -6,9 +6,11 @@ import { RadioButton } from 'react-native-paper';
 import { ScrollView } from 'react-native-gesture-handler';
 import realmHS from '../Realm/realmHistoryS';
 
-const ScreenTTdathang = ({ navigation }: any) => {
+const ScreenTTdathang = ({ route }: any) => {
 
-    const navigationGoback = useNavigation();
+    const { data } = route.params 
+
+    const navigation:any = useNavigation();
 
     const [checked, setChecked] = React.useState('first');
     const addSP = realmHS.objects('AddProduct')
@@ -87,23 +89,23 @@ const ScreenTTdathang = ({ navigation }: any) => {
     ]
 
     const renderlist = ({ item, index }: any) => {
-        const product: any = SanPham.find((sp) => sp.id === item.id);
+        const product: any = data.find((sp:any) => sp.product_id === item.id);
         return (
             <View style={{ backgroundColor: 'white', width: '100%', height: 90, borderRadius: 10, flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-                <Image source={product.img} style={{ width: 53, height: 53, paddingVertical: 10, marginLeft: 5 }} />
+                <Image source={{uri:product.img_1}} style={{ width: 53, height: 53, paddingVertical: 10, marginLeft: 10,marginRight:10,borderRadius:5 }} />
                 <View style={{ width: 280, padding: 5, height: 80 }}>
                     <View style={{ height: 40 }}>
-                        <Text style={styles.Text1}>{product.name}</Text>
+                        <Text style={styles.Text1}>{product.product_name}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', height: 30 }}>
                         <View style={{ height: 30, width: '75%' }}>
                             <View style={{ flexDirection: 'row' }}>
                                 <Text style={styles.Text2}>Giá bán: </Text>
-                                <Text style={{color:color.organge,fontSize:12,fontWeight:'400'}}>{product.gia}</Text>
+                                <Text style={{color:color.organge,fontSize:12,fontWeight:'400'}}>{product.price}</Text>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
                                 <Text style={styles.Text2}>Chiết khấu: </Text>
-                                <Text style={{color:color.blue,fontSize:12,fontWeight:'400'}}>{product.chietkhau}</Text>
+                                <Text style={{color:color.blue,fontSize:12,fontWeight:'400'}}>{product.price_cal_commission}</Text>
                             </View>
                         </View>
                         <View style={{ height: 30, justifyContent: 'flex-end' }}>
@@ -118,7 +120,7 @@ const ScreenTTdathang = ({ navigation }: any) => {
     return (
         <View style={styles.backgr}>
             <View style={styles.BoxTitile}>
-                <TouchableOpacity onPress={() => navigationGoback.goBack()} style={{ position: 'absolute', left: 0, top: 10 }}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', left: 0, top: 10 }}>
                     <Image source={require('../Icon/arrowback.png')} />
                 </TouchableOpacity>
                 <Text style={styles.title}>Thông tin đặt hàng</Text>

@@ -84,7 +84,7 @@ const AnimatedCard = ({
                     }
                 }}>
                 <Animated.Image
-                    source={item.image}
+                    source={{uri:item}}
                     style={[
                         styles.image,
                         {

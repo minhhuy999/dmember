@@ -7,9 +7,9 @@ import { loadAddSPData, removeSP, updateSLSP } from '../Realm/StorageServices';
 import DeletedAnimation from './AnimationShop/DeletedAnimation';
 
 
-const ScreenStore = ({ navigation,route }: any) => {
+const ScreenStore = ({ route }: any) => {
 
-    const { data } = route.params 
+    const { data } = route.params
 
     useEffect(() => {
         addSP.addListener(listener);
@@ -28,16 +28,26 @@ const ScreenStore = ({ navigation,route }: any) => {
 
     const [DataSrore, setDataSrore] = useState([])
     const addSP = realmHS.objects('AddProduct')
-    const navigationGoback = useNavigation();
+    const navigation:any = useNavigation();
 
-    const handleDeleteSP = (id: string) => {
-        removeSP(id)
-    };
+    let totalPrice = 0;
 
+    for (const item of addSP as unknown as { id: string; soluong: number }[]) {
+        const product = data.find((p: any) => p.product_id === item.id);
+        if (product) {
+            totalPrice += product.price * item.soluong;
+        }
+    }
+
+    const formattedTotalPrice = totalPrice.toLocaleString('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
+    })+' VND';
+    
     return (
         <View style={styles.backgr}>
             <View style={styles.BoxTitile}>
-                <TouchableOpacity onPress={() => navigationGoback.goBack()} style={{ position: 'absolute', left: 20, top: 10 }}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', left: 20, top: 10 }}>
                     <Image source={require('../Icon/arrowback.png')} />
                 </TouchableOpacity>
                 <Text style={styles.title}>Giỏ hàng</Text>
@@ -49,7 +59,7 @@ const ScreenStore = ({ navigation,route }: any) => {
                             data={addSP}
                             keyExtractor={(item: any) => item.id.toString()}
                             renderItem={({ item }) => {
-                                return <DeletedAnimation item={item} data={data}/>;
+                                return <DeletedAnimation item={item} data={data} />;
                             }}
                             showsVerticalScrollIndicator={false}
                         />
@@ -57,10 +67,10 @@ const ScreenStore = ({ navigation,route }: any) => {
                     <View style={styles.BoxALLmonney}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Image source={require('../Icon/gio.png')} />
-                            <Text style={{ marginLeft: 20, color: color.organge, fontSize: 21, fontWeight: '600' }}>1,590,000</Text>
+                            <Text style={{ marginLeft: 20, color: color.organge, fontSize: 21, fontWeight: '600' }}>{formattedTotalPrice}</Text>
                         </View>
                         <TouchableOpacity
-                            onPress={() => navigation.navigate('ScreenTTdathang')}
+                            onPress={() => navigation.navigate('ScreenTTdathang', { data })}
                             style={{
                                 backgroundColor: 'black',
                                 width: 100,

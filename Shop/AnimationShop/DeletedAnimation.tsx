@@ -5,9 +5,6 @@ import { removeSP, updateSLSP } from '../../Realm/StorageServices';
 import realmHS from '../../Realm/realmHistoryS';
 import Animated, { Extrapolate, interpolate, runOnJS, useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
-import axios from 'axios';
-import { getAPIKeyAndDomainFromStorage, getAPIandDOMAIN } from '../../AsysncStorage/AsysncAPI';
-import { useFocusEffect } from '@react-navigation/native';
 
 const DeletedAnimation = ({ item,data }: any) => {
 
@@ -32,6 +29,10 @@ const DeletedAnimation = ({ item,data }: any) => {
     };
 
     const product: any = data.find((sp:any) => sp.product_id === item.id);
+    const price = parseFloat(product.price);
+    const pricecal = parseFloat(product.price_cal_commission);
+    const formattedPrice = price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    const formattedDiscount = pricecal.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 
     const handleDeleteSP = (id: string) => {
         removeSP(id)
@@ -93,11 +94,11 @@ const DeletedAnimation = ({ item,data }: any) => {
                             <View>
                                 <View style={{ flexDirection: 'row' }}>
                                     <Text style={styles.text1render}>Giá bán: </Text>
-                                    <Text style={styles.texxt2render}>{product.price}</Text>
+                                    <Text style={styles.texxt2render}>{formattedPrice}</Text>
                                 </View>
                                 <View style={{ flexDirection: 'row' }}>
                                     <Text style={styles.text1render}>Chiết khấu: </Text>
-                                    <Text style={styles.texxt2render}>{product.price_cal_commission}</Text>
+                                    <Text style={styles.texxt2render}>{formattedDiscount}</Text>
                                 </View>
                             </View>
                             <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>

@@ -8,6 +8,7 @@ import Animated, { runOnJS, useAnimatedScrollHandler, useSharedValue } from 'rea
 import { getAPIKeyAndDomainFromStorage, getAPIandDOMAIN } from '../AsysncStorage/AsysncAPI';
 import axios from 'axios';
 import { useFocusEffect } from '@react-navigation/native';
+import CustomImageCarousalLandscape from './AnimationShop/CustomImageCarousalLandscape';
 
 
 const ScreenShop = ({ navigation }: any) => {
@@ -18,10 +19,8 @@ const ScreenShop = ({ navigation }: any) => {
     formData.append('app_name', 'khttest')
     const apiProductlist = `${Domain}/client_product/list_all?apikey=${APIkey}`;
 
-    const [currentIndex, setCurrentIndex] = useState(0);
     const [currentIndex2, setCurrentIndex2] = useState(0);
 
-    const [activeDotIndex, setActiveDotIndex] = useState(0);
     const [activeDotIndex2, setActiveDotIndex2] = useState(0);
     const flatListRef: any = useRef(null);
     const flatListRef2: any = useRef(null);
@@ -33,6 +32,13 @@ const ScreenShop = ({ navigation }: any) => {
 
     const translateY: any = useSharedValue(0);
     const [pagingEnabled, setPagingEnabled] = useState(false);
+
+    function limitText(text: any, maxLength: any) {
+        if (text.length <= maxLength) {
+            return text;
+        }
+        return text.slice(0, maxLength) + '...';
+    }
 
     const scrollHandler = useAnimatedScrollHandler({
         onScroll: (event) => {
@@ -46,21 +52,6 @@ const ScreenShop = ({ navigation }: any) => {
             }
         },
     });
-
-    const DataImg = [
-        {
-            id: '1',
-            img: require('../Image/imgLoad1.png')
-        },
-        {
-            id: '2',
-            img: require('../Image/imgLoad1.png')
-        },
-        {
-            id: '3',
-            img: require('../Image/imgLoad1.png')
-        },
-    ]
 
     const DataImg2 = [
         {
@@ -182,19 +173,33 @@ const ScreenShop = ({ navigation }: any) => {
         },
     ]
 
-    const renderItemImg = ({ item, index }: any) => {
+    const rendertest = ({ item, index }: any) => {
         return (
-            <View style={{ flex: 1 }}>
+            <View style={{ width: '100%', alignContent: 'center', justifyContent: 'center' }}>
+                {item.name == 'SẢN PHẨM MỚI' ?
+                    <Text style={{ width: '100%', height: 20 }}>{item.name}</Text> : null}
                 <FlatList
-                    data={item.slide_list}
-                    keyExtractor={(slide) => slide.id}
-                    horizontal={true}
-                    pagingEnabled={true}
-                    renderItem={({ item: slide }) => {
+                    data={item.product_1_list}
+                    keyExtractor={(product) => product.product_id}
+                    renderItem={({ item: product }) => {
                         return (
-                            <Image source={{ uri: slide.banner }} style={{ width: 355, height: 240 }} />
+                            <View style={{ width: '100%' }}>
+                                <Text>{product.product_name}</Text>
+                            </View>
                         )
                     }} />
+            </View>
+        )
+    }
+
+    const renderItemImg = ({ item, index }: any) => {
+        return (
+            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <CustomImageCarousalLandscape
+                    data={item.slide_list}
+                    autoPlay={true}
+                    pagination={true}
+                />
             </View>
         )
     }
@@ -209,23 +214,39 @@ const ScreenShop = ({ navigation }: any) => {
 
     const renderTopItem = ({ item, index }: any) => {
         return (
-            <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { item })}>
-                <View style={styles.ItemTopSP}>
-                    <Image source={item.img} style={{ width: 110, height: 105, marginVertical: 10 }} />
-                    <Text style={styles.ItemnameSP}>{item.name}</Text>
-                    <View style={{ flexDirection: 'row', marginTop: 2 }}>
-                        <Text style={styles.ItemtextSP}>Giá bán:</Text>
-                        <Text style={styles.ItemTextGia}> {item.gia}</Text>
-                    </View>
-                    <View style={{ flexDirection: 'row', marginTop: 2 }}>
-                        <Text style={styles.ItemtextSP}>Chiết khấu:</Text>
-                        <Text style={styles.ItemTextCK}>  {item.chietkhau}</Text>
-                    </View>
-                    <TouchableOpacity style={styles.Add} onPress={() => handleAddToCart(item)}>
-                        <Text style={{ color: 'white' }}>+</Text>
-                    </TouchableOpacity>
-                </View>
-            </TouchableOpacity>
+            <View style={{ width: '100%', alignContent: 'center', justifyContent: 'center' }}>
+                {item.name == 'SẢN PHẨM MỚI' ?
+                    <FlatList
+                        data={item.product_1_list}
+                        keyExtractor={(product) => product.product_id}
+                        horizontal={true}
+                        showsHorizontalScrollIndicator={false}
+                        renderItem={({ item: product }) => {
+                            const price = parseFloat(product.price);
+                            const pricecal = parseFloat(product.price_cal_commission);
+                            const formattedPrice = price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                            const formattedDiscount = pricecal.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                            return (
+                                <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { product })}>
+                                    <View style={styles.ItemTopSP}>
+                                        <Image source={{ uri: product.img_1 }} style={{ width: 110, height: 105, marginVertical: 10 }} />
+                                        <Text style={styles.ItemnameSP}>{limitText(product.product_name, 40)}</Text>
+                                        <View style={{ flexDirection: 'row', marginTop: 2 }}>
+                                            <Text style={styles.ItemtextSP}>Giá bán:</Text>
+                                            <Text style={styles.ItemTextGia}> {formattedPrice}</Text>
+                                        </View>
+                                        <View style={{ flexDirection: 'row', marginTop: 2 }}>
+                                            <Text style={styles.ItemtextSP}>Chiết khấu:</Text>
+                                            <Text style={styles.ItemTextCK}>  {formattedDiscount}</Text>
+                                        </View>
+                                        <TouchableOpacity style={styles.Add} onPress={() => handleAddToCart(product)}>
+                                            <Text style={{ color: 'white' }}>+</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </TouchableOpacity>
+                            )
+                        }} /> : null}
+            </View>
         )
     }
 
@@ -241,19 +262,23 @@ const ScreenShop = ({ navigation }: any) => {
     }
 
     const renderSP = ({ item, index }: any) => {
+        const price = parseFloat(item.price);
+        const pricecal = parseFloat(item.price_cal_commission);
+        const formattedPrice = price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+        const formattedDiscount = pricecal.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
         if (index < 5) {
             return (
                 <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { item })}>
                     <View style={styles.renderSp}>
                         <Image source={{ uri: item.img_1 }} style={{ height: 130, width: 132, borderRadius: 5 }} />
-                        <Text style={styles.ItemnameSP}>{item.product_name}</Text>
+                        <Text style={styles.ItemnameSP}>{limitText(item.product_name, 40)}</Text>
                         <View style={{ flexDirection: 'row', marginTop: 2 }}>
                             <Text style={styles.ItemtextSP}>Giá bán: </Text>
-                            <Text style={styles.ItemTextGia}>{item.price}</Text>
+                            <Text style={styles.ItemTextGia}>{formattedPrice}</Text>
                         </View>
                         <View style={{ flexDirection: 'row', marginTop: 2 }}>
                             <Text style={styles.ItemtextSP}>Chiết khấu: </Text>
-                            <Text style={styles.ItemTextCK}>{item.price_cal_commission}</Text>
+                            <Text style={styles.ItemTextCK}>{formattedDiscount}</Text>
                         </View>
                         <TouchableOpacity style={styles.Add} onPress={() => handleAddToCart(item)}>
                             <Text style={{ color: 'white' }}>+</Text>
@@ -275,24 +300,6 @@ const ScreenShop = ({ navigation }: any) => {
             )
         }
     }
-
-    // const renderDot = () => {
-    //     return DataImg.map((dot, index) => {
-    //         const isActive = index === activeDotIndex;
-    //         return (
-    //             <View
-    //                 key={index}
-    //                 style={{
-    //                     marginHorizontal: 2,
-    //                     backgroundColor: 'white',
-    //                     height: isActive ? 10 : 7,
-    //                     width: isActive ? 10 : 7,
-    //                     borderRadius: 5
-    //                 }}
-    //             ></View>
-    //         )
-    //     })
-    // }
 
     const renderDot2 = () => {
         return DataImg2.map((dot, index) => {
@@ -349,17 +356,13 @@ const ScreenShop = ({ navigation }: any) => {
 
     useEffect(() => {
         const timer = setInterval(() => {
-            // const nextIndex = (currentIndex + 1) % DataImg.length;
             const nextIndex2 = (currentIndex2 + 1) % DataImg2.length;
-            // setCurrentIndex(nextIndex);
             setCurrentIndex2(nextIndex2);
-            // setActiveDotIndex(nextIndex);
             setActiveDotIndex2(nextIndex2);
-            // flatListRef.current.scrollToIndex({ index: nextIndex });
             flatListRef2.current.scrollToIndex({ index: nextIndex2 });
         }, 3000);
         return () => clearInterval(timer);
-    }, [currentIndex, currentIndex2]);
+    }, [currentIndex2]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -405,16 +408,15 @@ const ScreenShop = ({ navigation }: any) => {
         <View style={styles.backgr}>
             <SearchAnimation translateY={translateY} data={dataProduct} />
             <Animated.ScrollView showsVerticalScrollIndicator={false} onScroll={scrollHandler} pagingEnabled={pagingEnabled}>
-                <View style={{ width: '98%', height: 200, marginTop: 15, alignItems: 'center' }}>
+                <View style={{ width: '100%', marginTop: 15 }}>
                     <FlatList
                         ref={flatListRef}
-                        data={dataicontopic1.slice(0, 1)}
-                        keyExtractor={(item) => item.id}
+                        data={dataicontopic1.slice(2, 3)}
+                        keyExtractor={(item, index) => index.toString()}
                         renderItem={renderItemImg}
                         scrollEnabled={false}
                         showsHorizontalScrollIndicator={false}
                     />
-                    {/* <View style={styles.dot}>{renderDot()}</View> */}
                 </View>
                 <View style={{ marginBottom: 20 }}>
                     <View style={styles.BoxItem}>
@@ -426,52 +428,24 @@ const ScreenShop = ({ navigation }: any) => {
                         />
                     </View>
                 </View>
-                <View>
-                    {/* <FlatList
-                        data={dataicontopic1.slice(0, 1)}
+                {/* <View style={{ marginBottom: 20 }}>
+                    <FlatList
+                        data={dataicontopic1}
                         keyExtractor={(item) => item.id}
                         scrollEnabled={false}
-                        renderItem={({ item, index }: any) => {
-                            console.log(
-                                JSON.stringify(
-                                    item.category_1_list
-                                    )
-                                    )
-                            if (item.category_1_list) {
-                                item.category_1_list.forEach((category:any) => {
-                                    console.log(`Category Name: ${category.name}`);
-                                });
-                            }
-                            return (
-                                <View style={{ width: '100%', backgroundColor: 'blue', marginVertical: 20 }}>
-                                    <FlatList
-                                        data={item.category_1_list}
-                                        keyExtractor={(category) => category.id}
-                                        renderItem={({ item: category }) => {
-                                            return (
-                                                <View>
-                                                    <Image source={{ uri: category.icon }} style={{ height: 38, width: 38 }} />
-                                                    <Text key={category.id}>{category.name}</Text>
-                                                </View>
-                                            )
-                                        }}
-                                    />
-                                </View>
-                            )
-                        }}
-                    /> */}
-                    {/* <Text>{JSON.stringify(dataicontopic1)}</Text> */}
-                </View>
+                        renderItem={rendertest}
+                    />
+                </View> */}
                 <View style={styles.muc}>
                     <Text style={styles.title}>SẢN PHẨM BÁN CHẠY</Text>
                     <Image source={require('../Icon/arrow.png')} style={{ height: 13, width: 7, marginRight: 5 }} />
                 </View>
                 <View style={{ width: '100%', height: 250 }}>
                     <FlatList
-                        data={TopItem}
+                        data={dataicontopic1}
                         keyExtractor={(item) => item.id}
                         renderItem={renderTopItem}
-                        horizontal={true}
+                        scrollEnabled={false}
                         showsHorizontalScrollIndicator={false}
                     />
                 </View>
@@ -531,7 +505,6 @@ const styles = StyleSheet.create({
     },
     BoxItem: {
         padding: 15,
-        marginTop: 10,
         backgroundColor: 'white',
         width: '98%',
         borderRadius: 10,
@@ -588,7 +561,8 @@ const styles = StyleSheet.create({
         fontSize: 10,
         fontWeight: '500',
         color: 'black',
-        marginTop: 10
+        marginTop: 10,
+        height: 30
     },
     ItemtextSP: {
         color: 'black',

@@ -2,7 +2,7 @@ import React from 'react';
 import { useSharedValue } from 'react-native-reanimated';
 import AnimatedCard from './AnimatedCard';
 import { View } from 'react-native-animatable';
-import { FlatList } from 'react-native';
+
 const Card = ({ data, maxVisibleItems }: any) => {
     const animatedValue = useSharedValue(0);
     const currentIndex = useSharedValue(0);

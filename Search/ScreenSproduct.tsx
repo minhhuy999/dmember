@@ -43,13 +43,10 @@ const ScreenSproduct = ({ navigation, route }: any) => {
                 setTasks(tasks)
                 // Đảo ngược danh sách History
                 const reversedHistory: any = [...History].reverse()
-
                 // Loại bỏ mục cụ thể dựa trên id
                 const updatedHistory: any = reversedHistory.filter((item: any) => item.id !== id)
-
                 // Lấy 3 mục đầu tiên sau khi loại bỏ
                 const slicedHistory = updatedHistory.slice(0, 3)
-
                 // Cập nhật sortedHistory và kích hoạt animation
                 setSortedHistory(slicedHistory)
                 setAnimateHistory(true)
@@ -89,7 +86,6 @@ const ScreenSproduct = ({ navigation, route }: any) => {
         setShowAnimatedBox(true);
         setIsPlaying(true);
 
-        // Tắt animation Lottie sau khoảng thời gian ngắn (ví dụ: 2 giây)
         setTimeout(() => {
             setIsPlaying(false);
         }, 1700);
@@ -109,6 +105,10 @@ const ScreenSproduct = ({ navigation, route }: any) => {
     }
 
     const renderSP = ({ item, index }: any) => {
+        const price = parseFloat(item.price);
+        const pricecal = parseFloat(item.price_cal_commission);
+        const formattedPrice = price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+        const formattedDiscount = pricecal.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
         return (
             <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { item })}>
                 <MotiView
@@ -121,11 +121,11 @@ const ScreenSproduct = ({ navigation, route }: any) => {
                     <Text style={styles.ItemnameSP}>{limitText(item.product_name, 50)}</Text>
                     <View style={{ flexDirection: 'row', marginTop: 2 }}>
                         <Text style={styles.ItemtextSP}>Giá bán: </Text>
-                        <Text style={styles.ItemTextGia}>{item.price}</Text>
+                        <Text style={styles.ItemTextGia}>{formattedPrice}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', marginTop: 2 }}>
                         <Text style={styles.ItemtextSP}>Chiết khấu: </Text>
-                        <Text style={styles.ItemTextCK}>{item.price_cal_commission}</Text>
+                        <Text style={styles.ItemTextCK}>{formattedDiscount}</Text>
                     </View>
                     <TouchableOpacity style={styles.Add} onPress={() => handleAddToCart(item)}>
                         <Text style={{ color: 'white' }}>+</Text>
@@ -191,13 +191,14 @@ const ScreenSproduct = ({ navigation, route }: any) => {
                     />
                 </View>
                 <Text style={{ marginVertical: 20, color: 'black', fontSize: 17, fontWeight: '400' }}>Kết quả liên quan</Text>
-                <View style={{ width: '100%' }}>
+                <View style={{ width: '100%',}}>
                     <FlatList
                         data={filteredSanPham}
                         keyExtractor={(item) => item.product_id}
                         renderItem={renderSP}
                         showsVerticalScrollIndicator={false}
                         numColumns={2}
+                        initialNumToRender={2}
                         scrollEnabled={false}
                     />
                 </View>
