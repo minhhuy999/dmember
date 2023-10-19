@@ -14,6 +14,7 @@ const TaskSP = {
     properties: {
         id:'string',
         soluong:'int',
+        price:'int',
     },
 };
 

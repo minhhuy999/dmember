@@ -3,9 +3,11 @@ import React, { useEffect, useState } from 'react'
 import color from '../Color/color'
 import { MotiView } from 'moti/build'
 import { logout, retrieveUserData } from '../AsysncStorage/AsysncUser'
-import { useFocusEffect } from '@react-navigation/native'
+import { useFocusEffect, useNavigation } from '@react-navigation/native'
 
-const ScreenAcount = ({ navigation }: any) => {
+const ScreenAcount = () => {
+
+    const navigation:any = useNavigation();
 
     const [isModal, setisModal] = useState(false)
     const [fullname, setfullname] = useState('');
@@ -14,26 +16,28 @@ const ScreenAcount = ({ navigation }: any) => {
     const [Sex, setSex] = useState('')
     const [Mobile, setMobile] = useState('')
 
-
     const logout1 = async () => {
         logout()
-        setfullname('');
-        setemail('');
+        navigation.navigate('ScreenLogin')
+    };
+
+    const fetchData = async () => {
+        const userData = await retrieveUserData();
+        if (userData) {
+            const { fullname, email, user_id, sex, mobile } = userData;
+            setfullname(fullname);
+            setemail(email);
+            setuserId(user_id);
+            setSex(sex);
+            setMobile(mobile);
+        }else{
+            setfullname('');
+            setemail('');
+        }
     };
 
     useFocusEffect(
         React.useCallback(() => {
-            const fetchData = async () => {
-                const userData = await retrieveUserData();
-                if (userData) {
-                    const { fullname, email, user_id, sex, mobile } = userData;
-                    setfullname(fullname);
-                    setemail(email);
-                    setuserId(user_id);
-                    setSex(sex);
-                    setMobile(mobile);
-                }
-            };
             fetchData();
         }, [])
     );

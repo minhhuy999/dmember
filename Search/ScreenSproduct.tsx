@@ -1,22 +1,26 @@
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, Button, Alert } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import color from '../Color/color'
-import { useNavigation } from '@react-navigation/native'
+import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import { FlatList, ScrollView } from 'react-native-gesture-handler'
-import { addSPStore, addTask, getListTasks, loadAddSPData, removeTask } from '../Realm/StorageServices'
+import { addSPStore, addTask, getListTasks, removeTask } from '../Realm/StorageServices'
 import realmHS from '../Realm/realmHistoryS'
 import unidecode from 'unidecode'
 import Animated, { Extrapolate, FadeIn, FadeOut, Layout, interpolate, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import { MotiView } from 'moti'
 import LottieView from 'lottie-react-native'
+import axios from 'axios'
+import { getAPIKeyAndDomainFromStorage } from '../AsysncStorage/AsysncAPI'
 
-const ScreenSproduct = ({ navigation, route }: any) => {
+const ScreenSproduct = ({ navigation }: any) => {
 
-    const { data } = route.params
     const navigationGoback = useNavigation()
     const [name, setName] = useState('')
 
     const [tasks, setTasks]: any = useState([])
+
+    const formData = new FormData()
+    formData.append('app_name', 'khttest')
 
     const addSP = realmHS.objects('AddProduct')
     const History: any = realmHS.objects('HistorySreach')
@@ -27,7 +31,25 @@ const ScreenSproduct = ({ navigation, route }: any) => {
     const [showAnimatedBox, setShowAnimatedBox] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
 
+    const [currentPage, setCurrentPage] = useState(1)
+    const [loadingmore, setloadingmore] = useState(false)
+    const [filteredSanPham, setFilteredSanPham] = useState<any>([])
+
+    const [APIkey, setAPIkey] = useState<any>(null)
+    const [Domain, setDomain] = useState<any>(null)
+    const apiProductlist = `${Domain}/client_product/list_all?apikey=${APIkey}`;
+
     const scale = useSharedValue(0)
+
+    useEffect(()=>{
+        getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain })
+    })
+
+    useFocusEffect(
+        React.useCallback(() => {
+            getAPIShop();
+        }, [APIkey,Domain])
+    );
 
     useEffect(() => {
         initialMode.current = false
@@ -36,6 +58,57 @@ const ScreenSproduct = ({ navigation, route }: any) => {
             History.removeListener(listener)
         }
     }, [])
+
+    const getAPIShop = async () => {
+        if (APIkey && Domain) {
+            try {
+                const response = await axios.post(apiProductlist, formData, {
+                    headers: {
+                        'Accept': 'application/x-www-form-urlencoded',
+                    },
+                });
+                if (response.status === 200) {
+                    const dataProduct1 = response.data.data.l;
+                    setFilteredSanPham(dataProduct1)
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            } catch (error) {
+                console.error('There was a problem with the operation:', error);
+            }
+        }
+    };
+
+    const loadMoreData = async () => {
+        if (loadingmore) return;
+    
+        try {
+            setloadingmore(true);
+    
+            const newPage = currentPage + 1;
+            const newFormData = new FormData();
+            newFormData.append('app_name', 'khttest');
+            newFormData.append('page', newPage);
+            newFormData.append('for_point', 0);
+            const response = await axios.post(apiProductlist, newFormData, {
+                headers: {
+                    'Accept': 'application/x-www-form-urlencoded',
+                },
+            });
+    
+            if (response.status === 200) {
+                const newData = response.data.data.l;
+                setFilteredSanPham((prevData: any) => [...prevData, ...newData]);
+                setCurrentPage(newPage);
+            } else {
+                throw new Error('Network response was not ok');
+            }
+        } catch (error) {
+            console.error('There was a problem with the operation:', error);
+        } finally {
+            setloadingmore(false);
+        }
+    };
 
     const listener = () => {
         getListTasks()
@@ -53,13 +126,11 @@ const ScreenSproduct = ({ navigation, route }: any) => {
             })
     }
 
-    const [filteredSanPham, setFilteredSanPham] = useState(data)
-
     const handleSearch = () => {
         const searchKeywords = unidecode(name.toLowerCase()).split(' ')
-        const normalizedSanPham = data.map((item:any) => unidecode(item.product_name.toLowerCase()))
+        const normalizedSanPham = filteredSanPham.map((item: any) => unidecode(item.product_name.toLowerCase()))
 
-        const filteredItems = data.filter((item:any, index:any) => {
+        const filteredItems = filteredSanPham.filter((item: any, index: any) => {
             const itemName = normalizedSanPham[index]
             return searchKeywords.every((keyword) => itemName.includes(keyword))
         })
@@ -78,7 +149,9 @@ const ScreenSproduct = ({ navigation, route }: any) => {
                 existingProduct.soluong += 1
             })
         } else {
-            addSPStore(item.product_id, 1)
+            const product = filteredSanPham.find((productItem: any) => productItem.product_id === item.product_id);
+            const price = parseFloat(product.price);
+            addSPStore(item.product_id, 1,price)
         }
         scale.value = withSpring(1, { duration: 1500 }, () => {
             scale.value = withTiming(0);
@@ -97,11 +170,11 @@ const ScreenSproduct = ({ navigation, route }: any) => {
         removeTask(id)
     }
 
-    function limitText(text:any, maxLength:any) {
+    function limitText(text: any, maxLength: any) {
         if (text.length <= maxLength) {
             return text;
         }
-        return text.slice(0, maxLength) + '...'; 
+        return text.slice(0, maxLength) + '...';
     }
 
     const renderSP = ({ item, index }: any) => {
@@ -115,9 +188,9 @@ const ScreenSproduct = ({ navigation, route }: any) => {
                     style={{ elevation: 5, backgroundColor: 'white', height: 229, width: 169, borderRadius: 10, paddingHorizontal: 20, paddingVertical: 10, marginRight: 15, marginBottom: 15 }}
                     from={{ opacity: 0, translateY: 50 }}
                     animate={{ opacity: 1, translateY: 0 }}
-                    transition={{ delay: index * 400 }}
+                    transition={{ delay: index * 200 }}
                 >
-                    <Image source={{ uri: item.img_1 }} style={{ height: 130, width: 132,borderRadius:5 }} />
+                    <Image source={{ uri: item.img_1 }} style={{ height: 130, width: 132, borderRadius: 5 }} />
                     <Text style={styles.ItemnameSP}>{limitText(item.product_name, 50)}</Text>
                     <View style={{ flexDirection: 'row', marginTop: 2 }}>
                         <Text style={styles.ItemtextSP}>Giá bán: </Text>
@@ -191,22 +264,21 @@ const ScreenSproduct = ({ navigation, route }: any) => {
                     />
                 </View>
                 <Text style={{ marginVertical: 20, color: 'black', fontSize: 17, fontWeight: '400' }}>Kết quả liên quan</Text>
-                <View style={{ width: '100%',}}>
+                <View style={{ width: '100%', }}>
                     <FlatList
                         data={filteredSanPham}
                         keyExtractor={(item) => item.product_id}
                         renderItem={renderSP}
                         showsVerticalScrollIndicator={false}
                         numColumns={2}
-                        initialNumToRender={2}
+                        initialNumToRender={4}
                         scrollEnabled={false}
+                        onEndReached={loadMoreData}
+                        onEndReachedThreshold={0.2}
                     />
                 </View>
             </ScrollView>
             <Animated.View style={[showAnimatedBox ? {} : { display: 'none' }, { alignItems: 'center', justifyContent: 'center', width: 200, height: 100, backgroundColor: 'rgba(225, 225, 225, 0.8)', position: 'absolute', top: 350, left: 100, borderRadius: 20 }, rStyle]}>
-                {/* <View style={{ marginBottom: 10, width: 50, height: 50, backgroundColor: 'rgba(225, 225, 225, 0.7)', borderRadius: 25, justifyContent: 'center', alignItems: 'center' }}>
-                    <Image source={require('../Icon/check.png')} style={{ height: 40, width: 40 }} />
-                </View> */}
                 {isPlaying && (
                     <LottieView style={{ width: 100, height: 50 }} source={require('../LottieView/animation_lni9djrn.json')} autoPlay loop={false} />)}
                 <Text style={{ color: 'black' }}>Da them san pham</Text>

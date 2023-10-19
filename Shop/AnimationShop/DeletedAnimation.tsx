@@ -5,12 +5,21 @@ import { removeSP, updateSLSP } from '../../Realm/StorageServices';
 import realmHS from '../../Realm/realmHistoryS';
 import Animated, { Extrapolate, interpolate, runOnJS, useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
+import axios from 'axios';
 
-const DeletedAnimation = ({ item,data }: any) => {
+const DeletedAnimation = ({ item, Domain, APIkey }: any) => {
 
     const translateX = useSharedValue(0);
     const addSP = realmHS.objects('AddProduct')
     const itemID = item.id
+
+    const apiProductlist = `${Domain}/client_product/detail?apikey=${APIkey}`
+
+    const [data, setdata] = useState<any>([])
+    const [image, setimage] = useState('')
+    const formData = new FormData()
+    formData.append('app_name', 'khttest')
+    formData.append('id', item.id)
 
     const incrementQuantity = (id: string) => {
         const productToUpdate = addSP.find((product: any) => product.id === id);
@@ -28,9 +37,8 @@ const DeletedAnimation = ({ item,data }: any) => {
         }
     };
 
-    const product: any = data.find((sp:any) => sp.product_id === item.id);
-    const price = parseFloat(product.price);
-    const pricecal = parseFloat(product.price_cal_commission);
+    const price = parseFloat(data.price);
+    const pricecal = parseFloat(data.price_cal_commission);
     const formattedPrice = price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
     const formattedDiscount = pricecal.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 
@@ -76,6 +84,31 @@ const DeletedAnimation = ({ item,data }: any) => {
         };
     });
 
+    useEffect(() => {
+        getAPIDetail()
+    }, [])
+
+    const getAPIDetail = async () => {
+        if (APIkey && Domain) {
+            try {
+                const response = await axios.post(apiProductlist, formData, {
+                    headers: {
+                        'Accept': 'application/x-www-form-urlencoded',
+                    },
+                })
+                if (response.status === 200) {
+                    const dataProduct = response.data.data
+                    setdata(dataProduct)
+                    setimage(dataProduct.img_1)
+                } else {
+                    throw new Error('Network response was not ok')
+                }
+            } catch (error) {
+                console.error('There was a problem with the operation:', error)
+            }
+        }
+    }
+
     return (
         <PanGestureHandler onGestureEvent={panGesture} >
             <Animated.View style={{ alignItems: 'center', justifyContent: 'center' }}>
@@ -87,9 +120,13 @@ const DeletedAnimation = ({ item,data }: any) => {
                     </TouchableOpacity>
                 </Animated.View>
                 <Animated.View style={[styles.boxrenderSp, rStyle]}>
-                    <Image source={{uri:product.img_1}} style={{ width: 80, height: 80 ,borderRadius:5,marginRight:10 }} />
+                    {image ? (
+                        <Image source={{ uri: image }} style={{ width: 80, height: 80, borderRadius: 5, marginRight: 10 }} />
+                    ) : (
+                        <View style={{ width: 80, height: 80, borderRadius: 5, marginRight: 10, backgroundColor: 'gray' }} />
+                    )}
                     <View style={{ flex: 1 }}>
-                        <Text style={{ color: 'black', fontSize: 13, fontWeight: '500', flex: 1 }}>{product.product_name}</Text>
+                        <Text style={{ color: 'black', fontSize: 13, fontWeight: '500', flex: 1 }}>{data.name}</Text>
                         <View style={{ flexDirection: 'row' }}>
                             <View>
                                 <View style={{ flexDirection: 'row' }}>

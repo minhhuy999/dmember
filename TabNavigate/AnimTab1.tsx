@@ -1,12 +1,14 @@
 import { StyleSheet } from 'react-native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import React from 'react'
+import React, { useState } from 'react'
 import ScreenHome from '../Home/ScreenHome';
 import ScreenShop from '../Shop/ScreenShop';
 import ScreenPoint from '../Point/ScreenPoint';
 import ScreenOder from '../Order/ScreenOder';
 import ScreenAcount from '../Account/ScreenAcount';
 import HomeBottomTab from './HomeBottomTab';
+import { useFocusEffect } from '@react-navigation/native';
+import { retrieveUserData } from '../AsysncStorage/AsysncUser';
 
 const TabArr = [
     { route: 'ScreenHome', label: 'Home', type: require('../Icon/Home.png'), component: ScreenHome },
@@ -18,8 +20,26 @@ const TabArr = [
 
 const Tab = createBottomTabNavigator();
 
-const AnimTab1 = ({route}:any) => {
-    
+const AnimTab1 = () => {
+
+
+    const [active, setactive] = useState(false)
+
+    useFocusEffect(
+        React.useCallback(() => {
+            const fetchData = async () => {
+                const userData = await retrieveUserData();
+                if (userData)
+                    setactive(true);
+                else
+                    setactive(false)
+            }
+            fetchData();
+        }, [])
+    );
+
+    const filteredTabs = active ? TabArr : TabArr.slice(1);
+
     return (
         <Tab.Navigator
             screenOptions={{
@@ -27,7 +47,7 @@ const AnimTab1 = ({route}:any) => {
                 tabBarStyle: styles.tabBar,
             }} initialRouteName='ScreenShop'
         >
-            {TabArr.map((item, index) => {
+            {filteredTabs.map((item, index) => {
                 return (
                     <Tab.Screen key={index} name={item.route} component={item.component}
                         options={{
@@ -51,8 +71,8 @@ const styles = StyleSheet.create({
         right: 16,
         left: 16,
         borderRadius: 16,
-        elevation: 5,
-        borderColor:'rgba(0, 0, 0, 0.2)',
-        borderWidth:5,
+        elevation: 2,
+        borderColor: 'rgba(0, 0, 0, 0.2)',
+        borderWidth: 5,
     },
 })

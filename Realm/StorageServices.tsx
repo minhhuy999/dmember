@@ -29,10 +29,11 @@ export const addTask = (name: string) => {
     })
 }
 
-export const addSPStore = (id: string, soluong: number) => {
+export const addSPStore = (id: string, soluong: number, price: number) => {
     const data = {
         id,
         soluong,
+        price,
     };
 
     return new Promise((resolve: any, reject: any) => {
@@ -84,10 +85,10 @@ export const updateSLSP = (id: string, soluong: number) => {
         return Promise.reject('Task not found');
     }
 
-    return new Promise((resolve:any, reject) => {
+    return new Promise((resolve: any, reject) => {
         realmHS.write(() => {
             productToUpdate.soluong = soluong;
-            resolve(); 
+            resolve();
         });
     })
 };

@@ -6,7 +6,7 @@ const { height, width } = Dimensions.get('window');
 
 const SIZE: any = width * 0.77;
 
-const Typewriter = ({data, delay, infinite }: any) => {
+const Typewriter = ({ delay, infinite }: any) => {
     const [currentText, setCurrentText] = useState('');
     const [currentIndex, setCurrentIndex] = useState(0);
     const navigation: any = useNavigation();
@@ -31,7 +31,7 @@ const Typewriter = ({data, delay, infinite }: any) => {
 
     return (
         <View style={{flex:1}}>
-            <TouchableOpacity onPress={() => navigation.navigate('ScreenSproduct',{data})} style={{ width: SIZE - 40, height: '100%', justifyContent: 'center' }}>
+            <TouchableOpacity onPress={() => navigation.navigate('ScreenSproduct')} style={{ width: SIZE - 40, height: '100%', justifyContent: 'center' }}>
                 <Text style={{marginLeft:20}}>{currentText}</Text>
             </TouchableOpacity>
         </View>

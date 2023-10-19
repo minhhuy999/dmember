@@ -1,5 +1,5 @@
-import { Dimensions, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { Dimensions, Image, StyleSheet, TouchableOpacity, View } from 'react-native'
+import React from 'react'
 import realmHS from '../../Realm/realmHistoryS'
 import { useNavigation } from '@react-navigation/native';
 import Animated, { Extrapolate, interpolate, useAnimatedStyle } from 'react-native-reanimated';
@@ -12,10 +12,11 @@ const SIZE: any = width * 0.77;
 
 interface PageProps {
     translateY: any;
-    data:any
+    Domain:any
+    APIkey:any
 }
 
-const SearchAnimation: React.FC<PageProps> = ({ translateY,data }) => {
+const SearchAnimation: React.FC<PageProps> = ({ translateY,Domain,APIkey }) => {
     const navigation: any = useNavigation();
     const addSP = realmHS.objects('AddProduct')
 
@@ -78,14 +79,14 @@ const SearchAnimation: React.FC<PageProps> = ({ translateY,data }) => {
         <Animated.View style={styles.BoxSreach}>
             <Animated.View style={[rStyle, styles.BoxIcon]} />
             <Animated.View style={[styles.BoxSreachAnimation, rTextStyle]}>
-                <Typewriter data={data} delay={100} infinite />
+                <Typewriter delay={100} infinite/>
             </Animated.View>
             <Image source={require('../../Icon/search.png')} style={{ position: 'absolute', left: 10 }} />
             <Animated.View style={[IconStyle]}>
                 <Image source={require('../../Icon/Bell.png')} style={{ height: 25, width: 25, marginLeft: 10, marginBottom: 10 }} />
             </Animated.View>
             <Animated.View style={[IconStyle]}>
-                <TouchableOpacity onPress={() => navigation.navigate('ScreenStore',{data})}>
+                <TouchableOpacity onPress={() => navigation.navigate('ScreenStore',{Domain,APIkey})}>
                     <Image source={require('../../Icon/cart.png')} style={{ height: 25, width: 25, marginLeft: 10, marginBottom: 10 }} />
                     {addSP.length > 0 && <View style={styles.dotstore}></View>}
                 </TouchableOpacity>

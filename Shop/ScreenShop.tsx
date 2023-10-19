@@ -15,8 +15,12 @@ const ScreenShop = ({ navigation }: any) => {
 
     const [APIkey, setAPIkey] = useState<any>(null)
     const [Domain, setDomain] = useState<any>(null)
+    const [currentPage, setCurrentPage] = useState(1)
+
     const formData = new FormData()
     formData.append('app_name', 'khttest')
+    formData.append('page', currentPage);
+    formData.append('for_point', 0);
     const apiProductlist = `${Domain}/client_product/list_all?apikey=${APIkey}`;
 
     const [currentIndex2, setCurrentIndex2] = useState(0);
@@ -227,9 +231,9 @@ const ScreenShop = ({ navigation }: any) => {
                             const formattedPrice = price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
                             const formattedDiscount = pricecal.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
                             return (
-                                <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { product })}>
+                                <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { item: product })}>
                                     <View style={styles.ItemTopSP}>
-                                        <Image source={{ uri: product.img_1 }} style={{ width: 110, height: 105, marginVertical: 10 }} />
+                                        <Image source={{ uri: product.img_1 }} style={{ width: 110, height: 105, marginVertical: 10, borderRadius: 5 }} />
                                         <Text style={styles.ItemnameSP}>{limitText(product.product_name, 40)}</Text>
                                         <View style={{ flexDirection: 'row', marginTop: 2 }}>
                                             <Text style={styles.ItemtextSP}>Giá bán:</Text>
@@ -267,25 +271,25 @@ const ScreenShop = ({ navigation }: any) => {
         const formattedPrice = price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
         const formattedDiscount = pricecal.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
         if (index < 5) {
-            return (
-                <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { item })}>
-                    <View style={styles.renderSp}>
-                        <Image source={{ uri: item.img_1 }} style={{ height: 130, width: 132, borderRadius: 5 }} />
-                        <Text style={styles.ItemnameSP}>{limitText(item.product_name, 40)}</Text>
-                        <View style={{ flexDirection: 'row', marginTop: 2 }}>
-                            <Text style={styles.ItemtextSP}>Giá bán: </Text>
-                            <Text style={styles.ItemTextGia}>{formattedPrice}</Text>
-                        </View>
-                        <View style={{ flexDirection: 'row', marginTop: 2 }}>
-                            <Text style={styles.ItemtextSP}>Chiết khấu: </Text>
-                            <Text style={styles.ItemTextCK}>{formattedDiscount}</Text>
-                        </View>
-                        <TouchableOpacity style={styles.Add} onPress={() => handleAddToCart(item)}>
-                            <Text style={{ color: 'white' }}>+</Text>
-                        </TouchableOpacity>
+        return (
+            <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { item })}>
+                <View style={styles.renderSp}>
+                    <Image source={{ uri: item.img_1 }} style={{ height: 130, width: 132, borderRadius: 5 }} />
+                    <Text style={styles.ItemnameSP}>{limitText(item.product_name, 40)}</Text>
+                    <View style={{ flexDirection: 'row', marginTop: 2 }}>
+                        <Text style={styles.ItemtextSP}>Giá bán: </Text>
+                        <Text style={styles.ItemTextGia}>{formattedPrice}</Text>
                     </View>
-                </TouchableOpacity>
-            )
+                    <View style={{ flexDirection: 'row', marginTop: 2 }}>
+                        <Text style={styles.ItemtextSP}>Chiết khấu: </Text>
+                        <Text style={styles.ItemTextCK}>{formattedDiscount}</Text>
+                    </View>
+                    <TouchableOpacity style={styles.Add} onPress={() => handleAddToCart(item)}>
+                        <Text style={{ color: 'white' }}>+</Text>
+                    </TouchableOpacity>
+                </View>
+            </TouchableOpacity>
+        )
         }
         else if (index == 5) {
             return (
@@ -348,7 +352,9 @@ const ScreenShop = ({ navigation }: any) => {
                 existingProduct.soluong += 1
             })
         } else {
-            addSPStore(item.product_id, 1)
+            const product = dataProduct.find((productItem: any) => productItem.product_id === item.product_id);
+            const price = parseFloat(product.price);
+            addSPStore(item.product_id, 1,price)
         }
         console.log('Sản phẩm đã được thêm vào cơ sở dữ liệu Realm.')
     }
@@ -382,7 +388,7 @@ const ScreenShop = ({ navigation }: any) => {
     );
 
     const getAPIShop = async () => {
-        if (APIkey && Domain) {
+        if (APIkey && Domain ) {
             try {
                 const response = await axios.post(apiProductlist, formData, {
                     headers: {
@@ -406,7 +412,7 @@ const ScreenShop = ({ navigation }: any) => {
     return (
 
         <View style={styles.backgr}>
-            <SearchAnimation translateY={translateY} data={dataProduct} />
+            <SearchAnimation translateY={translateY} Domain={Domain} APIkey={APIkey}/>
             <Animated.ScrollView showsVerticalScrollIndicator={false} onScroll={scrollHandler} pagingEnabled={pagingEnabled}>
                 <View style={{ width: '100%', marginTop: 15 }}>
                     <FlatList
@@ -507,6 +513,7 @@ const styles = StyleSheet.create({
         padding: 15,
         backgroundColor: 'white',
         width: '98%',
+        elevation: 4,
         borderRadius: 10,
     },
     BoxItemImage: {

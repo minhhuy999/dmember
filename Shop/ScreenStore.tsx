@@ -1,16 +1,29 @@
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, FlatList } from 'react-native'
+import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import color from '../Color/color';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import realmHS from '../Realm/realmHistoryS';
-import { loadAddSPData, removeSP, updateSLSP } from '../Realm/StorageServices';
+import { loadAddSPData, } from '../Realm/StorageServices';
 import DeletedAnimation from './AnimationShop/DeletedAnimation';
+import { ScrollView } from 'react-native-gesture-handler';
+import { getAPIKeyAndDomainFromStorage } from '../AsysncStorage/AsysncAPI';
+import axios from 'axios';
+
 
 
 const ScreenStore = ({ route }: any) => {
 
-    const { data } = route.params
+    const { Domain,APIkey } = route.params
 
+    
+    // const [data, setdata] = useState<any>([])
+    // const [APIkey, setAPIkey] = useState<any>(null)
+    // const [Domain, setDomain] = useState<any>(null)
+    // const formData = new FormData()
+    // formData.append('app_name', 'khttest')
+    // formData.append('id', item.id)
+
+    // const apiProductlist = `${Domain}/client_product/detail?apikey=${APIkey}`
     useEffect(() => {
         addSP.addListener(listener);
         return () => {
@@ -27,23 +40,25 @@ const ScreenStore = ({ route }: any) => {
     };
 
     const [DataSrore, setDataSrore] = useState([])
+
     const addSP = realmHS.objects('AddProduct')
-    const navigation:any = useNavigation();
+    const navigation: any = useNavigation();
+
+
 
     let totalPrice = 0;
+    let totalnumber = 0;
 
-    for (const item of addSP as unknown as { id: string; soluong: number }[]) {
-        const product = data.find((p: any) => p.product_id === item.id);
-        if (product) {
-            totalPrice += product.price * item.soluong;
-        }
+    for (const item of addSP as unknown as { id: string; soluong: number , price: number }[]) {
+            totalPrice += item.price * item.soluong;
+            totalnumber += item.soluong
     }
 
     const formattedTotalPrice = totalPrice.toLocaleString('vi-VN', {
         style: 'currency',
         currency: 'VND'
-    })+' VND';
-    
+    });
+
     return (
         <View style={styles.backgr}>
             <View style={styles.BoxTitile}>
@@ -54,23 +69,28 @@ const ScreenStore = ({ route }: any) => {
             </View>
             {addSP.length > 0 ? (
                 <View style={styles.hienthi}>
-                    <View style={{ paddingHorizontal: 20, flex: 1 }}>
+                    <ScrollView style={{ paddingHorizontal: 20, flex: 1 }}>
                         <FlatList
                             data={addSP}
                             keyExtractor={(item: any) => item.id.toString()}
+                            scrollEnabled={false}
                             renderItem={({ item }) => {
-                                return <DeletedAnimation item={item} data={data} />;
+                                return <DeletedAnimation item={item} Domain={Domain} APIkey={APIkey}/>;
                             }}
                             showsVerticalScrollIndicator={false}
                         />
-                    </View>
+                        <View style={{ width: '100%', height: 100 }} />
+                    </ScrollView>
                     <View style={styles.BoxALLmonney}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Image source={require('../Icon/gio.png')} />
+                            <View style={styles.numberSP}>
+                                <Text style={{ color: 'white', fontWeight: 'bold' }}>{totalnumber}</Text>
+                            </View>
                             <Text style={{ marginLeft: 20, color: color.organge, fontSize: 21, fontWeight: '600' }}>{formattedTotalPrice}</Text>
                         </View>
                         <TouchableOpacity
-                            onPress={() => navigation.navigate('ScreenTTdathang', { data })}
+                            onPress={() => navigation.navigate('ScreenTTdathang',{Domain,APIkey})}
                             style={{
                                 backgroundColor: 'black',
                                 width: 100,
@@ -143,5 +163,15 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: "center", justifyContent: 'space-between',
         paddingHorizontal: 20
+    },
+    numberSP:
+    {
+        backgroundColor: 'red',
+        height: 20, width: 20,
+        borderRadius: 10,
+        alignItems: 'center', justifyContent: 'center',
+        position: 'absolute',
+        left: 20,
+        top: 15
     }
 })

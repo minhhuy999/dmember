@@ -1,26 +1,30 @@
-import { StyleSheet, FlatList, ScrollView, Text, View, Image, TextInput, TouchableOpacity } from 'react-native'
+import { StyleSheet, FlatList, ScrollView, Text, View, Image, TouchableOpacity } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import color from '../Color/color'
 import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import realmHS from '../Realm/realmHistoryS'
 import { addSPStore } from '../Realm/StorageServices'
 import Card from './AnimatedDetailPd/Card'
-import { getAPIKeyAndDomainFromStorage, getAPIandDOMAIN } from '../AsysncStorage/AsysncAPI'
+import { getAPIKeyAndDomainFromStorage } from '../AsysncStorage/AsysncAPI'
 import axios from 'axios'
 
-const ScreenDetailProduct = ({ navigation, route }: any) => {
+const ScreenDetailProduct = ({ route }: any) => {
 
     const [soLuong, setSoLuong] = useState(1)
     const scrollViewRef: any = useRef(null)
     const addSP = realmHS.objects('AddProduct')
-    const navigationGoback = useNavigation()
+    const navigation: any = useNavigation()
     const { item } = route.params || {}
 
     const [APIkey, setAPIkey] = useState<any>(null)
     const [Domain, setDomain] = useState<any>(null)
+    const [dataprice, setdataprice] = useState<any>([])
     const formData = new FormData()
     formData.append('app_name', 'khttest')
-    const apiProductlist = `${Domain}/client_product/list_all?apikey=${APIkey}`
+    formData.append('unique_id', item.unique_id)
+    formData.append('id', item.product_id)
+
+    const apiProductlist = `${Domain}/client_product/detail?apikey=${APIkey}`
     const [imageUrls, setImageUrls] = useState<any>([])
 
     const SanPham = [
@@ -65,28 +69,6 @@ const ScreenDetailProduct = ({ navigation, route }: any) => {
             name: 'Sữa rửa mặt vitamin làm trắng Dearanchy Moisture Vita 150ml',
             gia: '523,000',
             chietkhau: '53,000'
-        },
-    ]
-    const data = [
-        {
-            // id: '1',
-            image: require('../SanPham/NTTpink.png')
-        },
-        {
-            // id: '2',
-            image: require('../SanPham/NTTred.png')
-        },
-        {
-            // id: '3',
-            image: require('../SanPham/SonAe.png')
-        },
-        {
-            // id: '4',
-            image: require('../SanPham/Gel.png')
-        },
-        {
-            // id: '5',
-            image: require('../SanPham/TrangD.png')
         },
     ]
 
@@ -134,35 +116,28 @@ const ScreenDetailProduct = ({ navigation, route }: any) => {
     // }
 
     const handleAddToCart = (item: any) => {
-        const existingProduct: any = addSP.filtered(`id == '${item.product_id}'`)[0]
+        const existingProduct: any = addSP.filtered(`id == '${item.id}'`)[0]
         if (existingProduct) {
             realmHS.write(() => {
                 existingProduct.soluong += soLuong
             })
         } else {
-            addSPStore(item.product_id, soLuong)
+            addSPStore(item.product_id, 1,dataprice)
         }
         console.log('Sản phẩm đã được thêm vào cơ sở dữ liệu Realm.')
     }
 
     useEffect(() => {
-        const fetchData = async () => {
-            await getAPIandDOMAIN({ setAPIkey, setDomain }).then(() => {
-                if (APIkey != null && Domain != null) {
-                    getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain })
-                }
-            })
-        }
-        fetchData()
+        getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain })
     }, [])
 
     useFocusEffect(
         React.useCallback(() => {
-            getAPIShop()
+            getAPIDetail()
         }, [APIkey, Domain])
     )
 
-    const getAPIShop = async () => {
+    const getAPIDetail = async () => {
         if (APIkey && Domain) {
             try {
                 const response = await axios.post(apiProductlist, formData, {
@@ -171,20 +146,26 @@ const ScreenDetailProduct = ({ navigation, route }: any) => {
                     },
                 })
                 if (response.status === 200) {
-                    const dataProduct = response.data.data.l
-                    const product = dataProduct.find((item1:any) => item1.product_id === item.product_id)
+                    const dataProduct = response.data.data
+                    setdataprice(dataProduct.price)
                     const imageUrls = []
-                    if (product.img_1) {
-                        imageUrls.push(product.img_1)
+                    if (dataProduct.img_1) {
+                        imageUrls.push(dataProduct.img_1)
                     }
-                    if (product.img_2) {
-                        imageUrls.push(product.img_2)
+                    if (dataProduct.img_2) {
+                        imageUrls.push(dataProduct.img_2)
                     }
-                    if (product.img_3) {
-                        imageUrls.push(product.img_3)
+                    if (dataProduct.img_3) {
+                        imageUrls.push(dataProduct.img_3)
                     }
-                    if (product.img_4) {
-                        imageUrls.push(product.img_4)
+                    if (dataProduct.img_4) {
+                        imageUrls.push(dataProduct.img_4)
+                    }
+                    if (dataProduct.img_5) {
+                        imageUrls.push(dataProduct.img_5)
+                    }
+                    if (dataProduct.img_6) {
+                        imageUrls.push(dataProduct.img_6)
                     }
                     setImageUrls(imageUrls)
                 } else {
@@ -201,7 +182,7 @@ const ScreenDetailProduct = ({ navigation, route }: any) => {
             <ScrollView ref={scrollViewRef}>
                 <View style={styles.backgr}>
                     <View style={styles.BoxTitile}>
-                        <TouchableOpacity onPress={() => navigationGoback.goBack()} style={{ position: 'absolute', left: 0, }}>
+                        <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', left: 0, }}>
                             <Image source={require('../Icon/arrowback.png')} />
                         </TouchableOpacity>
                         <TouchableOpacity style={{ position: 'absolute', right: 80, }}>
@@ -210,7 +191,7 @@ const ScreenDetailProduct = ({ navigation, route }: any) => {
                         <TouchableOpacity style={{ position: 'absolute', right: 40, }}>
                             <Image source={require('../Icon/down.png')} style={{ height: 20, width: 18 }} />
                         </TouchableOpacity>
-                        <TouchableOpacity style={{ position: 'absolute', right: 0, }} onPress={() => navigation.navigate('ScreenStore')}>
+                        <TouchableOpacity style={{ position: 'absolute', right: 0, }} onPress={() => navigation.navigate('ScreenStore',{Domain,APIkey})}>
                             <Image source={require('../Icon/cart.png')} style={{ width: 26, height: 25 }} />
                         </TouchableOpacity>
                     </View>
@@ -220,8 +201,8 @@ const ScreenDetailProduct = ({ navigation, route }: any) => {
                                 <View style={{ width: 151, height: 290, backgroundColor: color.background, justifyContent: 'center', alignItems: 'center' }}></View>
                             </View>
                         </View>
-                        <Card data={imageUrls} maxVisibleItems={3}/>
-                        <View>{}</View>
+                        <Card data={imageUrls} maxVisibleItems={3} />
+                        <View>{ }</View>
                         <View style={{ flexDirection: 'row', paddingVertical: 10 }}>
                             <Text style={{ color: 'black', fontSize: 21, fontWeight: '400' }}>Giá bán: </Text>
                             <Text style={{ color: 'white', fontSize: 21, fontWeight: '600' }}>{item?.price}</Text>
@@ -378,7 +359,7 @@ const styles = StyleSheet.create({
         padding: 10,
         paddingBottom: 20,
         height: 70,
-        marginBottom:20,
+        marginBottom: 20,
     },
     title: {
         color: 'black',
