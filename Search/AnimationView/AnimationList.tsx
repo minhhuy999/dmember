@@ -28,7 +28,7 @@ const AnimationList: React.FC<ListItemProps> = React.memo(
                     existingProduct.soluong += 1
                 })
             } else {
-                addSPStore(item.id, 1)
+                // addSPStore(item.id, 1)
             }
             console.log('Sản phẩm đã được thêm vào cơ sở dữ liệu Realm.')
         }

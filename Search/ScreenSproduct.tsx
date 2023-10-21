@@ -19,9 +19,6 @@ const ScreenSproduct = ({ navigation }: any) => {
 
     const [tasks, setTasks]: any = useState([])
 
-    const formData = new FormData()
-    formData.append('app_name', 'khttest')
-
     const addSP = realmHS.objects('AddProduct')
     const History: any = realmHS.objects('HistorySreach')
 
@@ -32,24 +29,22 @@ const ScreenSproduct = ({ navigation }: any) => {
     const [isPlaying, setIsPlaying] = useState(false);
 
     const [currentPage, setCurrentPage] = useState(1)
-    const [loadingmore, setloadingmore] = useState(false)
-    const [filteredSanPham, setFilteredSanPham] = useState<any>([])
+    const [dataProduct, setDataProduct] = useState<any>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const [APIkey, setAPIkey] = useState<any>(null)
     const [Domain, setDomain] = useState<any>(null)
+    const formData = new FormData();
+    formData.append('app_name', 'khttest');
+    formData.append('page', currentPage);
     const apiProductlist = `${Domain}/client_product/list_all?apikey=${APIkey}`;
 
     const scale = useSharedValue(0)
 
-    useEffect(()=>{
-        getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain })
-    })
-
-    useFocusEffect(
-        React.useCallback(() => {
-            getAPIShop();
-        }, [APIkey,Domain])
-    );
+    useEffect(() => {
+        getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain });
+        getAPIShop();
+    }, [APIkey, Domain]);
 
     useEffect(() => {
         initialMode.current = false
@@ -69,7 +64,7 @@ const ScreenSproduct = ({ navigation }: any) => {
                 });
                 if (response.status === 200) {
                     const dataProduct1 = response.data.data.l;
-                    setFilteredSanPham(dataProduct1)
+                    setDataProduct(dataProduct1);
                 } else {
                     throw new Error('Network response was not ok');
                 }
@@ -80,33 +75,30 @@ const ScreenSproduct = ({ navigation }: any) => {
     };
 
     const loadMoreData = async () => {
-        if (loadingmore) return;
-    
-        try {
-            setloadingmore(true);
-    
-            const newPage = currentPage + 1;
-            const newFormData = new FormData();
-            newFormData.append('app_name', 'khttest');
-            newFormData.append('page', newPage);
-            newFormData.append('for_point', 0);
-            const response = await axios.post(apiProductlist, newFormData, {
-                headers: {
-                    'Accept': 'application/x-www-form-urlencoded',
-                },
-            });
-    
-            if (response.status === 200) {
-                const newData = response.data.data.l;
-                setFilteredSanPham((prevData: any) => [...prevData, ...newData]);
-                setCurrentPage(newPage);
-            } else {
-                throw new Error('Network response was not ok');
+        if (APIkey && Domain && !isLoading) {
+            setIsLoading(true); // Set loading state to prevent multiple requests
+            try {
+                const nextPage = currentPage + 1;
+                const formData = new FormData();
+                formData.append('app_name', 'khttest');
+                formData.append('page', nextPage);
+                const response = await axios.post(apiProductlist, formData, {
+                    headers: {
+                        'Accept': 'application/x-www-form-urlencoded',
+                    },
+                });
+                if (response.status === 200) {
+                    const newData = response.data.data.l;
+                    setDataProduct((prevData: any) => [...prevData, ...newData]);
+                    setCurrentPage(nextPage);
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            } catch (error) {
+                console.error('There was a problem with the operation:', error);
+            } finally {
+                setIsLoading(false); // Reset loading state
             }
-        } catch (error) {
-            console.error('There was a problem with the operation:', error);
-        } finally {
-            setloadingmore(false);
         }
     };
 
@@ -126,22 +118,6 @@ const ScreenSproduct = ({ navigation }: any) => {
             })
     }
 
-    const handleSearch = () => {
-        const searchKeywords = unidecode(name.toLowerCase()).split(' ')
-        const normalizedSanPham = filteredSanPham.map((item: any) => unidecode(item.product_name.toLowerCase()))
-
-        const filteredItems = filteredSanPham.filter((item: any, index: any) => {
-            const itemName = normalizedSanPham[index]
-            return searchKeywords.every((keyword) => itemName.includes(keyword))
-        })
-        setFilteredSanPham(filteredItems)
-        if (name != '') {
-            addTask(name).then(() => {
-                setName('')
-            })
-        }
-    }
-
     const handleAddToCart = (item: any) => {
         const existingProduct: any = addSP.filtered(`id == '${item.product_id}'`)[0]
         if (existingProduct) {
@@ -149,9 +125,9 @@ const ScreenSproduct = ({ navigation }: any) => {
                 existingProduct.soluong += 1
             })
         } else {
-            const product = filteredSanPham.find((productItem: any) => productItem.product_id === item.product_id);
+            const product = dataProduct.find((productItem: any) => productItem.product_id === item.product_id);
             const price = parseFloat(product.price);
-            addSPStore(item.product_id, 1,price)
+            addSPStore(item.product_id, 1, price)
         }
         scale.value = withSpring(1, { duration: 1500 }, () => {
             scale.value = withTiming(0);
@@ -242,7 +218,7 @@ const ScreenSproduct = ({ navigation }: any) => {
                     <TextInput value={name}
                         onChangeText={(text) => setName(text)}
                         style={{ paddingLeft: 10, flex: 1 }}
-                        onSubmitEditing={handleSearch}
+                        // onSubmitEditing={handleSearch}
                         placeholder="Tìm kiếm sản phẩm"
                         returnKeyType="search" >
                     </TextInput>
@@ -266,15 +242,15 @@ const ScreenSproduct = ({ navigation }: any) => {
                 <Text style={{ marginVertical: 20, color: 'black', fontSize: 17, fontWeight: '400' }}>Kết quả liên quan</Text>
                 <View style={{ width: '100%', }}>
                     <FlatList
-                        data={filteredSanPham}
+                        data={dataProduct}
                         keyExtractor={(item) => item.product_id}
                         renderItem={renderSP}
                         showsVerticalScrollIndicator={false}
                         numColumns={2}
-                        initialNumToRender={4}
+                        initialNumToRender={2}
                         scrollEnabled={false}
                         onEndReached={loadMoreData}
-                        onEndReachedThreshold={0.2}
+                        onEndReachedThreshold={0.1}
                     />
                 </View>
             </ScrollView>

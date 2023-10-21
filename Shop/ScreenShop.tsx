@@ -31,6 +31,7 @@ const ScreenShop = ({ navigation }: any) => {
 
     const [dataProduct, setdataProduct] = useState<any>([])
     const [dataicontopic1, setdataicontopic1] = useState<any>([])
+    const [loadingmore, setloadingmore] = useState(false)
 
     const addSP = realmHS.objects('AddProduct')
 
@@ -270,7 +271,7 @@ const ScreenShop = ({ navigation }: any) => {
         const pricecal = parseFloat(item.price_cal_commission);
         const formattedPrice = price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
         const formattedDiscount = pricecal.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-        if (index < 5) {
+        // if (index < 5) {
         return (
             <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { item })}>
                 <View style={styles.renderSp}>
@@ -290,19 +291,19 @@ const ScreenShop = ({ navigation }: any) => {
                 </View>
             </TouchableOpacity>
         )
-        }
-        else if (index == 5) {
-            return (
-                <View style={styles.renderSeenAll}>
-                    <Image source={require('../Icon/ArrowBall.png')} style={{ width: 48, height: 48 }} />
-                    <Text style={{ fontSize: 12, fontWeight: '400', color: 'white' }}>Xem tất cả</Text>
-                </View>
-            )
-        } else {
-            return (
-                <View></View>
-            )
-        }
+        // }
+        // else if (index == 5) {
+        //     return (
+        //         <View style={styles.renderSeenAll}>
+        //             <Image source={require('../Icon/ArrowBall.png')} style={{ width: 48, height: 48 }} />
+        //             <Text style={{ fontSize: 12, fontWeight: '400', color: 'white' }}>Xem tất cả</Text>
+        //         </View>
+        //     )
+        // } else {
+        //     return (
+        //         <View></View>
+        //     )
+        // }
     }
 
     const renderDot2 = () => {
@@ -409,6 +410,37 @@ const ScreenShop = ({ navigation }: any) => {
         }
     };
 
+    const loadMoreData = async () => {
+        if (loadingmore) return;
+    
+        try {
+            setloadingmore(true);
+    
+            const newPage = currentPage + 1;
+            const newFormData = new FormData();
+            newFormData.append('app_name', 'khttest');
+            newFormData.append('page', newPage);
+            newFormData.append('for_point', 0);
+            const response = await axios.post(apiProductlist, newFormData, {
+                headers: {
+                    'Accept': 'application/x-www-form-urlencoded',
+                },
+            });
+    
+            if (response.status === 200) {
+                const newData = response.data.data.l;
+                setdataProduct((prevData: any) => [...prevData, ...newData]);
+                setCurrentPage(newPage);
+            } else {
+                throw new Error('Network response was not ok');
+            }
+        } catch (error) {
+            console.error('There was a problem with the operation:', error);
+        } finally {
+            setloadingmore(false);
+        }
+    };
+
     return (
 
         <View style={styles.backgr}>
@@ -488,7 +520,9 @@ const ScreenShop = ({ navigation }: any) => {
                         showsVerticalScrollIndicator={false}
                         numColumns={2}
                         scrollEnabled={false}
-                        initialNumToRender={5}
+                        initialNumToRender={2}
+                        onEndReached={loadMoreData}
+                        onEndReachedThreshold={0.1}
                     />
                 </View>
             </Animated.ScrollView>

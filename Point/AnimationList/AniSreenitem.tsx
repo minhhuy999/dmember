@@ -1,44 +1,49 @@
-import { Image, StyleSheet, Text, View, ViewToken } from 'react-native'
+import { Image, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import Animated, { Extrapolate, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Extrapolate, interpolate, useAnimatedStyle } from 'react-native-reanimated';
 import color from '../../Color/color';
 
 type ListItemProps = {
     item: any
-    viewableItems: typeof useSharedValue<ViewToken[]>;
+    translateY: any
+    index:any
 };
 
-const AniSreenitem: React.FC<ListItemProps> = React.memo(({ item, viewableItems }: any) => {
+const AniSreenitem: React.FC<ListItemProps> = ({ item, index, translateY }) => {
+
+    const inputRange = [(index - 1) * 100, index * 100];
 
     const rStyle = useAnimatedStyle(() => {
-        const isVisible = Boolean(
-            viewableItems?.value
-                .filter((item:any) => item.isViewable)
-                .find((viewableItem:any) => viewableItem.item.id === item.id)
+        const scale = interpolate(
+            translateY.value,
+            inputRange,
+            [0, 1],
+            Extrapolate.CLAMP
         );
-
         return {
-            opacity: withTiming(isVisible ? 1 : 0),
-            transform: [
-                {
-                    scale: withTiming(isVisible ? 1 : 0.6),
-                },
-            ],
+            transform: [{ scale }],
         };
-    }, []);
+    });
 
+    
+    function limitText(text: any, maxLength: any) {
+        if (text.length <= maxLength) {
+            return text;
+        }
+        return text.slice(0, maxLength) + '...';
+    }
+    
     return (
-        <Animated.View style={[styles.BoxItem, rStyle]}>
-            <Image source={item.img} style={{ width: 127, height: 112 }} />
+        <Animated.View style={[styles.BoxItem]}>
+            <Image source={{uri:item.img_1}} style={{ width: 127, height: 112 ,borderRadius:10 }} />
             <View style={{ width: 240, justifyContent: 'center', padding: 10 }}>
-                <Text style={styles.Texttitle}>{item.title}</Text>
-                <Text style={styles.TextNote}>{item.note}</Text>
-                <Text style={styles.TextPointmust}>{item.pointm}</Text>
+                <Text style={styles.Texttitle}>{limitText(item.product_name,50)}</Text>
+                <Text style={styles.TextPointmust}>{item.referral_vnd} Dpoint</Text>
             </View>
         </Animated.View>
     )
 }
-)
+
 export default AniSreenitem
 
 const styles = StyleSheet.create({
@@ -52,7 +57,8 @@ const styles = StyleSheet.create({
     Texttitle: {
         color: 'black',
         fontSize: 15,
-        fontWeight: '700'
+        fontWeight: '700',
+        paddingBottom:30
     },
     TextNote: {
         color: 'black',
@@ -67,6 +73,6 @@ const styles = StyleSheet.create({
         width: 130,
         borderRadius: 7,
         paddingVertical: 1,
-        textAlign: 'center'
+        paddingLeft:20
     },
 })

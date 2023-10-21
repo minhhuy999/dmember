@@ -10,7 +10,7 @@ import axios from 'axios'
 
 const ScreenDetailProduct = ({ route }: any) => {
 
-    const [soLuong, setSoLuong] = useState(1)
+    const [soLuong, setSoLuong] = useState<any>(1)
     const scrollViewRef: any = useRef(null)
     const addSP = realmHS.objects('AddProduct')
     const navigation: any = useNavigation()
@@ -18,10 +18,8 @@ const ScreenDetailProduct = ({ route }: any) => {
 
     const [APIkey, setAPIkey] = useState<any>(null)
     const [Domain, setDomain] = useState<any>(null)
-    const [dataprice, setdataprice] = useState<any>([])
     const formData = new FormData()
     formData.append('app_name', 'khttest')
-    formData.append('unique_id', item.unique_id)
     formData.append('id', item.product_id)
 
     const apiProductlist = `${Domain}/client_product/detail?apikey=${APIkey}`
@@ -116,13 +114,14 @@ const ScreenDetailProduct = ({ route }: any) => {
     // }
 
     const handleAddToCart = (item: any) => {
-        const existingProduct: any = addSP.filtered(`id == '${item.id}'`)[0]
+        const existingProduct: any = addSP.filtered(`id == '${item.product_id}'`)[0]
         if (existingProduct) {
             realmHS.write(() => {
                 existingProduct.soluong += soLuong
             })
         } else {
-            addSPStore(item.product_id, 1,dataprice)
+            const price = parseFloat(item.price);
+            addSPStore(item.product_id, soLuong ,price)
         }
         console.log('Sản phẩm đã được thêm vào cơ sở dữ liệu Realm.')
     }
@@ -147,7 +146,6 @@ const ScreenDetailProduct = ({ route }: any) => {
                 })
                 if (response.status === 200) {
                     const dataProduct = response.data.data
-                    setdataprice(dataProduct.price)
                     const imageUrls = []
                     if (dataProduct.img_1) {
                         imageUrls.push(dataProduct.img_1)
@@ -202,7 +200,6 @@ const ScreenDetailProduct = ({ route }: any) => {
                             </View>
                         </View>
                         <Card data={imageUrls} maxVisibleItems={3} />
-                        <View>{ }</View>
                         <View style={{ flexDirection: 'row', paddingVertical: 10 }}>
                             <Text style={{ color: 'black', fontSize: 21, fontWeight: '400' }}>Giá bán: </Text>
                             <Text style={{ color: 'white', fontSize: 21, fontWeight: '600' }}>{item?.price}</Text>

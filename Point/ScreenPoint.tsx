@@ -1,10 +1,27 @@
-import { StyleSheet, Text, View, Image, TextInput, FlatList, ViewToken, ScrollView } from 'react-native'
-import React, { useState } from 'react'
+import { StyleSheet, Text, View, Image, TextInput, ActivityIndicator } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import color from '../Color/color'
 import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated'
 import AniSreenitem from './AnimationList/AniSreenitem'
+import axios from 'axios'
+import { useFocusEffect } from '@react-navigation/native'
+import { getAPIKeyAndDomainFromStorage, getAPIandDOMAIN } from '../AsysncStorage/AsysncAPI'
+import { retrieveUserData } from '../AsysncStorage/AsysncUser'
 
 const ScreenPoint = () => {
+
+    const [APIkey, setAPIkey] = useState<any>(null)
+    const [Domain, setDomain] = useState<any>(null)
+    const [point, setpoint] = useState<any>(null)
+    const [loading, setLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1)
+    const [dataProduct, setdataProduct] = useState<any>([])
+
+    const formData = new FormData()
+    formData.append('app_name', 'khttest')
+    formData.append('page', currentPage);
+    formData.append('for_point', 1);
+    const apiProductlist = `${Domain}/client_product/list_all?apikey=${APIkey}`;
 
     const Item = [
         {
@@ -72,20 +89,103 @@ const ScreenPoint = () => {
         },
     ]
 
-    // const translateY = useSharedValue(0);
+    const translateY = useSharedValue(0);
 
-    const viewableItems:any = useSharedValue<ViewToken[]>([]);
+    const scrollHandler = useAnimatedScrollHandler((event) => {
+        translateY.value = event.contentOffset.y;
+    });
 
-    // const scrollHandler = useAnimatedScrollHandler((event) => {
-    //     translateY.value = event.contentOffset.y;
-    // });
+    useEffect(() => {
+        getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain });
+        gettoken()
+    }, [])
+
+    const gettoken = async () => {
+        const userData = await retrieveUserData();
+        if (userData) {
+            const { session_token, point } = userData;
+            setpoint(point)
+            formData.append('token', session_token)
+        } else {
+            setpoint(null)
+        }
+    };
+
+    useFocusEffect(
+        React.useCallback(() => {
+            getAPIShop();
+        }, [APIkey, Domain])
+    );
+
+    const getAPIShop = async () => {
+        if (APIkey && Domain) {
+            await gettoken()
+            try {
+                const response = await axios.post(apiProductlist, formData, {
+                    headers: {
+                        'Accept': 'application/x-www-form-urlencoded',
+                    },
+                });
+                if (response.status === 200) {
+                    const dataProduct = response.data.data.l;
+                    setdataProduct(dataProduct)
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            } catch (error) {
+                console.error('There was a problem with the operation:', error);
+            }
+        }
+    };
+
+    const loadMoreData = async () => {
+        if (loading) {
+            return;
+        }
+
+        setLoading(true);
+
+        const nextPage = currentPage + 1;
+        formData.append('page', nextPage);
+
+        try {
+            const response = await axios.post(apiProductlist, formData, {
+                headers: {
+                    'Accept': 'application/x-www-form-urlencoded',
+                },
+            });
+
+            if (response.status === 200) {
+                const newData = response.data.data.l;
+                setdataProduct([...dataProduct, ...newData]);
+                setCurrentPage(nextPage);
+            } else {
+                throw new Error('Network response was not ok');
+            }
+        } catch (error) {
+            console.error('There was a problem with the operation:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const renderFooter = () => {
+        if (loading) {
+            return (
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="small" color="black" />
+                </View>
+            );
+        }
+        return null;
+    };
 
     return (
         <View style={styles.backgr}>
             <View style={styles.titleBox}>
                 <Text style={styles.title}>Đổi điểm</Text>
                 <View style={styles.boxpoint}>
-                    <Text style={styles.TextPoint}>254,975</Text>
+                    <Text style={styles.TextPoint}>{point}</Text>
                     <Image source={require('../Icon/ViPoint.png')} style={{ marginLeft: 8 }} />
                 </View>
             </View>
@@ -97,18 +197,19 @@ const ScreenPoint = () => {
                 <Image source={require('../Icon/cart.png')} style={{ height: 25, width: 25, marginLeft: 10 }} />
             </View>
             <Text style={styles.muc}>Có thể đổi</Text>
-            <View style={{ flex: 1, marginBottom: 100 }}>
-                <FlatList
-                    data={Item}
+            <View style={{ flex: 1, marginBottom: 50 }}>
+                <Animated.FlatList
+                    data={dataProduct}
                     // scrollEnabled={false}
                     showsVerticalScrollIndicator={false}
-                    onViewableItemsChanged={({ viewableItems: vItems }) => {
-                        viewableItems.value = vItems;
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item, index }) => {
+                        return <AniSreenitem item={item} index={index} translateY={translateY} />;
                     }}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={({ item }) => {
-                        return <AniSreenitem item={item} viewableItems={viewableItems} />;
-                    }}
+                    onScroll={scrollHandler}
+                    onEndReached={loadMoreData}
+                    onEndReachedThreshold={0.1}
+                    ListFooterComponent={renderFooter}
                 />
             </View>
         </View>
@@ -195,5 +296,9 @@ const styles = StyleSheet.create({
         height: 40,
         borderRadius: 10,
         alignItems: 'center'
-    }
+    },
+    loadingContainer: {
+        padding: 16,
+        alignItems: 'center',
+    },
 })
