@@ -74,6 +74,7 @@ const ScreenStore = ({ route }: any) => {
                             data={addSP}
                             keyExtractor={(item: any) => item.id.toString()}
                             scrollEnabled={false}
+                            initialNumToRender={1}
                             renderItem={({ item }) => {
                                 return <DeletedAnimation item={item} Domain={Domain} APIkey={APIkey}/>;
                             }}

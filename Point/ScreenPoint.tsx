@@ -5,7 +5,7 @@ import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native
 import AniSreenitem from './AnimationList/AniSreenitem'
 import axios from 'axios'
 import { useFocusEffect } from '@react-navigation/native'
-import { getAPIKeyAndDomainFromStorage, getAPIandDOMAIN } from '../AsysncStorage/AsysncAPI'
+import { getAPIKeyAndDomainFromStorage } from '../AsysncStorage/AsysncAPI'
 import { retrieveUserData } from '../AsysncStorage/AsysncUser'
 
 const ScreenPoint = () => {
@@ -20,7 +20,7 @@ const ScreenPoint = () => {
     const formData = new FormData()
     formData.append('app_name', 'khttest')
     formData.append('page', currentPage);
-    formData.append('for_point', 1);
+    formData.append('for_point', 0);
     const apiProductlist = `${Domain}/client_product/list_all?apikey=${APIkey}`;
 
     const Item = [
@@ -207,6 +207,7 @@ const ScreenPoint = () => {
                         return <AniSreenitem item={item} index={index} translateY={translateY} />;
                     }}
                     onScroll={scrollHandler}
+                    initialNumToRender={1}
                     onEndReached={loadMoreData}
                     onEndReachedThreshold={0.1}
                     ListFooterComponent={renderFooter}

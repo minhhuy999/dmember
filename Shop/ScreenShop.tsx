@@ -7,7 +7,6 @@ import SearchAnimation from './AnimationShop/SearchAnimation';
 import Animated, { runOnJS, useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 import { getAPIKeyAndDomainFromStorage, getAPIandDOMAIN } from '../AsysncStorage/AsysncAPI';
 import axios from 'axios';
-import { useFocusEffect } from '@react-navigation/native';
 import CustomImageCarousalLandscape from './AnimationShop/CustomImageCarousalLandscape';
 
 
@@ -376,17 +375,12 @@ const ScreenShop = ({ navigation }: any) => {
             await getAPIandDOMAIN({ setAPIkey, setDomain }).then(() => {
                 if (APIkey != null && Domain != null) {
                     getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain });
+                    getAPIShop();
                 }
             });
         };
         fetchData();
-    }, [])
-
-    useFocusEffect(
-        React.useCallback(() => {
-            getAPIShop();
-        }, [APIkey, Domain])
-    );
+    }, [APIkey,Domain])
 
     const getAPIShop = async () => {
         if (APIkey && Domain ) {

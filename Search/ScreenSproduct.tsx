@@ -1,9 +1,9 @@
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, Button, Alert } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import color from '../Color/color'
-import { useFocusEffect, useNavigation } from '@react-navigation/native'
+import { useNavigation } from '@react-navigation/native'
 import { FlatList, ScrollView } from 'react-native-gesture-handler'
-import { addSPStore, addTask, getListTasks, removeTask } from '../Realm/StorageServices'
+import { addSPStore, getListTasks, removeTask } from '../Realm/StorageServices'
 import realmHS from '../Realm/realmHistoryS'
 import unidecode from 'unidecode'
 import Animated, { Extrapolate, FadeIn, FadeOut, Layout, interpolate, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
@@ -30,6 +30,7 @@ const ScreenSproduct = ({ navigation }: any) => {
 
     const [currentPage, setCurrentPage] = useState(1)
     const [dataProduct, setDataProduct] = useState<any>([]);
+    const [dataSearch, setdataSearch] = useState<any>([])
     const [isLoading, setIsLoading] = useState(false);
 
     const [APIkey, setAPIkey] = useState<any>(null)
@@ -47,12 +48,15 @@ const ScreenSproduct = ({ navigation }: any) => {
     }, [APIkey, Domain]);
 
     useEffect(() => {
-        initialMode.current = false
-        History.addListener(listener)
-        return () => {
-            History.removeListener(listener)
+        initialMode.current = false;
+        History.addListener(listener);
+        if (dataProduct.length > 0) {
+            handleSearch();
         }
-    }, [])
+        return () => {
+            History.removeListener(listener);
+        }
+    }, [dataProduct]);
 
     const getAPIShop = async () => {
         if (APIkey && Domain) {
@@ -210,6 +214,14 @@ const ScreenSproduct = ({ navigation }: any) => {
         display: scale.value === 0 ? 'none' : 'flex',
     }));
 
+    const filteredProducts = dataProduct.filter((product: any) =>
+        unidecode(product.product_name.toLowerCase()).includes(unidecode(name.toLowerCase()))
+    );
+
+    const handleSearch = () => {
+        setdataSearch(filteredProducts);
+    };
+
     return (
         <View style={styles.backgr}>
             <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'center', alignItems: 'center', paddingTop: 10, paddingBottom: 10 }}>
@@ -218,7 +230,7 @@ const ScreenSproduct = ({ navigation }: any) => {
                     <TextInput value={name}
                         onChangeText={(text) => setName(text)}
                         style={{ paddingLeft: 10, flex: 1 }}
-                        // onSubmitEditing={handleSearch}
+                        onSubmitEditing={handleSearch}
                         placeholder="Tìm kiếm sản phẩm"
                         returnKeyType="search" >
                     </TextInput>
@@ -236,13 +248,14 @@ const ScreenSproduct = ({ navigation }: any) => {
                         data={sortedHistory}
                         keyExtractor={(item: any) => item.id.toString()}
                         renderItem={renderHistory}
+                        initialNumToRender={1}
                         scrollEnabled={false}
                     />
                 </View>
                 <Text style={{ marginVertical: 20, color: 'black', fontSize: 17, fontWeight: '400' }}>Kết quả liên quan</Text>
                 <View style={{ width: '100%', }}>
                     <FlatList
-                        data={dataProduct}
+                        data={dataSearch}
                         keyExtractor={(item) => item.product_id}
                         renderItem={renderSP}
                         showsVerticalScrollIndicator={false}

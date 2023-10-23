@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import color from '../Color/color'
 import { MotiView } from 'moti/build'
 import { logout, retrieveUserData } from '../AsysncStorage/AsysncUser'
