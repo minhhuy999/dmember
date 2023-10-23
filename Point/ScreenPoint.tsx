@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, TextInput, ActivityIndicator } from 'react-native'
+import { StyleSheet, Text, View, Image, TextInput, ActivityIndicator, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import color from '../Color/color'
 import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated'
@@ -7,21 +7,27 @@ import axios from 'axios'
 import { useFocusEffect } from '@react-navigation/native'
 import { getAPIKeyAndDomainFromStorage } from '../AsysncStorage/AsysncAPI'
 import { retrieveUserData } from '../AsysncStorage/AsysncUser'
+import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder'
+import LinearGradient from 'react-native-linear-gradient'
 
 const ScreenPoint = () => {
+
+    const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient)
+    const numberOfRenders = 5
+    const renderData = Array.from({ length: numberOfRenders }, (_, index) => index)
 
     const [APIkey, setAPIkey] = useState<any>(null)
     const [Domain, setDomain] = useState<any>(null)
     const [point, setpoint] = useState<any>(null)
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false)
     const [currentPage, setCurrentPage] = useState(1)
     const [dataProduct, setdataProduct] = useState<any>([])
 
     const formData = new FormData()
     formData.append('app_name', 'khttest')
-    formData.append('page', currentPage);
-    formData.append('for_point', 0);
-    const apiProductlist = `${Domain}/client_product/list_all?apikey=${APIkey}`;
+    formData.append('page', currentPage)
+    formData.append('for_point', 0)
+    const apiProductlist = `${Domain}/client_product/list_all?apikey=${APIkey}`
 
     const Item = [
         {
@@ -89,33 +95,33 @@ const ScreenPoint = () => {
         },
     ]
 
-    const translateY = useSharedValue(0);
+    const translateY = useSharedValue(0)
 
     const scrollHandler = useAnimatedScrollHandler((event) => {
-        translateY.value = event.contentOffset.y;
-    });
+        translateY.value = event.contentOffset.y
+    })
 
     useEffect(() => {
-        getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain });
+        getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain })
         gettoken()
     }, [])
 
     const gettoken = async () => {
-        const userData = await retrieveUserData();
+        const userData = await retrieveUserData()
         if (userData) {
-            const { session_token, point } = userData;
+            const { session_token, point } = userData
             setpoint(point)
             formData.append('token', session_token)
         } else {
             setpoint(null)
         }
-    };
+    }
 
     useFocusEffect(
         React.useCallback(() => {
-            getAPIShop();
+            getAPIShop()
         }, [APIkey, Domain])
-    );
+    )
 
     const getAPIShop = async () => {
         if (APIkey && Domain) {
@@ -125,49 +131,49 @@ const ScreenPoint = () => {
                     headers: {
                         'Accept': 'application/x-www-form-urlencoded',
                     },
-                });
+                })
                 if (response.status === 200) {
-                    const dataProduct = response.data.data.l;
+                    const dataProduct = response.data.data.l
                     setdataProduct(dataProduct)
                 } else {
-                    throw new Error('Network response was not ok');
+                    throw new Error('Network response was not ok')
                 }
             } catch (error) {
-                console.error('There was a problem with the operation:', error);
+                console.error('There was a problem with the operation:', error)
             }
         }
-    };
+    }
 
     const loadMoreData = async () => {
         if (loading) {
-            return;
+            return
         }
 
-        setLoading(true);
+        setLoading(true)
 
-        const nextPage = currentPage + 1;
-        formData.append('page', nextPage);
+        const nextPage = currentPage + 1
+        formData.append('page', nextPage)
 
         try {
             const response = await axios.post(apiProductlist, formData, {
                 headers: {
                     'Accept': 'application/x-www-form-urlencoded',
                 },
-            });
+            })
 
             if (response.status === 200) {
-                const newData = response.data.data.l;
-                setdataProduct([...dataProduct, ...newData]);
-                setCurrentPage(nextPage);
+                const newData = response.data.data.l
+                setdataProduct([...dataProduct, ...newData])
+                setCurrentPage(nextPage)
             } else {
-                throw new Error('Network response was not ok');
+                throw new Error('Network response was not ok')
             }
         } catch (error) {
-            console.error('There was a problem with the operation:', error);
+            console.error('There was a problem with the operation:', error)
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
-    };
+    }
 
     const renderFooter = () => {
         if (loading) {
@@ -175,10 +181,22 @@ const ScreenPoint = () => {
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="small" color="black" />
                 </View>
-            );
+            )
         }
-        return null;
-    };
+        return null
+    }
+
+    const renderLoadItem = () => {
+        return (
+            <View style={[styles.BoxItem]}>
+                <ShimmerPlaceholder style={{ width: 127, height: 112, borderRadius: 10 }} shimmerColors={['#564d4d', '#8e8e8e', '#564d4d']} />
+                <View style={{ width: 240, justifyContent: 'center', padding: 10 }}>
+                    <ShimmerPlaceholder style={styles.Texttitle} shimmerColors={['#564d4d', '#8e8e8e', '#564d4d']} />
+                    <ShimmerPlaceholder style={styles.TextPointmust} shimmerColors={['#564d4d', '#8e8e8e', '#564d4d']} />
+                </View>
+            </View>
+        )
+    }
 
     return (
         <View style={styles.backgr}>
@@ -197,22 +215,32 @@ const ScreenPoint = () => {
                 <Image source={require('../Icon/cart.png')} style={{ height: 25, width: 25, marginLeft: 10 }} />
             </View>
             <Text style={styles.muc}>Có thể đổi</Text>
-            <View style={{ flex: 1, marginBottom: 50 }}>
-                <Animated.FlatList
-                    data={dataProduct}
-                    // scrollEnabled={false}
-                    showsVerticalScrollIndicator={false}
-                    keyExtractor={(item, index) => index.toString()}
-                    renderItem={({ item, index }) => {
-                        return <AniSreenitem item={item} index={index} translateY={translateY} />;
-                    }}
-                    onScroll={scrollHandler}
-                    initialNumToRender={1}
-                    onEndReached={loadMoreData}
-                    onEndReachedThreshold={0.1}
-                    ListFooterComponent={renderFooter}
-                />
-            </View>
+            {dataProduct.length === 0 ? ( // Check if dataProduct is an empty array
+                <View style={{ flex: 1, marginBottom: 50 }}>
+                    <FlatList
+                        data={renderData}
+                        showsVerticalScrollIndicator={false}
+                        keyExtractor={(index) => index.toString()}
+                        renderItem={renderLoadItem}
+                    />
+                </View>
+            ) : (
+                <View style={{ flex: 1, marginBottom: 50 }}>
+                    <Animated.FlatList
+                        data={dataProduct}
+                        showsVerticalScrollIndicator={false}
+                        keyExtractor={(item, index) => index.toString()}
+                        renderItem={({ item, index }) => {
+                            return <AniSreenitem item={item} index={index} translateY={translateY} />
+                        }}
+                        onScroll={scrollHandler}
+                        initialNumToRender={1}
+                        onEndReached={loadMoreData}
+                        onEndReachedThreshold={0.1}
+                        ListFooterComponent={renderFooter}
+                    />
+                </View>
+            )}
         </View>
 
     )
@@ -257,24 +285,15 @@ const styles = StyleSheet.create({
         marginBottom: 15,
     },
     Texttitle: {
-        color: 'black',
-        fontSize: 15,
-        fontWeight: '700'
-    },
-    TextNote: {
-        color: 'black',
-        fontSize: 13,
-        fontWeight: '500',
-        marginBottom: 10,
-        height: 40
+        width: 200,
+        height: 40,
+        marginBottom: 20,
+        borderRadius: 20,
     },
     TextPointmust: {
-        backgroundColor: color.organrelow,
-        color: 'white',
-        width: 130,
-        borderRadius: 7,
-        paddingVertical: 1,
-        textAlign: 'center'
+        width: 100,
+        height: 20,
+        borderRadius: 20,
     },
     boxpoint: {
         flexDirection: 'row',

@@ -15,15 +15,6 @@ const ScreenStore = ({ route }: any) => {
 
     const { Domain,APIkey } = route.params
 
-    
-    // const [data, setdata] = useState<any>([])
-    // const [APIkey, setAPIkey] = useState<any>(null)
-    // const [Domain, setDomain] = useState<any>(null)
-    // const formData = new FormData()
-    // formData.append('app_name', 'khttest')
-    // formData.append('id', item.id)
-
-    // const apiProductlist = `${Domain}/client_product/detail?apikey=${APIkey}`
     useEffect(() => {
         addSP.addListener(listener);
         return () => {

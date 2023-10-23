@@ -4,10 +4,14 @@ import color from '../../Color/color';
 import { removeSP, updateSLSP } from '../../Realm/StorageServices';
 import realmHS from '../../Realm/realmHistoryS';
 import Animated, { Extrapolate, interpolate, runOnJS, useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
+import { PanGestureHandler, PanGestureHandlerGestureEvent, ScrollView } from 'react-native-gesture-handler';
 import axios from 'axios';
+import LinearGradient from 'react-native-linear-gradient';
+import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder';
 
 const DeletedAnimation = ({ item, Domain, APIkey }: any) => {
+
+    const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient)
 
     const translateX = useSharedValue(0);
     const addSP = realmHS.objects('AddProduct')
@@ -47,6 +51,7 @@ const DeletedAnimation = ({ item, Domain, APIkey }: any) => {
     };
 
     const panGesture = useAnimatedGestureHandler<PanGestureHandlerGestureEvent>({
+
         onActive: (event) => {
             translateX.value = event.translationX;
         },
@@ -110,7 +115,7 @@ const DeletedAnimation = ({ item, Domain, APIkey }: any) => {
     }
 
     return (
-        <PanGestureHandler onGestureEvent={panGesture} >
+        <PanGestureHandler onGestureEvent={panGesture}>
             <Animated.View style={{ alignItems: 'center', justifyContent: 'center' }}>
                 <Animated.View style={[deletedStyle, { position: 'absolute', right: 20 }]}>
                     <TouchableOpacity>
@@ -123,7 +128,7 @@ const DeletedAnimation = ({ item, Domain, APIkey }: any) => {
                     {image ? (
                         <Image source={{ uri: image }} style={{ width: 80, height: 80, borderRadius: 5, marginRight: 10 }} />
                     ) : (
-                        <View style={{ width: 80, height: 80, borderRadius: 5, marginRight: 10, backgroundColor: 'gray' }} />
+                        <ShimmerPlaceholder style={{ width: 80, height: 80, borderRadius: 5, marginRight: 10 }} shimmerColors={['#564d4d', '#8e8e8e', '#564d4d']} />
                     )}
                     <View style={{ flex: 1 }}>
                         <Text style={{ color: 'black', fontSize: 13, fontWeight: '500', flex: 1 }}>{data.name}</Text>

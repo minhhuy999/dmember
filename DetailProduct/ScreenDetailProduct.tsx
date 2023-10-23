@@ -7,8 +7,12 @@ import { addSPStore } from '../Realm/StorageServices'
 import Card from './AnimatedDetailPd/Card'
 import { getAPIKeyAndDomainFromStorage } from '../AsysncStorage/AsysncAPI'
 import axios from 'axios'
+import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder'
+import LinearGradient from 'react-native-linear-gradient'
 
 const ScreenDetailProduct = ({ route }: any) => {
+
+    const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient)
 
     const [soLuong, setSoLuong] = useState<any>(1)
     const scrollViewRef: any = useRef(null)
@@ -121,7 +125,7 @@ const ScreenDetailProduct = ({ route }: any) => {
             })
         } else {
             const price = parseFloat(item.price);
-            addSPStore(item.product_id, soLuong ,price)
+            addSPStore(item.product_id, soLuong, price)
         }
         console.log('Sản phẩm đã được thêm vào cơ sở dữ liệu Realm.')
     }
@@ -189,7 +193,7 @@ const ScreenDetailProduct = ({ route }: any) => {
                         <TouchableOpacity style={{ position: 'absolute', right: 40, }}>
                             <Image source={require('../Icon/down.png')} style={{ height: 20, width: 18 }} />
                         </TouchableOpacity>
-                        <TouchableOpacity style={{ position: 'absolute', right: 0, }} onPress={() => navigation.navigate('ScreenStore',{Domain,APIkey})}>
+                        <TouchableOpacity style={{ position: 'absolute', right: 0, }} onPress={() => navigation.navigate('ScreenStore', { Domain, APIkey })}>
                             <Image source={require('../Icon/cart.png')} style={{ width: 26, height: 25 }} />
                         </TouchableOpacity>
                     </View>
@@ -199,7 +203,12 @@ const ScreenDetailProduct = ({ route }: any) => {
                                 <View style={{ width: 151, height: 290, backgroundColor: color.background, justifyContent: 'center', alignItems: 'center' }}></View>
                             </View>
                         </View>
-                        <Card data={imageUrls} maxVisibleItems={3} />
+                        {imageUrls.length > 0 ? (
+                            <Card data={imageUrls} maxVisibleItems={3} />
+                        ) : (
+                            <ShimmerPlaceholder style={styles.loadimage}
+                                shimmerColors={['#564d4d', '#8e8e8e', '#564d4d']} />
+                        )}
                         <View style={{ flexDirection: 'row', paddingVertical: 10 }}>
                             <Text style={{ color: 'black', fontSize: 21, fontWeight: '400' }}>Giá bán: </Text>
                             <Text style={{ color: 'white', fontSize: 21, fontWeight: '600' }}>{item?.price}</Text>
@@ -442,5 +451,10 @@ const styles = StyleSheet.create({
     },
     textchucnang: {
         justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', paddingBottom: 20
+    },
+    loadimage:{
+        width: 250, height: 250, 
+        position: 'absolute', top: 15, 
+        borderRadius: 20 
     }
 })
