@@ -1,41 +1,41 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import color from '../Color/color';
+import color from '../../Color/color';
 import { useNavigation } from '@react-navigation/native';
-import realmHS from '../Realm/realmHistoryS';
-import { loadAddSPData, } from '../Realm/StorageServices';
-import DeletedAnimation from './AnimationShop/DeletedAnimation';
+import realmHS from '../../Realm/realmHistoryS';
+import { loadAddDpointData, } from '../../Realm/StorageServices';
 import { ScrollView } from 'react-native-gesture-handler';
+import ItemDpoint from '../AnimationList/ItemDpoint';
 
-const ScreenStore = ({ route }: any) => {
+const ScreenStorePoint = ({ route }: any) => {
 
     const { Domain,APIkey } = route.params
 
     useEffect(() => {
-        addSP.addListener(listener);
+        addSPDpoint.addListener(listener);
         return () => {
-            addSP.removeListener(listener);
+            addSPDpoint.removeListener(listener);
         };
     }, [])
 
     const listener = (newTasks: any) => {
-        loadAddSPData()
+        loadAddDpointData()
             .then((tasks: any) => {
                 setDataSrore(tasks)
-                console.log(addSP)
+                console.log(addSPDpoint)
             })
     };
 
     const [DataSrore, setDataSrore] = useState([])
 
-    const addSP = realmHS.objects('AddProduct')
+    const addSPDpoint = realmHS.objects('AddItemDpoint')
     const navigation: any = useNavigation();
 
     let totalPrice = 0;
     let totalnumber = 0;
 
-    for (const item of addSP as unknown as { id: string; soluong: number , price: number }[]) {
-            totalPrice += item.price * item.soluong;
+    for (const item of addSPDpoint as unknown as { id: string; soluong: number , point: number }[]) {
+            totalPrice += item.point * item.soluong;
             totalnumber += item.soluong
     }
 
@@ -48,20 +48,20 @@ const ScreenStore = ({ route }: any) => {
         <View style={styles.backgr}>
             <View style={styles.BoxTitile}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', left: 20, top: 10 }}>
-                    <Image source={require('../Icon/arrowback.png')} />
+                    <Image source={require('../../Icon/arrowback.png')} />
                 </TouchableOpacity>
-                <Text style={styles.title}>Giỏ hàng</Text>
+                <Text style={styles.title}>Giỏ hàng Dpoint</Text>
             </View>
-            {addSP.length > 0 ? (
+            {addSPDpoint.length > 0 ? (
                 <View style={styles.hienthi}>
                     <ScrollView style={{ paddingHorizontal: 20, flex: 1 }}>
                         <FlatList
-                            data={addSP}
+                            data={addSPDpoint}
                             keyExtractor={(item: any) => item.id.toString()}
                             scrollEnabled={false}
                             initialNumToRender={1}
                             renderItem={({ item }) => {
-                                return <DeletedAnimation item={item} Domain={Domain} APIkey={APIkey}/>;
+                                return <ItemDpoint item={item} Domain={Domain} APIkey={APIkey}/>;
                             }}
                             showsVerticalScrollIndicator={false}
                         />
@@ -69,14 +69,14 @@ const ScreenStore = ({ route }: any) => {
                     </ScrollView>
                     <View style={styles.BoxALLmonney}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Image source={require('../Icon/gio.png')} />
+                            <Image source={require('../../Icon/gio.png')} />
                             <View style={styles.numberSP}>
                                 <Text style={{ color: 'white', fontWeight: 'bold' }}>{totalnumber}</Text>
                             </View>
                             <Text style={{ marginLeft: 20, color: color.organge, fontSize: 21, fontWeight: '600' }}>{formattedTotalPrice}</Text>
                         </View>
                         <TouchableOpacity
-                            onPress={() => navigation.navigate('ScreenTTdathang',{Domain,APIkey})}
+                            // onPress={() => navigation.navigate('ScreenTTdathang',{Domain,APIkey})}
                             style={{
                                 backgroundColor: 'black',
                                 width: 100,
@@ -92,7 +92,7 @@ const ScreenStore = ({ route }: any) => {
                 </View>
             ) : (
                 <View style={styles.khonghienthi}>
-                    <Image source={require('../Icon/cartnull.png')} style={{ width: 103, height: 103 }} />
+                    <Image source={require('../../Icon/cartnull.png')} style={{ width: 103, height: 103 }} />
                     <Text>Giỏ hàng của bạn đang trống!</Text>
                     <TouchableOpacity
                         onPress={() => navigation.navigate('ScreenBieumau')}
@@ -114,7 +114,7 @@ const ScreenStore = ({ route }: any) => {
     )
 }
 
-export default ScreenStore
+export default ScreenStorePoint
 
 const styles = StyleSheet.create({
     backgr: {

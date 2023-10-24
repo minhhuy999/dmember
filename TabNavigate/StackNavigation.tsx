@@ -34,6 +34,7 @@ import ScreenDtcongviec from '../Detailcongviec/ScreenDtcongviec'
 import ScreenDtUser from '../Detailaccount/ScreenDtUser'
 import AnimTab1 from './AnimTab1'
 import ScreenShop from '../Shop/ScreenShop'
+import ScreenStorePoint from '../Point/PointFuntion/ScreenStorePoint'
 
 const Stack = createNativeStackNavigator()
 
@@ -77,6 +78,7 @@ const StackNavigation = () => {
                 <Stack.Screen name='ScreenDsviec' component={ScreenDsviec} />
                 <Stack.Screen name='ScreenDtcongviec' component={ScreenDtcongviec} />
                 <Stack.Screen name='ScreenDtUser' component={ScreenDtUser} />
+                <Stack.Screen name='ScreenStorePoint' component={ScreenStorePoint}/>
             </Stack.Navigator>
         </NavigationContainer>
     )

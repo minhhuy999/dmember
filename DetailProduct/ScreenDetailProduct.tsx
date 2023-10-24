@@ -452,9 +452,9 @@ const styles = StyleSheet.create({
     textchucnang: {
         justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', paddingBottom: 20
     },
-    loadimage:{
-        width: 250, height: 250, 
-        position: 'absolute', top: 15, 
-        borderRadius: 20 
+    loadimage: {
+        width: 250, height: 250,
+        position: 'absolute', top: 15,
+        borderRadius: 20
     }
 })

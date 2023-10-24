@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     imageContainer: {
         borderRadius: 10,
         overflow: 'hidden',
-        backgroundColor: 'pink',
+        backgroundColor: 'rgba(255, 192, 203, 0.5)',
         alignItems:'center',
         justifyContent:'center',
         padding:10

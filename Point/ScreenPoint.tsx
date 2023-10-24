@@ -4,13 +4,20 @@ import color from '../Color/color'
 import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated'
 import AniSreenitem from './AnimationList/AniSreenitem'
 import axios from 'axios'
-import { useFocusEffect } from '@react-navigation/native'
+import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import { getAPIKeyAndDomainFromStorage } from '../AsysncStorage/AsysncAPI'
 import { retrieveUserData } from '../AsysncStorage/AsysncUser'
 import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder'
 import LinearGradient from 'react-native-linear-gradient'
+import { TouchableOpacity } from 'react-native-gesture-handler'
+import realmHS from '../Realm/realmHistoryS'
+import { addSPStore, addSPDpoint } from '../Realm/StorageServices'
 
 const ScreenPoint = () => {
+
+    const navigation: any = useNavigation();
+
+    const dataSPDpoint = realmHS.objects('AddItemDpoint')
 
     const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient)
     const numberOfRenders = 5
@@ -26,7 +33,7 @@ const ScreenPoint = () => {
     const formData = new FormData()
     formData.append('app_name', 'khttest')
     formData.append('page', currentPage)
-    formData.append('for_point', 0)
+    formData.append('for_point', 1)
     const apiProductlist = `${Domain}/client_product/list_all?apikey=${APIkey}`
 
     const Item = [
@@ -198,6 +205,19 @@ const ScreenPoint = () => {
         )
     }
 
+    const handleAddToCart = (item: any) => {
+        const existingProduct: any = dataSPDpoint.filtered(`id == '${item.product_id}'`)[0]
+        if (existingProduct) {
+            realmHS.write(() => {
+                existingProduct.soluong += 1
+            })
+        } else {
+            const product = dataProduct.find((productItem: any) => productItem.product_id === item.product_id);
+            addSPDpoint(item.product_id, 1,Math.floor(product.point))
+        }
+        console.log('SP Dpoint đã được thêm vào cơ sở dữ liệu Realm.')
+    }
+
     return (
         <View style={styles.backgr}>
             <View style={styles.titleBox}>
@@ -212,7 +232,9 @@ const ScreenPoint = () => {
                     <Image source={require('../Icon/search.png')} />
                     <TextInput placeholder='Immune Boost' style={{ paddingLeft: 10 }}></TextInput>
                 </View>
-                <Image source={require('../Icon/cart.png')} style={{ height: 25, width: 25, marginLeft: 10 }} />
+                <TouchableOpacity onPress={() => navigation.navigate('ScreenStorePoint', { Domain, APIkey })}>
+                    <Image source={require('../Icon/cart.png')} style={{ height: 25, width: 25, marginLeft: 10 }} />
+                </TouchableOpacity>
             </View>
             <Text style={styles.muc}>Có thể đổi</Text>
             {dataProduct.length === 0 ? ( // Check if dataProduct is an empty array
@@ -231,7 +253,14 @@ const ScreenPoint = () => {
                         showsVerticalScrollIndicator={false}
                         keyExtractor={(item, index) => index.toString()}
                         renderItem={({ item, index }) => {
-                            return <AniSreenitem item={item} index={index} translateY={translateY} />
+                            return (
+                                <View style={{ width: '100%' }}>
+                                    <AniSreenitem item={item} index={index} translateY={translateY} />
+                                    <TouchableOpacity style={styles.Add} onPress={() => handleAddToCart(item)}>
+                                        <Text style={{ color: 'white' }}>+</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            )
                         }}
                         onScroll={scrollHandler}
                         initialNumToRender={1}
@@ -320,5 +349,14 @@ const styles = StyleSheet.create({
     loadingContainer: {
         padding: 16,
         alignItems: 'center',
+    },
+    Add: {
+        height: 27, width: 27,
+        backgroundColor: 'black',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 27,
+        position: 'absolute',
+        bottom: 20, right: 5
     },
 })

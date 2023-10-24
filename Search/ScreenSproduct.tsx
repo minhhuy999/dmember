@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import color from '../Color/color'
 import { useNavigation } from '@react-navigation/native'
 import { FlatList, ScrollView } from 'react-native-gesture-handler'
-import { addSPStore, getListTasks, removeTask } from '../Realm/StorageServices'
+import { addSPStore, addTask, getListTasks, removeTask } from '../Realm/StorageServices'
 import realmHS from '../Realm/realmHistoryS'
 import unidecode from 'unidecode'
 import Animated, { Extrapolate, FadeIn, FadeOut, Layout, interpolate, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
@@ -222,6 +222,12 @@ const ScreenSproduct = ({ navigation }: any) => {
         setdataSearch(filteredProducts);
     };
 
+    const addHistory = () => {
+        if (name != '') {
+            addTask(name)
+        }
+    }
+    
     return (
         <View style={styles.backgr}>
             <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'center', alignItems: 'center', paddingTop: 10, paddingBottom: 10 }}>
@@ -230,7 +236,10 @@ const ScreenSproduct = ({ navigation }: any) => {
                     <TextInput value={name}
                         onChangeText={(text) => setName(text)}
                         style={{ paddingLeft: 10, flex: 1 }}
-                        onSubmitEditing={handleSearch}
+                        onSubmitEditing={() => {
+                            handleSearch();
+                            addHistory();
+                        }}
                         placeholder="Tìm kiếm sản phẩm"
                         returnKeyType="search" >
                     </TextInput>

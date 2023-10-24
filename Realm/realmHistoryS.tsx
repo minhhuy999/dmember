@@ -18,6 +18,16 @@ const TaskSP = {
     },
 };
 
+
+const TaskDpoint = {
+    name: 'AddItemDpoint',
+    properties: {
+        id:'string',
+        soluong:'int',
+        point:'int',
+    },
+};
+
 const TaskMember = {
     name: 'AddMember',
     properties: {
@@ -25,6 +35,6 @@ const TaskMember = {
     },
 };
 
-const realmHS = new Realm({ schema: [TaskSchema,TaskSP,TaskMember] });
+const realmHS = new Realm({ schema: [TaskSchema,TaskSP,TaskDpoint,TaskMember] });
 
 export default realmHS;

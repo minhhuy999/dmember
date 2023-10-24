@@ -10,6 +10,11 @@ export const loadAddSPData = () => {
     return Promise.resolve(Array.from(products));
 };
 
+export const loadAddDpointData = () => {
+    const dpoint = realmHS.objects('AddItemDpoint');
+    return Promise.resolve(Array.from(dpoint));
+};
+
 export const loadAddMember = () => {
     const member = realmHS.objects('AddMember');
     return Promise.resolve(Array.from(member));
@@ -39,6 +44,21 @@ export const addSPStore = (id: string, soluong: number, price: number) => {
     return new Promise((resolve: any, reject: any) => {
         realmHS.write(() => {
             realmHS.create('AddProduct', data);
+            resolve();
+        });
+    });
+};
+
+export const addSPDpoint = (id: string, soluong: number, point: number) => {
+    const data = {
+        id,
+        soluong,
+        point,
+    };
+
+    return new Promise((resolve: any, reject: any) => {
+        realmHS.write(() => {
+            realmHS.create('AddItemDpoint', data);
             resolve();
         });
     });
@@ -77,6 +97,26 @@ export const removeSP = (id: string) => {
     });
 };
 
+export const removeDpoint = (id: string) => {
+    const productToRemove = realmHS.objects('AddItemDpoint').filtered(`id == '${id}'`)[0];
+    return new Promise((resolve: any, reject) => {
+        realmHS.write(() => {
+            realmHS.delete(productToRemove);
+            resolve();
+        });
+    });
+};
+
+export const removeMB = (id: string) => {
+    const memberToRemove = realmHS.objects('AddMember').filtered(`id == '${id}'`)[0];
+    return new Promise((resolve: any, reject) => {
+        realmHS.write(() => {
+            realmHS.delete(memberToRemove);
+            resolve();
+        });
+    });
+};
+
 export const updateSLSP = (id: string, soluong: number) => {
     const productToUpdate = realmHS.objects('AddProduct').filtered(`id == '${id}'`)[0];
 
@@ -93,13 +133,19 @@ export const updateSLSP = (id: string, soluong: number) => {
     })
 };
 
-export const removeMB = (id: string) => {
-    const memberToRemove = realmHS.objects('AddMember').filtered(`id == '${id}'`)[0];
+export const updateSLSPDpoint = (id: string, soluong: number) => {
+    const productToUpdate = realmHS.objects('AddItemDpoint').filtered(`id == '${id}'`)[0];
+
+    if (!productToUpdate) {
+        console.error('Task not found');
+        return Promise.reject('Task not found');
+    }
+
     return new Promise((resolve: any, reject) => {
         realmHS.write(() => {
-            realmHS.delete(memberToRemove);
+            productToUpdate.soluong = soluong;
             resolve();
         });
-    });
+    })
 };
 

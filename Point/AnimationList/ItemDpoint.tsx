@@ -1,7 +1,7 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import color from '../../Color/color'
-import { removeSP, updateSLSP } from '../../Realm/StorageServices'
+import { removeDpoint, updateSLSPDpoint } from '../../Realm/StorageServices'
 import realmHS from '../../Realm/realmHistoryS'
 import Animated, { Extrapolate, clamp, interpolate, runOnJS, useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler'
@@ -9,13 +9,17 @@ import axios from 'axios'
 import LinearGradient from 'react-native-linear-gradient'
 import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder'
 
-const DeletedAnimation = ({ item, Domain, APIkey }: any) => {
+const ItemDpoint = ({ item, Domain, APIkey }: any) => {
 
     const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient)
 
     const translateX = useSharedValue(0)
-    const addSP = realmHS.objects('AddProduct')
+    const addSPDpoint = realmHS.objects('AddItemDpoint')
     const itemID = item.id
+
+    function limitPoints(points:any) {
+        return points.toString().slice(0, 5);
+    }
 
     const apiProductlist = `${Domain}/client_product/detail?apikey=${APIkey}`
 
@@ -26,28 +30,25 @@ const DeletedAnimation = ({ item, Domain, APIkey }: any) => {
     formData.append('id', item.id)
 
     const incrementQuantity = (id: string) => {
-        const productToUpdate = addSP.find((product: any) => product.id === id)
+        const productToUpdate = addSPDpoint.find((product: any) => product.id === id)
         if (productToUpdate) {
             const newQuantity = productToUpdate.soluong + 1
-            updateSLSP(id, newQuantity)
+            updateSLSPDpoint(id, newQuantity)
         }
     }
 
     const decrementQuantity = (id: string) => {
-        const productToUpdate = addSP.find((product: any) => product.id === id)
+        const productToUpdate = addSPDpoint.find((product: any) => product.id === id)
         if (productToUpdate && productToUpdate.soluong > 1) {
             const newQuantity = productToUpdate.soluong - 1
-            updateSLSP(id, newQuantity)
+            updateSLSPDpoint(id, newQuantity)
         }
     }
 
-    const price = parseFloat(data.price)
-    const pricecal = parseFloat(data.price_cal_commission)
-    const formattedPrice = price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
-    const formattedDiscount = pricecal.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+
 
     const handleDeleteSP = (id: string) => {
-        removeSP(id)
+        removeDpoint(id)
     }
 
     const panGesture = useAnimatedGestureHandler<PanGestureHandlerGestureEvent>({
@@ -134,13 +135,9 @@ const DeletedAnimation = ({ item, Domain, APIkey }: any) => {
                         <Text style={{ color: 'black', fontSize: 13, fontWeight: '500', flex: 1 }}>{data.name}</Text>
                         <View style={{ flexDirection: 'row' }}>
                             <View>
-                                <View style={{ flexDirection: 'row' }}>
-                                    <Text style={styles.text1render}>Giá bán: </Text>
-                                    <Text style={styles.texxt2render}>{formattedPrice}</Text>
-                                </View>
-                                <View style={{ flexDirection: 'row' }}>
-                                    <Text style={styles.text1render}>Chiết khấu: </Text>
-                                    <Text style={styles.texxt2render}>{formattedDiscount}</Text>
+                                <View style={{ flexDirection: 'row' , marginTop:10 }}>
+                                    <Text style={styles.text1render}>Giá Dpoint: </Text>
+                                    <Text style={styles.texxt2render}>{limitPoints(item.point)}</Text>
                                 </View>
                             </View>
                             <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>
@@ -166,7 +163,7 @@ const DeletedAnimation = ({ item, Domain, APIkey }: any) => {
     )
 }
 
-export default DeletedAnimation
+export default ItemDpoint
 
 const styles = StyleSheet.create({
     boxrenderSp: {

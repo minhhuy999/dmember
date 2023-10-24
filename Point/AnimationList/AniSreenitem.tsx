@@ -1,6 +1,6 @@
-import { Image, StyleSheet, Text, View } from 'react-native'
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
-import Animated, { Extrapolate, interpolate, runOnJS, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import Animated, { interpolate, useAnimatedStyle } from 'react-native-reanimated';
 import color from '../../Color/color';
 
 type ListItemProps = {
@@ -8,6 +8,10 @@ type ListItemProps = {
     translateY: any
     index: any
 };
+
+const ITEM_MARGIN_BOTTOM = 15
+const ITEM_HEIGHT = 112
+const ITEM_SIZE = ITEM_HEIGHT + ITEM_MARGIN_BOTTOM
 
 const AniSreenitem: React.FC<ListItemProps> = ({ item, index, translateY }) => {
 
@@ -18,12 +22,27 @@ const AniSreenitem: React.FC<ListItemProps> = ({ item, index, translateY }) => {
         return text.slice(0, maxLength) + '...';
     }
 
+    function limitPoints(points:any) {
+        return points.toString().slice(0, 5);
+    }
+
+    const rStyle = useAnimatedStyle(() => {
+        const scale = interpolate(
+            translateY.value,
+            [-1, 0, ITEM_SIZE * index, ITEM_SIZE * (index + 2)],
+            [1, 1, 1, 0]
+        );
+        return {
+            transform: [{ scale }],
+        };
+    });
+
     return (
-        <Animated.View style={[styles.BoxItem]}>
-            <Image source={{ uri: item.img_1 }} style={{ width: 127, height: 112, borderRadius: 10 }} />
+        <Animated.View style={[styles.BoxItem, rStyle]}>
+            <Image source={{ uri: item.img_1 }} style={{ width: 127, height: 112, borderRadius: 10, }} />
             <View style={{ width: 240, justifyContent: 'center', padding: 10 }}>
                 <Text style={styles.Texttitle}>{limitText(item.product_name, 50)}</Text>
-                <Text style={styles.TextPointmust}>{item.referral_vnd} Dpoint</Text>
+                <Text style={styles.TextPointmust}>{limitPoints(item.point)} Dpoint</Text>
             </View>
         </Animated.View>
     )
@@ -37,7 +56,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         width: '100%',
         borderRadius: 10,
-        marginBottom: 15,
+        height: ITEM_HEIGHT,
+        marginBottom: ITEM_MARGIN_BOTTOM,
     },
     Texttitle: {
         color: 'black',
