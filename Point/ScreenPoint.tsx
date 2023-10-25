@@ -11,7 +11,7 @@ import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder'
 import LinearGradient from 'react-native-linear-gradient'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import realmHS from '../Realm/realmHistoryS'
-import { addSPStore, addSPDpoint } from '../Realm/StorageServices'
+import unidecode from 'unidecode'
 
 const ScreenPoint = () => {
 
@@ -22,6 +22,9 @@ const ScreenPoint = () => {
     const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient)
     const numberOfRenders = 5
     const renderData = Array.from({ length: numberOfRenders }, (_, index) => index)
+
+    const [name, setName] = useState('')
+    const [dataSearch, setdataSearch] = useState<any>([])
 
     const [APIkey, setAPIkey] = useState<any>(null)
     const [Domain, setDomain] = useState<any>(null)
@@ -111,7 +114,15 @@ const ScreenPoint = () => {
     useEffect(() => {
         getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain })
         gettoken()
-    }, [])
+        getAPIShop()
+    }, [APIkey, Domain])
+
+
+    useEffect(() => {
+        if (dataProduct.length > 0) {
+            handleSearch();
+        }
+    }, [dataProduct])
 
     const gettoken = async () => {
         const userData = await retrieveUserData()
@@ -123,12 +134,6 @@ const ScreenPoint = () => {
             setpoint(null)
         }
     }
-
-    useFocusEffect(
-        React.useCallback(() => {
-            getAPIShop()
-        }, [APIkey, Domain])
-    )
 
     const getAPIShop = async () => {
         if (APIkey && Domain) {
@@ -152,35 +157,32 @@ const ScreenPoint = () => {
     }
 
     const loadMoreData = async () => {
-        if (loading) {
-            return
-        }
-
-        setLoading(true)
-
-        const nextPage = currentPage + 1
-        formData.append('page', nextPage)
-
-        try {
-            const response = await axios.post(apiProductlist, formData, {
-                headers: {
-                    'Accept': 'application/x-www-form-urlencoded',
-                },
-            })
-
-            if (response.status === 200) {
-                const newData = response.data.data.l
-                setdataProduct([...dataProduct, ...newData])
-                setCurrentPage(nextPage)
-            } else {
-                throw new Error('Network response was not ok')
+        if (APIkey && Domain && !loading) {
+            setLoading(true); // Set loading state to prevent multiple requests
+            try {
+                const nextPage = currentPage + 1;
+                const formData = new FormData();
+                formData.append('app_name', 'khttest');
+                formData.append('page', nextPage);
+                const response = await axios.post(apiProductlist, formData, {
+                    headers: {
+                        'Accept': 'application/x-www-form-urlencoded',
+                    },
+                });
+                if (response.status === 200) {
+                    const newData = response.data.data.l;
+                    setdataProduct((prevData: any) => [...prevData, ...newData]);
+                    setCurrentPage(nextPage);
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            } catch (error) {
+                console.error('There was a problem with the operation:', error);
+            } finally {
+                setLoading(false); // Reset loading state
             }
-        } catch (error) {
-            console.error('There was a problem with the operation:', error)
-        } finally {
-            setLoading(false)
         }
-    }
+    };
 
     const renderFooter = () => {
         if (loading) {
@@ -205,18 +207,13 @@ const ScreenPoint = () => {
         )
     }
 
-    const handleAddToCart = (item: any) => {
-        const existingProduct: any = dataSPDpoint.filtered(`id == '${item.product_id}'`)[0]
-        if (existingProduct) {
-            realmHS.write(() => {
-                existingProduct.soluong += 1
-            })
-        } else {
-            const product = dataProduct.find((productItem: any) => productItem.product_id === item.product_id);
-            addSPDpoint(item.product_id, 1,Math.floor(product.point))
-        }
-        console.log('SP Dpoint đã được thêm vào cơ sở dữ liệu Realm.')
-    }
+    const filteredProducts = dataProduct.filter((product: any) =>
+        unidecode(product.product_name.toLowerCase()).includes(unidecode(name.toLowerCase()))
+    );
+
+    const handleSearch = () => {
+        setdataSearch(filteredProducts);
+    };
 
     return (
         <View style={styles.backgr}>
@@ -230,10 +227,17 @@ const ScreenPoint = () => {
             <View style={styles.boxSearch}>
                 <View style={styles.inputSearch}>
                     <Image source={require('../Icon/search.png')} />
-                    <TextInput placeholder='Immune Boost' style={{ paddingLeft: 10 }}></TextInput>
+                    <TextInput
+                        value={name}
+                        onChangeText={(text) => setName(text)}
+                        placeholder='Immune Boost'
+                        returnKeyType="search"
+                        onSubmitEditing={() => handleSearch()}
+                        style={{ paddingLeft: 10 }} />
                 </View>
                 <TouchableOpacity onPress={() => navigation.navigate('ScreenStorePoint', { Domain, APIkey })}>
                     <Image source={require('../Icon/cart.png')} style={{ height: 25, width: 25, marginLeft: 10 }} />
+                    {dataSPDpoint.length > 0 && <View style={styles.dotstore}></View>}
                 </TouchableOpacity>
             </View>
             <Text style={styles.muc}>Có thể đổi</Text>
@@ -249,17 +253,12 @@ const ScreenPoint = () => {
             ) : (
                 <View style={{ flex: 1, marginBottom: 50 }}>
                     <Animated.FlatList
-                        data={dataProduct}
+                        data={dataSearch}
                         showsVerticalScrollIndicator={false}
                         keyExtractor={(item, index) => index.toString()}
                         renderItem={({ item, index }) => {
                             return (
-                                <View style={{ width: '100%' }}>
-                                    <AniSreenitem item={item} index={index} translateY={translateY} />
-                                    <TouchableOpacity style={styles.Add} onPress={() => handleAddToCart(item)}>
-                                        <Text style={{ color: 'white' }}>+</Text>
-                                    </TouchableOpacity>
-                                </View>
+                                <AniSreenitem item={item} index={index} translateY={translateY} />
                             )
                         }}
                         onScroll={scrollHandler}
@@ -350,13 +349,13 @@ const styles = StyleSheet.create({
         padding: 16,
         alignItems: 'center',
     },
-    Add: {
-        height: 27, width: 27,
-        backgroundColor: 'black',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 27,
+    dotstore: {
+        height: 10, width: 10,
+        borderRadius: 5,
+        backgroundColor: 'red',
         position: 'absolute',
-        bottom: 20, right: 5
+        right: 1,
+        top: 10
     },
+
 })

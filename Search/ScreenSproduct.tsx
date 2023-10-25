@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, Button, Alert } from 'react-native'
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, Button, Alert, ActivityIndicator } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import color from '../Color/color'
 import { useNavigation } from '@react-navigation/native'
@@ -105,6 +105,18 @@ const ScreenSproduct = ({ navigation }: any) => {
             }
         }
     };
+
+
+    const renderFooter = () => {
+        if (isLoading) {
+            return (
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="small" color="black" />
+                </View>
+            )
+        }
+        return null
+    }
 
     const listener = () => {
         getListTasks()
@@ -227,7 +239,7 @@ const ScreenSproduct = ({ navigation }: any) => {
             addTask(name)
         }
     }
-    
+
     return (
         <View style={styles.backgr}>
             <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'center', alignItems: 'center', paddingTop: 10, paddingBottom: 10 }}>
@@ -273,6 +285,7 @@ const ScreenSproduct = ({ navigation }: any) => {
                         scrollEnabled={false}
                         onEndReached={loadMoreData}
                         onEndReachedThreshold={0.1}
+                        ListFooterComponent={renderFooter}
                     />
                 </View>
             </ScrollView>
@@ -360,5 +373,8 @@ const styles = StyleSheet.create({
         fontSize: 18,
         marginBottom: 8,
     },
-
+    loadingContainer: {
+        padding: 16,
+        alignItems: 'center',
+    },
 })

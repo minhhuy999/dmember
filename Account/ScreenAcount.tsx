@@ -7,11 +7,11 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native'
 
 const ScreenAcount = () => {
 
-    const navigation:any = useNavigation();
+    const navigation:any = useNavigation()
 
     const [isModal, setisModal] = useState(false)
-    const [fullname, setfullname] = useState('');
-    const [email, setemail] = useState('');
+    const [fullname, setfullname] = useState('')
+    const [email, setemail] = useState('')
     const [userId, setuserId] = useState('')
     const [Sex, setSex] = useState('')
     const [Mobile, setMobile] = useState('')
@@ -19,28 +19,28 @@ const ScreenAcount = () => {
     const logout1 = async () => {
         logout()
         navigation.navigate('ScreenLogin')
-    };
+    }
 
     const fetchData = async () => {
-        const userData = await retrieveUserData();
+        const userData = await retrieveUserData()
         if (userData) {
-            const { fullname, email, user_id, sex, mobile } = userData;
-            setfullname(fullname);
-            setemail(email);
-            setuserId(user_id);
-            setSex(sex);
-            setMobile(mobile);
+            const { fullname, email, user_id, sex, mobile } = userData
+            setfullname(fullname)
+            setemail(email)
+            setuserId(user_id)
+            setSex(sex)
+            setMobile(mobile)
         }else{
-            setfullname('');
-            setemail('');
+            setfullname('')
+            setemail('')
         }
-    };
+    }
 
     useFocusEffect(
         React.useCallback(() => {
-            fetchData();
+            fetchData()
         }, [])
-    );
+    )
     
 
     const Item = [
@@ -89,22 +89,22 @@ const ScreenAcount = () => {
                     setisModal(true)
                 }
                 if (item.id === '2') {
-                    navigation.navigate('ScreenBaoMat');
+                    navigation.navigate('ScreenBaoMat')
                 }
                 if (item.id === '3') {
-                    navigation.navigate('ScreenQldiachi');
+                    navigation.navigate('ScreenQldiachi')
                 }
                 if (item.id === '4') {
-                    navigation.navigate('ScreenDsviec');
+                    navigation.navigate('ScreenDsviec')
                 }
                 if (item.id === '5') {
-                    navigation.navigate('ScreenDsTv');
+                    navigation.navigate('ScreenDsTv')
                 }
                 if (item.id === '6') {
-                    navigation.navigate('ScreenBc');
+                    navigation.navigate('ScreenBc')
                 }
                 if (item.id === '7') {
-                    navigation.navigate('ScreenTintuc');
+                    navigation.navigate('ScreenTintuc')
                 }
             }}>
                 <MotiView

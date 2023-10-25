@@ -2,6 +2,8 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import Animated, { interpolate, useAnimatedStyle } from 'react-native-reanimated';
 import color from '../../Color/color';
+import realmHS from '../../Realm/realmHistoryS';
+import { addSPDpoint } from '../../Realm/StorageServices';
 
 type ListItemProps = {
     item: any
@@ -15,6 +17,8 @@ const ITEM_SIZE = ITEM_HEIGHT + ITEM_MARGIN_BOTTOM
 
 const AniSreenitem: React.FC<ListItemProps> = ({ item, index, translateY }) => {
 
+    const dataSPDpoint = realmHS.objects('AddItemDpoint')
+
     function limitText(text: any, maxLength: any) {
         if (text.length <= maxLength) {
             return text;
@@ -22,7 +26,7 @@ const AniSreenitem: React.FC<ListItemProps> = ({ item, index, translateY }) => {
         return text.slice(0, maxLength) + '...';
     }
 
-    function limitPoints(points:any) {
+    function limitPoints(points: any) {
         return points.toString().slice(0, 5);
     }
 
@@ -37,6 +41,18 @@ const AniSreenitem: React.FC<ListItemProps> = ({ item, index, translateY }) => {
         };
     });
 
+    const handleAddToCart = (item: any) => {
+        const existingProduct: any = dataSPDpoint.filtered(`id == '${item.product_id}'`)[0]
+        if (existingProduct) {
+            realmHS.write(() => {
+                existingProduct.soluong += 1
+            })
+        } else {
+            addSPDpoint(item.product_id, 1, Math.floor(item.point))
+        }
+        console.log('SP Dpoint đã được thêm vào cơ sở dữ liệu Realm.')
+    }
+
     return (
         <Animated.View style={[styles.BoxItem, rStyle]}>
             <Image source={{ uri: item.img_1 }} style={{ width: 127, height: 112, borderRadius: 10, }} />
@@ -44,6 +60,9 @@ const AniSreenitem: React.FC<ListItemProps> = ({ item, index, translateY }) => {
                 <Text style={styles.Texttitle}>{limitText(item.product_name, 50)}</Text>
                 <Text style={styles.TextPointmust}>{limitPoints(item.point)} Dpoint</Text>
             </View>
+            <TouchableOpacity style={styles.Add} onPress={() => handleAddToCart(item)}>
+                <Text style={{ color: 'white' }}>+</Text>
+            </TouchableOpacity>
         </Animated.View>
     )
 }
@@ -55,6 +74,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         backgroundColor: 'white',
         width: '100%',
+        elevation:3,
         borderRadius: 10,
         height: ITEM_HEIGHT,
         marginBottom: ITEM_MARGIN_BOTTOM,
@@ -79,5 +99,14 @@ const styles = StyleSheet.create({
         borderRadius: 7,
         paddingVertical: 1,
         paddingLeft: 20
+    },
+    Add: {
+        height: 27, width: 27,
+        backgroundColor: 'black',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 27,
+        position: 'absolute',
+        bottom: 5, right: 5
     },
 })
