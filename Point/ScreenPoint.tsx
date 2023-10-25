@@ -25,6 +25,7 @@ const ScreenPoint = () => {
 
     const [name, setName] = useState('')
     const [dataSearch, setdataSearch] = useState<any>([])
+    const [token, settoken] = useState('')
 
     const [APIkey, setAPIkey] = useState<any>(null)
     const [Domain, setDomain] = useState<any>(null)
@@ -113,10 +114,15 @@ const ScreenPoint = () => {
 
     useEffect(() => {
         getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain })
-        gettoken()
         getAPIShop()
     }, [APIkey, Domain])
 
+    useFocusEffect(
+        React.useCallback(() => {
+            gettoken()
+        }, [])
+    )
+    
 
     useEffect(() => {
         if (dataProduct.length > 0) {
@@ -129,9 +135,11 @@ const ScreenPoint = () => {
         if (userData) {
             const { session_token, point } = userData
             setpoint(point)
-            formData.append('token', session_token)
+            settoken(session_token)
+            formData.append('token', token)
         } else {
             setpoint(null)
+            settoken('')
         }
     }
 
@@ -262,7 +270,7 @@ const ScreenPoint = () => {
                             )
                         }}
                         onScroll={scrollHandler}
-                        initialNumToRender={1}
+                        initialNumToRender={3}
                         onEndReached={loadMoreData}
                         onEndReachedThreshold={0.1}
                         ListFooterComponent={renderFooter}

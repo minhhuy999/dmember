@@ -2,41 +2,16 @@ import { Image, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import color from '../../Color/color'
+import { getAPIDetail } from '../../AsysncStorage/AsysncStore'
 
-const ListitemTTdathang = ({item,APIkey,Domain}:any) => {
-    
+const ListitemTTdathang = ({ item, APIkey, Domain }: any) => {
+
     const [data, setdata] = useState<any>([])
     const [image, setimage] = useState('')
-    
-    const formData = new FormData()
-    formData.append('app_name', 'khttest')
-    formData.append('id', item.id)
-    const apiProductlist = `${Domain}/client_product/detail?apikey=${APIkey}`
 
     useEffect(() => {
-        getAPIDetail()
+        getAPIDetail({ item, Domain, APIkey, setdata, setimage })
     }, [])
-
-    const getAPIDetail = async () => {
-        if (APIkey && Domain) {
-            try {
-                const response = await axios.post(apiProductlist, formData, {
-                    headers: {
-                        'Accept': 'application/x-www-form-urlencoded',
-                    },
-                })
-                if (response.status === 200) {
-                    const dataProduct = response.data.data
-                    setdata(dataProduct)
-                    setimage(dataProduct.img_1)
-                } else {
-                    throw new Error('Network response was not ok')
-                }
-            } catch (error) {
-                console.error('There was a problem with the operation:', error)
-            }
-        }
-    }
 
     return (
         <View style={{ backgroundColor: 'white', width: '100%', height: 90, borderRadius: 10, flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>

@@ -22,7 +22,7 @@ const ScreenLogin = ({ navigation }: any) => {
     const [isPhoneInputFocused, setPhoneInputFocused] = useState(false)
     const [isPasswordInputFocused, setPasswordInputFocused] = useState(false)
     const opacityVector = useSharedValue(0)
-    const scale = useSharedValue(0);
+    const scale = useSharedValue(0)
 
     const rStyle = useAnimatedStyle(() => {
 
@@ -66,29 +66,29 @@ const ScreenLogin = ({ navigation }: any) => {
     })
 
     const handleLogin = async () => {
-        const loginUrl = `${Domain}/client_init/login?apikey=${APIkey}`;
+        const loginUrl = `${Domain}/client_init/login?apikey=${APIkey}`
         try {
             const response = await axios.post(loginUrl, formData, {
                 headers: {
                     Accept: "application/x-www-form-urlencoded",
                 },
-            });
+            })
             if (response.status === 200 && response.data.message === 'success') {
-                console.log(response.data.message);
-                const userData = response.data.data;
-                saveUserDataToStorage(userData);
-                navigation.navigate('ScreenShop');
+                console.log(response.data.message)
+                const userData = response.data.data
+                saveUserDataToStorage(userData)
+                navigation.navigate('ScreenShop')
             } else if (response.status === 200) {
-                console.log(response.data.message);
+                console.log(response.data.message)
                 scale.value = withSpring(1500, { duration: 2000 }, () => {
-                    scale.value = withTiming(0);
-                });
+                    scale.value = withTiming(0)
+                })
                 seterror(response.data.message)
             }
         } catch (error) {
-            console.error('Lỗi kết nối đến máy chủ:', error);
+            console.error('Lỗi kết nối đến máy chủ:', error)
         }
-    };
+    }
 
 
     useEffect(() => {

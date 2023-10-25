@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, Button, Alert, ActivityIndicator } from 'react-native'
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import color from '../Color/color'
 import { useNavigation } from '@react-navigation/native'
@@ -178,8 +178,8 @@ const ScreenSproduct = ({ navigation }: any) => {
             <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { item })}>
                 <MotiView
                     style={{ elevation: 5, backgroundColor: 'white', height: 229, width: 169, borderRadius: 10, paddingHorizontal: 20, paddingVertical: 10, marginRight: 15, marginBottom: 15 }}
-                    from={{ opacity: 0, translateY: 50 }}
-                    animate={{ opacity: 1, translateY: 0 }}
+                    from={{ opacity: 0,translateX:50, translateY: 50 }}
+                    animate={{ opacity: 1,translateX:0, translateY: 0 }}
                     transition={{ delay: index * 200 }}
                 >
                     <Image source={{ uri: item.img_1 }} style={{ height: 130, width: 132, borderRadius: 5 }} />
@@ -281,7 +281,7 @@ const ScreenSproduct = ({ navigation }: any) => {
                         renderItem={renderSP}
                         showsVerticalScrollIndicator={false}
                         numColumns={2}
-                        initialNumToRender={2}
+                        initialNumToRender={1}
                         scrollEnabled={false}
                         onEndReached={loadMoreData}
                         onEndReachedThreshold={0.1}

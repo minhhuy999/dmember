@@ -174,6 +174,7 @@ const ScreenHome = ({ navigation }: any) => {
                                 keyExtractor={(item) => item.id.toString()}
                                 renderItem={renderMenu}
                                 scrollEnabled={false}
+                                showsVerticalScrollIndicator={false}
                             />
                         </Animated.View >
                         <TouchableOpacity style={styles.seeAll} onPress={toggleShowAll}>

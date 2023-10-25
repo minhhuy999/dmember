@@ -8,6 +8,7 @@ import { PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-g
 import axios from 'axios'
 import LinearGradient from 'react-native-linear-gradient'
 import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder'
+import { getAPIDetail } from '../../AsysncStorage/AsysncStore'
 
 const DeletedAnimation = ({ item, Domain, APIkey }: any) => {
 
@@ -17,13 +18,8 @@ const DeletedAnimation = ({ item, Domain, APIkey }: any) => {
     const addSP = realmHS.objects('AddProduct')
     const itemID = item.id
 
-    const apiProductlist = `${Domain}/client_product/detail?apikey=${APIkey}`
-
     const [data, setdata] = useState<any>([])
     const [image, setimage] = useState('')
-    const formData = new FormData()
-    formData.append('app_name', 'khttest')
-    formData.append('id', item.id)
 
     const incrementQuantity = (id: string) => {
         const productToUpdate = addSP.find((product: any) => product.id === id)
@@ -51,7 +47,6 @@ const DeletedAnimation = ({ item, Domain, APIkey }: any) => {
     }
 
     const panGesture = useAnimatedGestureHandler<PanGestureHandlerGestureEvent>({
-
         onActive: (event) => {
             translateX.value = event.translationX
         },
@@ -90,29 +85,8 @@ const DeletedAnimation = ({ item, Domain, APIkey }: any) => {
     })
 
     useEffect(() => {
-        getAPIDetail()
+        getAPIDetail({ item, Domain, APIkey, setdata, setimage })
     }, [])
-
-    const getAPIDetail = async () => {
-        if (APIkey && Domain) {
-            try {
-                const response = await axios.post(apiProductlist, formData, {
-                    headers: {
-                        'Accept': 'application/x-www-form-urlencoded',
-                    },
-                })
-                if (response.status === 200) {
-                    const dataProduct = response.data.data
-                    setdata(dataProduct)
-                    setimage(dataProduct.img_1)
-                } else {
-                    throw new Error('Network response was not ok')
-                }
-            } catch (error) {
-                console.error('There was a problem with the operation:', error)
-            }
-        }
-    }
 
     return (
         <PanGestureHandler onGestureEvent={panGesture} >
