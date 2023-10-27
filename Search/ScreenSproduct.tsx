@@ -153,7 +153,7 @@ const ScreenSproduct = ({ navigation }: any) => {
 
         setTimeout(() => {
             setIsPlaying(false);
-        }, 1700);
+        }, 1500);
 
         console.log('Sản phẩm đã được thêm vào cơ sở dữ liệu Realm.')
     }

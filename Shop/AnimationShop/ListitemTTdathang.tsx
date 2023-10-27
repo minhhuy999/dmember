@@ -13,6 +13,12 @@ const ListitemTTdathang = ({ item, APIkey, Domain }: any) => {
         getAPIDetail({ item, Domain, APIkey, setdata, setimage })
     }, [])
 
+    const fotmatedmonney = ((item: any) => {
+        const monney = parseFloat(item)
+        const formattedMonney = monney.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+        return formattedMonney;
+    })
+
     return (
         <View style={{ backgroundColor: 'white', width: '100%', height: 90, borderRadius: 10, flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
             {image ? (
@@ -28,11 +34,11 @@ const ListitemTTdathang = ({ item, APIkey, Domain }: any) => {
                     <View style={{ height: 30, width: '75%' }}>
                         <View style={{ flexDirection: 'row' }}>
                             <Text style={styles.Text2}>Giá bán: </Text>
-                            <Text style={{ color: color.organge, fontSize: 12, fontWeight: '400' }}>{data.price}</Text>
+                            <Text style={{ color: color.organge, fontSize: 12, fontWeight: '400' }}>{fotmatedmonney(data.price)}</Text>
                         </View>
                         <View style={{ flexDirection: 'row' }}>
                             <Text style={styles.Text2}>Chiết khấu: </Text>
-                            <Text style={{ color: color.blue, fontSize: 12, fontWeight: '400' }}>{data.price_cal_commission}</Text>
+                            <Text style={{ color: color.blue, fontSize: 12, fontWeight: '400' }}>{fotmatedmonney(data.price_cal_commission)}</Text>
                         </View>
                     </View>
                     <View style={{ height: 30, justifyContent: 'flex-end' }}>

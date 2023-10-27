@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import color from '../Color/color';
 import { useNavigation } from '@react-navigation/native';
 import realmHS from '../Realm/realmHistoryS';
@@ -9,7 +9,9 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 const ScreenStore = ({ route }: any) => {
 
-    const { Domain,APIkey } = route.params
+    const { Domain, APIkey } = route.params
+
+    const scrollRef = useRef(null);
 
     useEffect(() => {
         addSP.addListener(listener);
@@ -34,9 +36,9 @@ const ScreenStore = ({ route }: any) => {
     let totalPrice = 0;
     let totalnumber = 0;
 
-    for (const item of addSP as unknown as { id: string; soluong: number , price: number }[]) {
-            totalPrice += item.price * item.soluong;
-            totalnumber += item.soluong
+    for (const item of addSP as unknown as { id: string; soluong: number, price: number }[]) {
+        totalPrice += item.price * item.soluong;
+        totalnumber += item.soluong
     }
 
     const formattedTotalPrice = totalPrice.toLocaleString('vi-VN', {
@@ -54,14 +56,16 @@ const ScreenStore = ({ route }: any) => {
             </View>
             {addSP.length > 0 ? (
                 <View style={styles.hienthi}>
-                    <ScrollView style={{ paddingHorizontal: 20, flex: 1 }}>
+                    <ScrollView ref={scrollRef} style={{ paddingHorizontal: 20, flex: 1 }}>
                         <FlatList
                             data={addSP}
                             keyExtractor={(item: any) => item.id.toString()}
                             scrollEnabled={false}
                             initialNumToRender={1}
                             renderItem={({ item }) => {
-                                return <DeletedAnimation item={item} Domain={Domain} APIkey={APIkey}/>;
+                                return <DeletedAnimation
+                                    simultaneousHandlers={scrollRef}
+                                    item={item} Domain={Domain} APIkey={APIkey} />;
                             }}
                             showsVerticalScrollIndicator={false}
                         />
@@ -76,7 +80,7 @@ const ScreenStore = ({ route }: any) => {
                             <Text style={{ marginLeft: 20, color: color.organge, fontSize: 21, fontWeight: '600' }}>{formattedTotalPrice}</Text>
                         </View>
                         <TouchableOpacity
-                            onPress={() => navigation.navigate('ScreenTTdathang',{Domain,APIkey})}
+                            onPress={() => navigation.navigate('ScreenTTdathang', { Domain, APIkey })}
                             style={{
                                 backgroundColor: 'black',
                                 width: 100,

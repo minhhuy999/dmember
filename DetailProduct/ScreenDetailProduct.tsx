@@ -1,4 +1,4 @@
-import { StyleSheet, FlatList, ScrollView, Text, View, Image, TouchableOpacity } from 'react-native'
+import { StyleSheet, FlatList, ScrollView, Text, View, Image, TouchableOpacity, useWindowDimensions } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import color from '../Color/color'
 import { useFocusEffect, useNavigation } from '@react-navigation/native'
@@ -9,9 +9,12 @@ import { getAPIKeyAndDomainFromStorage } from '../AsysncStorage/AsysncAPI'
 import axios from 'axios'
 import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder'
 import LinearGradient from 'react-native-linear-gradient'
+import { WebView } from 'react-native-webview';
+import RenderHtml from 'react-native-render-html';
 
 const ScreenDetailProduct = ({ route }: any) => {
 
+    const { width } = useWindowDimensions();
     const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient)
 
     const [soLuong, setSoLuong] = useState<any>(1)
@@ -179,6 +182,22 @@ const ScreenDetailProduct = ({ route }: any) => {
         }
     }
 
+    const fotmatedmonney = ((item: any) => {
+        const monney = parseFloat(item)
+        const formattedMonney = monney.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+        return formattedMonney;
+    })
+
+    const customHTMLElementModels: any = {
+        iframe: {
+            contentModel: 'iframe',
+            isTranslatableTextual: (attributes: any) => {
+                return true
+            },
+            isVoid: true
+        },
+    };
+
     return (
         <View>
             <ScrollView ref={scrollViewRef}>
@@ -211,7 +230,7 @@ const ScreenDetailProduct = ({ route }: any) => {
                         )}
                         <View style={{ flexDirection: 'row', paddingVertical: 10 }}>
                             <Text style={{ color: 'black', fontSize: 21, fontWeight: '400' }}>Giá bán: </Text>
-                            <Text style={{ color: 'white', fontSize: 21, fontWeight: '600' }}>{item?.price}</Text>
+                            <Text style={{ color: 'white', fontSize: 21, fontWeight: '600' }}>{fotmatedmonney(item.price)}</Text>
                         </View>
                     </View>
                     <View style={{ width: '100%', height: 100, justifyContent: 'center' }}>
@@ -249,28 +268,45 @@ const ScreenDetailProduct = ({ route }: any) => {
                                         <Text style={styles.textDetail}>Hoa hồng thành viên mới</Text>
                                     </View>
                                     <View style={{ height: '100%', width: '40%' }}>
-                                        <Text style={{ textAlign: 'right', color: 'black', fontSize: 15, fontWeight: '600', paddingTop: 10 }}>{item?.price}</Text>
-                                        <Text style={{ textAlign: 'right', color: 'black', fontSize: 15, fontWeight: '600', paddingTop: 10 }}>309,375</Text>
-                                        <Text style={{ textAlign: 'right', color: color.blue, fontSize: 15, fontWeight: '600', paddingTop: 10 }}>{item?.price_cal_commission}</Text>
-                                        <Text style={{ textAlign: 'right', color: color.green, fontSize: 15, fontWeight: '600', paddingTop: 10 }}>12,375</Text>
-                                        <Text style={{ textAlign: 'right', color: color.green, fontSize: 15, fontWeight: '600', paddingTop: 10 }}>12,375</Text>
+                                        <Text style={styles.blacktext}>{fotmatedmonney(item.price)}</Text>
+                                        <Text style={styles.blacktext}>309,375</Text>
+                                        <Text style={styles.bluetext}>{fotmatedmonney(item.price_cal_commission)}</Text>
+                                        <Text style={styles.greentext}>12,375</Text>
+                                        <Text style={styles.greentext}>12,375</Text>
                                     </View>
                                 </View>
                                 <View style={{ height: 1, width: '80%', backgroundColor: color.graymedium, marginTop: 10 }}></View>
                             </View>
                         </View>
-                        <View style={{ width: '100%', padding: 10, }}>
+                        <View style={{ flex: 1, padding: 10 }}>
+                            <RenderHtml
+                                contentWidth={300}
+                                source={{ html: item.description }}
+                                customHTMLElementModels={customHTMLElementModels}
+                            />
+                        </View>
+                        {/* <View style={{ width: '100%', padding: 10, }}>
                             <Text style={styles.muc}>Công dụng</Text>
-                            <Text style={styles.textDetail}>Nước tẩy trang có khả năng làm sạch mạnh mẽ, đánh bay lớp trang điểm cứng đầu nhưng vẫn đảm bảo an toàn, không gây kích ứng cho những vùng da nhạy cảm như mắt, môi. Không những làm sạch mà nước tẩy trang còn giúp nuôi dưỡng, bổ sung độ ẩm, giúp da khỏe mạnh. Ngoài ra, sản phẩm còn có khả năng chống rụng mi và nuôi dưỡng môi mềm mịn. Thích hợp cho mọi loại da.</Text>
+                            <Text style={styles.textDetail}>
+                                Nước tẩy trang có khả năng làm sạch mạnh mẽ, đánh bay lớp trang điểm cứng đầu nhưng vẫn đảm bảo an toàn,
+                                không gây kích ứng cho những vùng da nhạy cảm như mắt, môi. Không những làm sạch mà nước tẩy trang còn
+                                giúp nuôi dưỡng, bổ sung độ ẩm, giúp da khỏe mạnh. Ngoài ra, sản phẩm còn có khả năng chống rụng mi và
+                                nuôi dưỡng môi mềm mịn. Thích hợp cho mọi loại da.</Text>
                         </View>
                         <View style={{ width: '100%', padding: 10 }}>
                             <Text style={styles.muc}>Thành phần nổi bật</Text>
-                            <Text style={styles.textDetail}>Nước, Glycerin, PEG-6 Caprylic, PEG-60 Hydrogenated Castor Oil, Allantoin, Disodium EDTA, Citrus Limon (Lemon) Fruit Extract, Water, Propanediol, Butylene Clycol, Citrus Paradisi (Bưởi), Rosa Damascena Flower Water, Caprylic/Capric Triglyceride, Dầu trái cây Olea Europaea (Ôliu), Hydrogenated Lecithin.</Text>
+                            <Text style={styles.textDetail}>
+                                Nước, Glycerin, PEG-6 Caprylic, PEG-60 Hydrogenated Castor Oil, Allantoin, Disodium EDTA, Citrus Limon
+                                (Lemon) Fruit Extract, Water, Propanediol, Butylene Clycol, Citrus Paradisi (Bưởi), Rosa Damascena Flower Water,
+                                Caprylic/Capric Triglyceride, Dầu trái cây Olea Europaea (Ôliu), Hydrogenated Lecithin.</Text>
                         </View>
                         <View style={{ width: '100%', padding: 10 }}>
                             <Text style={styles.muc}>Cách dùng</Text>
-                            <Text style={styles.textDetail}>Lắc đều sản phẩm trước khi sử dụng. Cho dung dịch ra bông cotton rồi đặt vào vùng mắt, để vài giấy sau đó vuốt nhẹ xuống dưới để làm sạch lớp mascara và phấn mắt. Tương tự cho vùng mặt và môi. Sau đó rửa sạch lại với nước sạch.</Text>
-                        </View>
+                            <Text style={styles.textDetail}>
+                                Lắc đều sản phẩm trước khi sử dụng. Cho dung dịch ra bông cotton rồi đặt vào
+                                vùng mắt, để vài giấy sau đó vuốt nhẹ xuống dưới để làm sạch lớp mascara và phấn mắt. Tương tự cho vùng mặt
+                                và môi. Sau đó rửa sạch lại với nước sạch.</Text>
+                        </View> */}
                     </View>
                     <View style={styles.textchucnang}>
                         <Text style={styles.title}>SẢN PHẨM CÙNG DANH MỤC</Text>
@@ -456,5 +492,14 @@ const styles = StyleSheet.create({
         width: 250, height: 250,
         position: 'absolute', top: 15,
         borderRadius: 20
+    },
+    blacktext: {
+        textAlign: 'right', color: 'black', fontSize: 15, fontWeight: '600', paddingTop: 10
+    },
+    bluetext: {
+        textAlign: 'right', color: color.blue, fontSize: 15, fontWeight: '600', paddingTop: 10
+    },
+    greentext: {
+        textAlign: 'right', color: color.green, fontSize: 15, fontWeight: '600', paddingTop: 10
     }
 })

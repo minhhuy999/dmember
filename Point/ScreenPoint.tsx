@@ -134,9 +134,9 @@ const ScreenPoint = () => {
         const userData = await retrieveUserData()
         if (userData) {
             const { session_token, point } = userData
-            setpoint(point)
             settoken(session_token)
             formData.append('token', token)
+            setpoint(point)
         } else {
             setpoint(null)
             settoken('')

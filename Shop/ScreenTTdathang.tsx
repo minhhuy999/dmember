@@ -1,21 +1,127 @@
-import { StyleSheet, Text, View, Image, FlatList, TextInput, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, Image, FlatList, TextInput, TouchableOpacity, Dimensions } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import color from '../Color/color';
 import { useNavigation } from '@react-navigation/native';
 import { RadioButton } from 'react-native-paper';
 import { ScrollView } from 'react-native-gesture-handler';
 import realmHS from '../Realm/realmHistoryS';
-import axios from 'axios';
 import ListitemTTdathang from './AnimationShop/ListitemTTdathang';
+import axios from 'axios';
+import { retrieveUserData } from '../AsysncStorage/AsysncUser';
+import Animated, { Extrapolate, interpolate, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import LottieView from 'lottie-react-native';
+
+
+const { height, width } = Dimensions.get('window');
 
 const ScreenTTdathang = ({ route }: any) => {
 
+    const navigation: any = useNavigation()
     const { Domain, APIkey } = route.params
-
-    const navigation: any = useNavigation();
-
-    const [checked, setChecked] = React.useState('first');
     const addSP = realmHS.objects('AddProduct')
+
+    const items = Array.from(addSP).map((item: any) => ({
+        amount: item.soluong.toString(),
+        price: item.price.toString(),
+        product_id: item.id,
+    }));
+
+    const opacity = useSharedValue(0)
+    const [showAnimatedBox, setShowAnimatedBox] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
+
+    const [nameTT, setnameTT] = useState('Thùy Linh')
+    const [phoneTT, setphoneTT] = useState('0909078111')
+    const [address, setaddress] = useState('256 Bạch Đằng, Phường 24, Q.Bình Thạnh, Thành phố Hồ Chí Minh')
+    const [checked, setChecked] = React.useState('first');
+    const [token, settoken] = useState('')
+
+    const CartUrl = `${Domain}/client_order/checkout?apikey=${APIkey}`
+    const formData = new FormData()
+    formData.append('app_name', 'khttest')
+
+    let totalPrice = 0;
+    for (const item of addSP as unknown as { id: string; soluong: number, price: number }[]) {
+        totalPrice += item.price * item.soluong;
+    }
+    const formattedTotalPrice = totalPrice.toLocaleString('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
+    });
+
+    useEffect(() => {
+        gettoken()
+    }, [token])
+
+    const gettoken = async () => {
+        const userData = await retrieveUserData()
+        if (userData) {
+            const { session_token } = userData
+            settoken(session_token)
+            formData.append('token', token)
+            formData.append('ship_name', nameTT)
+            formData.append('ship_mobile', phoneTT)
+            formData.append('ship_address', address)
+            formData.append('ship_note', '')
+            formData.append('lItems', JSON.stringify(items))
+        } else {
+            settoken('')
+        }
+    }
+
+    const get = () => {
+        if (token == '')
+            console.log('vui long dang nhap');
+        else {
+            // console.log('ok')
+            // opacity.value = withTiming(1000, { duration: 1500 }, () => {
+            //     opacity.value = withTiming(0);
+            // });
+            // setShowAnimatedBox(true);
+            // setIsPlaying(true)
+            // setTimeout(() => {
+            //     setIsPlaying(false);
+            // }, 1500);
+            handleCart()
+        }
+    }
+
+    const handleCart = async () => {
+        opacity.value = withTiming(1000)
+        setShowAnimatedBox(false)
+        setIsPlaying(true)
+        try {
+            const response = await axios.post(CartUrl, formData)
+            if (response.status == 200) {
+                // console.log('dung', JSON.stringify(response.data));
+                console.log(response.data.message)
+            }
+            if (response.data.message) {
+                opacity.value = withTiming(0);
+                setShowAnimatedBox(true);
+                setIsPlaying(false);
+            }
+            else {
+                console.log('Sai', response.data);
+                console.log(response.data.message)
+            }
+        } catch (error) {
+            console.error('Lỗi kết nối đến máy chủ:', error)
+        }
+    }
+
+    const rStyle = useAnimatedStyle(() => {
+        const opacity1 = interpolate(
+            opacity.value,
+            [0, 1000],
+            [0, 1],
+            Extrapolate.CLAMP
+        )
+        return {
+            opacity: opacity1,
+            display: opacity.value === 0 ? 'none' : 'flex',
+        }
+    })
 
     return (
         <View style={styles.backgr}>
@@ -34,11 +140,11 @@ const ScreenTTdathang = ({ route }: any) => {
                     <Image source={require('../Icon/location.png')} style={{ height: 35, width: 35, borderRadius: 35 }} />
                     <View style={{ paddingHorizontal: 25 }}>
                         <View style={{ flexDirection: 'row' }}>
-                            <Text style={styles.Text1}>Thùy Linh</Text>
+                            <Text style={styles.Text1}>{nameTT}</Text>
                             <View style={{ backgroundColor: 'black', height: 20, width: 1, marginHorizontal: 10 }}></View>
-                            <Text style={styles.Text1}>0909078111</Text>
+                            <Text style={styles.Text1}>{phoneTT}</Text>
                         </View>
-                        <Text style={styles.Text2}>256 Bạch Đằng, Phường 24, Q.Bình Thạnh, Thành phố Hồ Chí Minh</Text>
+                        <Text style={styles.Text2}>{address}</Text>
                     </View>
                 </View>
                 <Text style={{ marginVertical: 20, color: 'black', fontSize: 17, fontWeight: '400' }}>Hình thức thanh toán</Text>
@@ -78,8 +184,8 @@ const ScreenTTdathang = ({ route }: any) => {
                     <FlatList
                         data={addSP}
                         keyExtractor={(item: any) => item.id.toString()}
-                        renderItem={({item})=>{
-                            return <ListitemTTdathang item={item} APIkey={APIkey} Domain={Domain}/>
+                        renderItem={({ item }) => {
+                            return <ListitemTTdathang item={item} APIkey={APIkey} Domain={Domain} />
                         }}
                         scrollEnabled={false}
                     />
@@ -94,7 +200,7 @@ const ScreenTTdathang = ({ route }: any) => {
                     <View style={{ width: '100%', paddingHorizontal: 30, position: 'absolute', paddingTop: 20 }}>
                         <View style={styles.itemthanhtoan}>
                             <Text style={styles.Text1TT}>Tổng cộng:</Text>
-                            <Text style={{ color: color.organge, fontSize: 17, fontWeight: '700' }}>3,580,000</Text>
+                            <Text style={{ color: color.organge, fontSize: 17, fontWeight: '700' }}>{formattedTotalPrice}</Text>
                         </View>
                         <View style={styles.itemthanhtoan}>
                             <Text style={styles.Text2TT}>Chiết khấu:</Text>
@@ -110,13 +216,23 @@ const ScreenTTdathang = ({ route }: any) => {
             <View style={{ alignItems: 'center', justifyContent: 'center', marginVertical: 10 }}>
                 <TouchableOpacity
                     style={styles.btThemHang}
-                    onPress={() => navigation.navigate('')}>
+                    onPress={get}>
                     <Text style={{ color: 'white', fontSize: 15, fontWeight: '600' }}>
                         Đặt hàng
                     </Text>
                 </TouchableOpacity>
             </View>
-
+            <Animated.View style={[showAnimatedBox ? {} : { display: 'none' }, {
+                width: width, height: height, backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'absolute',
+                justifyContent: 'center', alignItems: 'center'
+            }, rStyle]}>
+                <Animated.View style={[
+                    { width: 200, height: 120, backgroundColor: 'white', borderRadius: 10, alignItems: 'center', justifyContent: 'center' }
+                    ,]}>
+                    {isPlaying && (
+                        <LottieView style={{ width: 70, height: 70 }} source={require('../LottieView/animation_lo83112w.json')} autoPlay />)}
+                </Animated.View>
+            </Animated.View>
         </View>
     )
 }

@@ -5,12 +5,11 @@ import { removeSP, updateSLSP } from '../../Realm/StorageServices'
 import realmHS from '../../Realm/realmHistoryS'
 import Animated, { Extrapolate, clamp, interpolate, runOnJS, useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler'
-import axios from 'axios'
 import LinearGradient from 'react-native-linear-gradient'
 import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder'
 import { getAPIDetail } from '../../AsysncStorage/AsysncStore'
 
-const DeletedAnimation = ({ item, Domain, APIkey }: any) => {
+const DeletedAnimation = ({ item, Domain, APIkey ,simultaneousHandlers}: any) => {
 
     const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient)
 
@@ -89,7 +88,7 @@ const DeletedAnimation = ({ item, Domain, APIkey }: any) => {
     }, [])
 
     return (
-        <PanGestureHandler onGestureEvent={panGesture} >
+        <PanGestureHandler onGestureEvent={panGesture} simultaneousHandlers={simultaneousHandlers} >
             <Animated.View style={{ alignItems: 'center', justifyContent: 'center' }}>
                 <Animated.View style={[deletedStyle, { position: 'absolute', right: 20 }]}>
                     <TouchableOpacity>
