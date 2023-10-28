@@ -31,6 +31,7 @@ const ScreenSproduct = ({ navigation }: any) => {
     const [currentPage, setCurrentPage] = useState(1)
     const [dataProduct, setDataProduct] = useState<any>([]);
     const [dataSearch, setdataSearch] = useState<any>([])
+    const [searchedOnce, setSearchedOnce] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const [APIkey, setAPIkey] = useState<any>(null)
@@ -50,13 +51,13 @@ const ScreenSproduct = ({ navigation }: any) => {
     useEffect(() => {
         initialMode.current = false;
         History.addListener(listener);
-        if (dataProduct.length > 0) {
+        if (!searchedOnce && dataProduct.length > 0 && name == '') {
             handleSearch();
         }
         return () => {
             History.removeListener(listener);
         }
-    }, [dataProduct]);
+    }, [dataProduct,searchedOnce]);
 
     const getAPIShop = async () => {
         if (APIkey && Domain) {
@@ -117,6 +118,56 @@ const ScreenSproduct = ({ navigation }: any) => {
         }
         return null
     }
+    const renderSP = ({ item, index }: any) => {
+        const price = parseFloat(item.price);
+        const pricecal = parseFloat(item.price_cal_commission);
+        const formattedPrice = price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+        const formattedDiscount = pricecal.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+        return (
+            <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { item })}>
+                <MotiView
+                    style={{ elevation: 5, backgroundColor: 'white', height: 229, width: 169, borderRadius: 10, paddingHorizontal: 20, paddingVertical: 10, marginRight: 15, marginBottom: 15 }}
+                    from={{ opacity: 0, translateX: 50, translateY: 50 }}
+                    animate={{ opacity: 1, translateX: 0, translateY: 0 }}
+                    transition={{ delay: index * 200 }}
+                >
+                    <Image source={{ uri: item.img_1 }} style={{ height: 130, width: 132, borderRadius: 5 }} />
+                    <Text style={styles.ItemnameSP}>{limitText(item.product_name, 50)}</Text>
+                    <View style={{ flexDirection: 'row', marginTop: 2 }}>
+                        <Text style={styles.ItemtextSP}>Giá bán: </Text>
+                        <Text style={styles.ItemTextGia}>{formattedPrice}</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', marginTop: 2 }}>
+                        <Text style={styles.ItemtextSP}>Chiết khấu: </Text>
+                        <Text style={styles.ItemTextCK}>{formattedDiscount}</Text>
+                    </View>
+                    <TouchableOpacity style={styles.Add} onPress={() => handleAddToCart(item)}>
+                        <Text style={{ color: 'white' }}>+</Text>
+                    </TouchableOpacity>
+                </MotiView>
+            </TouchableOpacity>
+        )
+    }
+    const renderHistory = ({ item, index }: any) => {
+        if (animateHistory) {
+            return (
+                <Animated.View
+                    key={item.id}
+                    entering={FadeIn.delay(100 * index)}
+                    exiting={FadeOut}
+                    layout={Layout.delay(100)}
+                    style={styles.itemrenderHistoty}>
+                    <Image source={require('../Icon/historySearch.png')} />
+                    <Text style={{ marginLeft: 20, flex: 1 }}>{item.name}</Text>
+                    <TouchableOpacity onPress={() => handleDeleteHistory(item.id)}>
+                        <Text>X</Text>
+                    </TouchableOpacity>
+                </Animated.View>
+            )
+        } else {
+            return null
+        }
+    }
 
     const listener = () => {
         getListTasks()
@@ -133,7 +184,6 @@ const ScreenSproduct = ({ navigation }: any) => {
                 setAnimateHistory(true)
             })
     }
-
     const handleAddToCart = (item: any) => {
         const existingProduct: any = addSP.filtered(`id == '${item.product_id}'`)[0]
         if (existingProduct) {
@@ -157,68 +207,14 @@ const ScreenSproduct = ({ navigation }: any) => {
 
         console.log('Sản phẩm đã được thêm vào cơ sở dữ liệu Realm.')
     }
-
     const handleDeleteHistory = (id: string) => {
         removeTask(id)
     }
-
     function limitText(text: any, maxLength: any) {
         if (text.length <= maxLength) {
             return text;
         }
         return text.slice(0, maxLength) + '...';
-    }
-
-    const renderSP = ({ item, index }: any) => {
-        const price = parseFloat(item.price);
-        const pricecal = parseFloat(item.price_cal_commission);
-        const formattedPrice = price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-        const formattedDiscount = pricecal.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-        return (
-            <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { item })}>
-                <MotiView
-                    style={{ elevation: 5, backgroundColor: 'white', height: 229, width: 169, borderRadius: 10, paddingHorizontal: 20, paddingVertical: 10, marginRight: 15, marginBottom: 15 }}
-                    from={{ opacity: 0,translateX:50, translateY: 50 }}
-                    animate={{ opacity: 1,translateX:0, translateY: 0 }}
-                    transition={{ delay: index * 200 }}
-                >
-                    <Image source={{ uri: item.img_1 }} style={{ height: 130, width: 132, borderRadius: 5 }} />
-                    <Text style={styles.ItemnameSP}>{limitText(item.product_name, 50)}</Text>
-                    <View style={{ flexDirection: 'row', marginTop: 2 }}>
-                        <Text style={styles.ItemtextSP}>Giá bán: </Text>
-                        <Text style={styles.ItemTextGia}>{formattedPrice}</Text>
-                    </View>
-                    <View style={{ flexDirection: 'row', marginTop: 2 }}>
-                        <Text style={styles.ItemtextSP}>Chiết khấu: </Text>
-                        <Text style={styles.ItemTextCK}>{formattedDiscount}</Text>
-                    </View>
-                    <TouchableOpacity style={styles.Add} onPress={() => handleAddToCart(item)}>
-                        <Text style={{ color: 'white' }}>+</Text>
-                    </TouchableOpacity>
-                </MotiView>
-            </TouchableOpacity>
-        )
-    }
-
-    const renderHistory = ({ item, index }: any) => {
-        if (animateHistory) {
-            return (
-                <Animated.View
-                    key={item.id}
-                    entering={FadeIn.delay(100 * index)}
-                    exiting={FadeOut}
-                    layout={Layout.delay(100)}
-                    style={styles.itemrenderHistoty}>
-                    <Image source={require('../Icon/historySearch.png')} />
-                    <Text style={{ marginLeft: 20, flex: 1 }}>{item.name}</Text>
-                    <TouchableOpacity onPress={() => handleDeleteHistory(item.id)}>
-                        <Text>X</Text>
-                    </TouchableOpacity>
-                </Animated.View>
-            )
-        } else {
-            return null
-        }
     }
 
     const rStyle = useAnimatedStyle(() => ({
@@ -229,15 +225,18 @@ const ScreenSproduct = ({ navigation }: any) => {
     const filteredProducts = dataProduct.filter((product: any) =>
         unidecode(product.product_name.toLowerCase()).includes(unidecode(name.toLowerCase()))
     );
-
     const handleSearch = () => {
         setdataSearch(filteredProducts);
     };
-
     const addHistory = () => {
         if (name != '') {
             addTask(name)
         }
+    }
+    const searchProducts = () => {
+        handleSearch();
+        addHistory();
+        setSearchedOnce(true);
     }
 
     return (
@@ -248,10 +247,7 @@ const ScreenSproduct = ({ navigation }: any) => {
                     <TextInput value={name}
                         onChangeText={(text) => setName(text)}
                         style={{ paddingLeft: 10, flex: 1 }}
-                        onSubmitEditing={() => {
-                            handleSearch();
-                            addHistory();
-                        }}
+                        onSubmitEditing={searchProducts}
                         placeholder="Tìm kiếm sản phẩm"
                         returnKeyType="search" >
                     </TextInput>

@@ -97,6 +97,16 @@ export const removeSP = (id: string) => {
     });
 };
 
+export const removeAllData = () => {
+    return new Promise((resolve:any, reject) => {
+        realmHS.write(() => {
+            const allObjects = realmHS.objects('AddProduct');
+            realmHS.delete(allObjects);
+            resolve();
+        });
+    });
+};
+
 export const removeDpoint = (id: string) => {
     const productToRemove = realmHS.objects('AddItemDpoint').filtered(`id == '${id}'`)[0];
     return new Promise((resolve: any, reject) => {

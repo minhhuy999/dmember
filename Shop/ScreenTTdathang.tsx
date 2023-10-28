@@ -10,6 +10,7 @@ import axios from 'axios';
 import { retrieveUserData } from '../AsysncStorage/AsysncUser';
 import Animated, { Extrapolate, interpolate, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import LottieView from 'lottie-react-native';
+import { removeAllData } from '../Realm/StorageServices';
 
 
 const { height, width } = Dimensions.get('window');
@@ -73,15 +74,6 @@ const ScreenTTdathang = ({ route }: any) => {
         if (token == '')
             console.log('vui long dang nhap');
         else {
-            // console.log('ok')
-            // opacity.value = withTiming(1000, { duration: 1500 }, () => {
-            //     opacity.value = withTiming(0);
-            // });
-            // setShowAnimatedBox(true);
-            // setIsPlaying(true)
-            // setTimeout(() => {
-            //     setIsPlaying(false);
-            // }, 1500);
             handleCart()
         }
     }
@@ -93,13 +85,15 @@ const ScreenTTdathang = ({ route }: any) => {
         try {
             const response = await axios.post(CartUrl, formData)
             if (response.status == 200) {
-                // console.log('dung', JSON.stringify(response.data));
                 console.log(response.data.message)
+                console.log(JSON.stringify(response.data))
             }
             if (response.data.message) {
                 opacity.value = withTiming(0);
                 setShowAnimatedBox(true);
-                setIsPlaying(false);
+                setIsPlaying(false)
+                removeAllData()
+                navigation.navigate('ScreenShop')
             }
             else {
                 console.log('Sai', response.data);
