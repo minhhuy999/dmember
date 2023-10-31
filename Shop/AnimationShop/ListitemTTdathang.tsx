@@ -1,6 +1,5 @@
 import { Image, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
 import color from '../../Color/color'
 import { getAPIDetail } from '../../AsysncStorage/AsysncStore'
 

@@ -33,7 +33,6 @@ import ScreenDsviec from '../Account/AccountFuntion/ScreenDsviec'
 import ScreenDtcongviec from '../Detailcongviec/ScreenDtcongviec'
 import ScreenDtUser from '../Detailaccount/ScreenDtUser'
 import AnimTab1 from './AnimTab1'
-import ScreenShop from '../Shop/ScreenShop'
 import ScreenStorePoint from '../Point/PointFuntion/ScreenStorePoint'
 
 const Stack = createNativeStackNavigator()

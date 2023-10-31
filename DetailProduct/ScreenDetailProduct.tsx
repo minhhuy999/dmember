@@ -9,7 +9,6 @@ import { getAPIKeyAndDomainFromStorage } from '../AsysncStorage/AsysncAPI'
 import axios from 'axios'
 import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder'
 import LinearGradient from 'react-native-linear-gradient'
-import { WebView } from 'react-native-webview';
 import RenderHtml from 'react-native-render-html';
 
 const ScreenDetailProduct = ({ route }: any) => {
