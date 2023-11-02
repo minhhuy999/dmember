@@ -157,8 +157,10 @@ const styles = StyleSheet.create({
     numberSP:
     {
         backgroundColor: 'red',
-        height: 20, width: 20,
+        height: 22, width: 22,
         borderRadius: 10,
+        borderWidth:2,
+        borderColor:'white',
         alignItems: 'center', justifyContent: 'center',
         position: 'absolute',
         left: 20,
