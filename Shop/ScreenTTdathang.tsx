@@ -20,6 +20,39 @@ const ScreenTTdathang = ({ route }: any) => {
     const navigation: any = useNavigation()
     const { Domain, APIkey } = route.params
     const addSP = realmHS.objects('AddProduct')
+    const datacheck = [
+        {
+            id: '1',
+            name: 'Thanh toán bằng ví Dcash',
+        },
+        {
+            id: '2',
+            name: 'Thanh toán bằng ví Dpoint',
+        },
+        {
+            id: '3',
+            name: 'Thanh toán bằng tien mat',
+        },
+    ]
+
+    const renderCheck = ({ item, index }: any) => {
+        return (
+            <View style={styles.Boxcheck}>
+                <RadioButton
+                    value="first"
+                    status={checked === 'first' ? 'checked' : 'unchecked'}
+                    onPress={() => setChecked('first')}
+                />
+                <View style={{ paddingHorizontal: 20 }}>
+                    <Text style={styles.Text1}>{item.name}</Text>
+                    <View style={{ flexDirection: 'row' }}>
+                        <Text style={styles.Text2}>Số dư hiện tại: </Text>
+                        <Text style={{ color: color.green, fontSize: 12, fontWeight: '400' }}>434,403</Text>
+                    </View>
+                </View>
+            </View>
+        )
+    }
 
     const items = Array.from(addSP).map((item: any) => ({
         amount: item.soluong.toString(),
@@ -142,6 +175,12 @@ const ScreenTTdathang = ({ route }: any) => {
                     </View>
                 </View>
                 <Text style={{ marginVertical: 20, color: 'black', fontSize: 17, fontWeight: '400' }}>Hình thức thanh toán</Text>
+                {/* <FlatList
+                    data={datacheck}
+                    keyExtractor={(item) => item.id.toString()}
+                    renderItem={renderCheck}
+                    scrollEnabled={false}
+                /> */}
                 <View style={styles.Boxcheck}>
                     <RadioButton
                         value="first"

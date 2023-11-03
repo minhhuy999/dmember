@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import color from '../Color/color'
 import { useNavigation } from '@react-navigation/native'
 import { FlatList, ScrollView } from 'react-native-gesture-handler'
-import { addSPStore, addTask, getListTasks, removeTask } from '../Realm/StorageServices'
+import { addSPStore, addTask, getListTasks, removeAllTask, removeTask } from '../Realm/StorageServices'
 import realmHS from '../Realm/realmHistoryS'
 import unidecode from 'unidecode'
 import Animated, { Extrapolate, FadeIn, FadeOut, Layout, interpolate, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
@@ -57,7 +57,7 @@ const ScreenSproduct = ({ navigation }: any) => {
         return () => {
             History.removeListener(listener);
         }
-    }, [dataProduct,searchedOnce]);
+    }, [dataProduct, searchedOnce]);
 
     const getAPIShop = async () => {
         if (APIkey && Domain) {
@@ -125,11 +125,15 @@ const ScreenSproduct = ({ navigation }: any) => {
         const formattedDiscount = pricecal.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
         return (
             <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { item })}>
-                <MotiView
+                <Animated.View
+                    key={item.product_id}
+                    entering={FadeIn.delay(50 * index)}
+                    exiting={FadeOut}
+                    layout={Layout.delay(50)}
                     style={{ elevation: 5, backgroundColor: 'white', height: 229, width: 169, borderRadius: 10, paddingHorizontal: 20, paddingVertical: 10, marginRight: 15, marginBottom: 15 }}
-                    from={{ opacity: 0, translateX: 50, translateY: 50 }}
-                    animate={{ opacity: 1, translateX: 0, translateY: 0 }}
-                    transition={{ delay: index * 200 }}
+                // from={{ opacity: 0, translateX: 50, translateY: 50 }}
+                // animate={{ opacity: 1, translateX: 0, translateY: 0 }}
+                // transition={{ delay: index * 200 }}
                 >
                     <Image source={{ uri: item.img_1 }} style={{ height: 130, width: 132, borderRadius: 5 }} />
                     <Text style={styles.ItemnameSP}>{limitText(item.product_name, 50)}</Text>
@@ -144,7 +148,7 @@ const ScreenSproduct = ({ navigation }: any) => {
                     <TouchableOpacity style={styles.Add} onPress={() => handleAddToCart(item)}>
                         <Text style={{ color: 'white' }}>+</Text>
                     </TouchableOpacity>
-                </MotiView>
+                </Animated.View>
             </TouchableOpacity>
         )
     }
@@ -156,11 +160,15 @@ const ScreenSproduct = ({ navigation }: any) => {
                     entering={FadeIn.delay(100 * index)}
                     exiting={FadeOut}
                     layout={Layout.delay(100)}
-                    style={styles.itemrenderHistoty}>
-                    <Image source={require('../Icon/historySearch.png')} />
-                    <Text style={{ marginLeft: 20, flex: 1 }}>{item.name}</Text>
-                    <TouchableOpacity onPress={() => handleDeleteHistory(item.id)}>
-                        <Text>X</Text>
+                >
+                    <TouchableOpacity
+                        style={styles.itemrenderHistoty}
+                        onPress={() => handleHistoryItemClick(item.name)}>
+                        <Image source={require('../Icon/historySearch.png')} />
+                        <Text style={{ marginLeft: 20, flex: 1 }}>{item.name}</Text>
+                        <TouchableOpacity onPress={() => handleDeleteHistory(item.id)}>
+                            <Text>X</Text>
+                        </TouchableOpacity>
                     </TouchableOpacity>
                 </Animated.View>
             )
@@ -183,6 +191,9 @@ const ScreenSproduct = ({ navigation }: any) => {
                 setSortedHistory(slicedHistory)
                 setAnimateHistory(true)
             })
+    }
+    const handleHistoryItemClick = (itemName: string) => {
+        setName(itemName)
     }
     const handleAddToCart = (item: any) => {
         const existingProduct: any = addSP.filtered(`id == '${item.product_id}'`)[0]
@@ -259,6 +270,7 @@ const ScreenSproduct = ({ navigation }: any) => {
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={{ marginVertical: 10, flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text style={{ color: 'black', fontSize: 15, fontWeight: '500' }}>Tìm kiếm gần đây</Text>
+                    <Text style={{color:'red'}} onPress={removeAllTask}>deleted all</Text>
                 </View>
                 <View>
                     <FlatList
@@ -308,6 +320,7 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         color: 'black',
         marginTop: 10,
+        height:40
     },
     ItemtextSP: {
         color: 'black',

@@ -87,6 +87,17 @@ export const removeTask = (id: any) => {
     })
 }
 
+
+export const removeAllTask = () => {
+    return new Promise((resolve:any, reject) => {
+        realmHS.write(() => {
+            const allObjects = realmHS.objects('HistorySreach');
+            realmHS.delete(allObjects);
+            resolve();
+        });
+    });
+};
+
 export const removeSP = (id: string) => {
     const productToRemove = realmHS.objects('AddProduct').filtered(`id == '${id}'`)[0];
     return new Promise((resolve: any, reject) => {
