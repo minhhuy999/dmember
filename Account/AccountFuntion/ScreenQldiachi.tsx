@@ -1,12 +1,25 @@
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import color from '../../Color/color'
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { FlatList, Swipeable } from 'react-native-gesture-handler';
+import { getAPIKeyAndDomainFromStorage } from '../../AsysncStorage/AsysncAPI';
+import { retrieveUserData } from '../../AsysncStorage/AsysncUser';
+import axios from 'axios';
 
-const ScreenQldiachi = ({ navigation }: any) => {
+const ScreenQldiachi = () => {
 
-    const navigationGoback = useNavigation();
+    const navigation:any = useNavigation()
+
+    const [APIkey, setAPIkey] = useState<string>('')
+    const [Domain, setDomain] = useState<string>('')
+    const [token, settoken] = useState('')
+    const [datalocation, setdatalocation] = useState<any>([])
+
+    const formData = new FormData()
+    formData.append('app_name', 'khttest')
+    const apilocation = `${Domain}/location/list?apikey=${APIkey}`
+
 
     const data = [
         {
@@ -21,6 +34,49 @@ const ScreenQldiachi = ({ navigation }: any) => {
         }
     ]
 
+    useEffect(() => {
+        getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain })
+        getAPIlocation()
+    }, [Domain, APIkey])
+
+    useFocusEffect(
+        React.useCallback(() => {
+            gettoken()
+        }, [])
+    )
+
+    const gettoken = async () => {
+        const userData = await retrieveUserData()
+        if (userData) {
+            const { session_token, point } = userData
+            settoken(session_token)
+            formData.append('token', token)
+        } else {
+            settoken('')
+        }
+    }
+
+    const getAPIlocation = async () => {
+        if (APIkey && Domain) {
+            await gettoken()
+            try {
+                const response = await axios.post(apilocation, formData, {
+                    headers: {
+                        'Accept': 'application/x-www-form-urlencoded',
+                    },
+                })
+                if (response.status === 200) {
+                    const dataLocation = response.data.data
+                    setdatalocation(dataLocation)
+                } else {
+                    throw new Error('Network response was not ok')
+                }
+            } catch (error) {
+                console.error('There was a problem with the operation:', error)
+            }
+        }
+    }
+    
     const delet = () => {
         return (
             <View style={{ height: '100%', justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
@@ -39,35 +95,37 @@ const ScreenQldiachi = ({ navigation }: any) => {
         return (
             <Swipeable renderRightActions={delet}>
                 <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, marginBottom: 10 , elevation:5 }}>
-                    <Text style={{ color: 'black', paddingVertical: 5 }}>{item.name}</Text>
-                    <Text>{item.location}</Text>
+                    <Text style={{ color: 'black', paddingVertical: 5 }}>{item.fullname} - {item.mobile}</Text>
+                    <Text>{item.address}, {item.ward}, {item.district}, {item.country}, {item.city}</Text>
+                    {/* <Text>{item.is_default}</Text> */}
                 </View>
             </Swipeable>
         )
     }
 
     return (
-        <View style={styles.backgr}>
+        <ScrollView style={styles.backgr} showsVerticalScrollIndicator={false}>
             <View style={styles.BoxTitile}>
-                <TouchableOpacity onPress={() => navigationGoback.goBack()} style={{ position: 'absolute', left: 0, top: 10 }}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', left: 0, top: 10 }}>
                     <Image source={require('../../Icon/arrowback.png')} />
                 </TouchableOpacity>
                 <Text style={styles.title}>Quản lý địa chỉ</Text>
             </View>
             <View style={{ alignItems: 'center', width: '100%' }}>
-                <TouchableOpacity style={{ backgroundColor: 'black', borderRadius: 10, width: '100%', marginTop: 10 }}>
+                <TouchableOpacity onPress={()=>navigation.navigate('ScreenCreateLocation')} style={{ backgroundColor: 'black', borderRadius: 10, width: '100%', marginTop: 10 }}>
                     <Text style={{ color: 'white', textAlign: 'center', paddingVertical: 15 }}>Thêm khách hàng mới</Text>
                 </TouchableOpacity>
             </View>
             <Text style={{ marginVertical: 20, color: 'black', fontSize: 17, fontWeight: '500' }}>Danh sách khách hàng</Text>
             <View style={{ flex: 1 }}>
                 <FlatList
-                    data={data}
+                    data={datalocation}
                     keyExtractor={(item) => item.id}
                     renderItem={renderLocation}
+                    scrollEnabled={false}
                 />
             </View>
-        </View>
+        </ScrollView>
     )
 }
 
