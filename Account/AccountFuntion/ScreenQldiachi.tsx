@@ -9,7 +9,7 @@ import axios from 'axios';
 
 const ScreenQldiachi = () => {
 
-    const navigation:any = useNavigation()
+    const navigation: any = useNavigation()
 
     const [APIkey, setAPIkey] = useState<string>('')
     const [Domain, setDomain] = useState<string>('')
@@ -76,12 +76,12 @@ const ScreenQldiachi = () => {
             }
         }
     }
-    
+
     const delet = () => {
         return (
             <View style={{ height: '100%', justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
                 <TouchableOpacity style={{ marginLeft: 10, marginRight: 10, justifyContent: 'center', alignItems: 'center' }}>
-                    <Image source={require('../../Icon/edit.png')} style={{ width: 25, height: 25 , marginBottom:17 }} />
+                    <Image source={require('../../Icon/edit.png')} style={{ width: 25, height: 25, marginBottom: 17 }} />
                 </TouchableOpacity>
                 <TouchableOpacity style={{ marginLeft: 10, marginRight: 10, justifyContent: 'center', alignItems: 'center' }}>
                     <Image source={require('../../Icon/thungracBlack.png')} style={{ width: 25, height: 25 }} />
@@ -94,11 +94,11 @@ const ScreenQldiachi = () => {
     const renderLocation = ({ item, index }: any) => {
         return (
             <Swipeable renderRightActions={delet}>
-                <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, marginBottom: 10 , elevation:5 }}>
+                <TouchableOpacity onPress={()=>navigation.navigate('ScreenDtLocation',{item})} style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, marginBottom: 10, elevation: 5 }}>
                     <Text style={{ color: 'black', paddingVertical: 5 }}>{item.fullname} - {item.mobile}</Text>
                     <Text>{item.address}, {item.ward}, {item.district}, {item.country}, {item.city}</Text>
                     {/* <Text>{item.is_default}</Text> */}
-                </View>
+                </TouchableOpacity>
             </Swipeable>
         )
     }
@@ -112,7 +112,7 @@ const ScreenQldiachi = () => {
                 <Text style={styles.title}>Quản lý địa chỉ</Text>
             </View>
             <View style={{ alignItems: 'center', width: '100%' }}>
-                <TouchableOpacity onPress={()=>navigation.navigate('ScreenCreateLocation')} style={{ backgroundColor: 'black', borderRadius: 10, width: '100%', marginTop: 10 }}>
+                <TouchableOpacity onPress={() => navigation.navigate('ScreenCreateLocation')} style={{ backgroundColor: 'black', borderRadius: 10, width: '100%', marginTop: 10 }}>
                     <Text style={{ color: 'white', textAlign: 'center', paddingVertical: 15 }}>Thêm khách hàng mới</Text>
                 </TouchableOpacity>
             </View>

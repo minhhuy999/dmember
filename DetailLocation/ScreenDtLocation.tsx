@@ -1,32 +1,40 @@
 import { Dimensions, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useFocusEffect, useNavigation } from '@react-navigation/native'
-import color from '../../Color/color'
+import color from '../Color/color'
 import CheckBox from '@react-native-community/checkbox'
-import { getAPIKeyAndDomainFromStorage } from '../../AsysncStorage/AsysncAPI'
+import { getAPIKeyAndDomainFromStorage } from '../AsysncStorage/AsysncAPI'
 import axios from 'axios'
-import { retrieveUserData } from '../../AsysncStorage/AsysncUser'
+import { retrieveUserData } from '../AsysncStorage/AsysncUser'
 import Animated, { Extrapolate, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import unidecode from 'unidecode'
 
 const { height, width } = Dimensions.get('window')
 
-const ScreenCreateLocation = () => {
+const ScreenDtLocation = ({ route }: any) => {
 
+    const { item } = route.params
     const navigation: any = useNavigation()
     const opacity = useSharedValue(0)
     const [showview, setshowview] = useState<any>(false)
 
-    const [name, setname] = useState('')
-    const [phone, setphone] = useState('')
-    const [TinhThanh, setTinhThanh] = useState('')
-    const [idtinhthanh, setidtinhthanh] = useState('')
-    const [QuanHuyen, setQuanHuyen] = useState('')
-    const [idquanhuyen, setidquanhuyen] = useState('')
-    const [PhuongXa, setPhuongXa] = useState('')
-    const [idphuongxa, setidphuongxa] = useState('')
-    const [diachi, setdiachi] = useState('')
-    const [isChecked, setIsChecked] = useState(false);
+    const [name, setname] = useState(item.fullname)
+    const [phone, setphone] = useState(item.mobile)
+    const [TinhThanh, setTinhThanh] = useState(item.city)
+    const [idtinhthanh, setidtinhthanh] = useState(item.city_id)
+    const [QuanHuyen, setQuanHuyen] = useState(item.district)
+    const [idquanhuyen, setidquanhuyen] = useState(item.district_id)
+    const [PhuongXa, setPhuongXa] = useState(item.ward)
+    const [idphuongxa, setidphuongxa] = useState(item.ward_id)
+    const [diachi, setdiachi] = useState(item.address)
+    const [isChecked, setIsChecked] = useState(false)
+
+    const ischeck: any = () => {
+        if (item.is_default == "0") {
+            setIsChecked(false)
+        } else
+            setIsChecked(true)
+    }
 
     const [ErrorMessage, setErrorMessage] = useState('')
     const [showAnimatedBox, setShowAnimatedBox] = useState(false);
@@ -55,11 +63,14 @@ const ScreenCreateLocation = () => {
         }
         else {
             setErrorMessage('')
-            getAPICreateLocation();
             return
         }
     }
 
+    useEffect(() => {
+        ischeck()
+    })
+    
     useEffect(() => {
         getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain })
         getAPItinhthanh()
@@ -90,36 +101,36 @@ const ScreenCreateLocation = () => {
         }
     }
 
-    const getAPICreateLocation = async () => {
+    // const getAPICreateLocation = async () => {
 
-        formData.append('fullname', name)
-        formData.append('mobile', phone)
-        formData.append('city_id', idtinhthanh)
-        formData.append('district_id', idquanhuyen)
-        formData.append('ward_id', idphuongxa)
-        formData.append('address', diachi)
-        formData.append('is_default', isChecked ? 1 : 0);
-        if (APIkey && Domain) {
-            await gettoken()
-            try {
-                const response = await axios.post(apicreateLocation, formData, {
-                    headers: {
-                        'Accept': 'application/x-www-form-urlencoded',
-                    },
-                })
-                if (response.status === 200) {
-                    const dataLocation = response.data
-                    console.log(dataLocation)
-                    navigation.navigate('ScreenQldiachi')
-                    // console.log(dataLocation)
-                } else {
-                    throw new Error('Network response was not ok')
-                }
-            } catch (error) {
-                console.error('There was a problem with the operation:', error)
-            }
-        }
-    }
+    //     formData.append('fullname', name)
+    //     formData.append('mobile', phone)
+    //     formData.append('city_id', idtinhthanh)
+    //     formData.append('district_id', idquanhuyen)
+    //     formData.append('ward_id', idphuongxa)
+    //     formData.append('address', diachi)
+    //     formData.append('is_default', isChecked ? 1 : 0);
+    //     if (APIkey && Domain) {
+    //         await gettoken()
+    //         try {
+    //             const response = await axios.post(apicreateLocation, formData, {
+    //                 headers: {
+    //                     'Accept': 'application/x-www-form-urlencoded',
+    //                 },
+    //             })
+    //             if (response.status === 200) {
+    //                 const dataLocation = response.data
+    //                 console.log(dataLocation)
+    //                 navigation.navigate('ScreenQldiachi')
+    //                 // console.log(dataLocation)
+    //             } else {
+    //                 throw new Error('Network response was not ok')
+    //             }
+    //         } catch (error) {
+    //             console.error('There was a problem with the operation:', error)
+    //         }
+    //     }
+    // }
 
 
     const getAPItinhthanh = async () => {
@@ -264,7 +275,7 @@ const ScreenCreateLocation = () => {
 
         // Filter data based on the search query
         if (searchQuery.trim() !== '') {
-            filteredData = filteredData.filter((item:any) =>
+            filteredData = filteredData.filter((item: any) =>
                 unidecode(item.name.toLowerCase()).includes(unidecode(searchQuery.toLowerCase()))
             );
         }
@@ -291,10 +302,10 @@ const ScreenCreateLocation = () => {
                         }
                     }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        {item.name == '' 
-                        ?<Text style={styles.TextLocation}>Nhập {item.value}</Text>
-                        :<Text style={styles.ChooseTextLocation}>{item.name}</Text>}
-                        <Image source={require('../../Icon/arrow.png')} style={{ marginRight: 10 }} />
+                        {item.name == ''
+                            ? <Text style={styles.TextLocation}>Nhập {item.value}</Text>
+                            : <Text style={styles.ChooseTextLocation}>{item.name}</Text>}
+                        <Image source={require('../Icon/arrow.png')} style={{ marginRight: 10 }} />
                     </View>
                 </TouchableOpacity>
             </View>
@@ -318,9 +329,9 @@ const ScreenCreateLocation = () => {
         <View style={styles.backgr}>
             <View style={styles.BoxTitile}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', left: 0, top: 10 }}>
-                    <Image source={require('../../Icon/arrowback.png')} />
+                    <Image source={require('../Icon/arrowback.png')} />
                 </TouchableOpacity>
-                <Text style={styles.title}>Tạo địa chỉ mới</Text>
+                <Text style={styles.title}>Sữa địa chỉ</Text>
             </View>
             <Text style={{ color: 'black', padding: 5 }}>Họ và Tên</Text>
             <View style={styles.ItemInput}>
@@ -369,7 +380,7 @@ const ScreenCreateLocation = () => {
                         borderRadius: 10,
                     }} onPress={check}>
                     <Text style={{ color: 'white', fontSize: 15, fontWeight: '600' }}>
-                        Thêm
+                        Sữa địa chỉ
                     </Text>
                 </TouchableOpacity>
             </View>
@@ -377,11 +388,11 @@ const ScreenCreateLocation = () => {
                 <View style={{ position: 'absolute', height: height, width: width, backgroundColor: 'white' }}>
                     <View style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 }}>
                         <TouchableOpacity onPress={() => setshowview(false)} style={{ position: 'absolute', left: 10, top: 5 }} >
-                            <Image source={require('../../Icon/arrowback.png')} />
+                            <Image source={require('../Icon/arrowback.png')} />
                         </TouchableOpacity>
                         <Text style={{ padding: 10, color: color.background, fontWeight: 'bold' }}>Sổ địa chỉ</Text>
                         <View style={{ flexDirection: 'row', borderRadius: 20, borderColor: color.background, borderWidth: 1, alignItems: 'center' }}>
-                            <Image source={require('../../Icon/search.png')} style={{ marginLeft: 10 }} />
+                            <Image source={require('../Icon/search.png')} style={{ marginLeft: 10 }} />
                             <TextInput
                                 style={{ width: '100%' }}
                                 placeholder='Tìm kiếm...'
@@ -421,7 +432,7 @@ const ScreenCreateLocation = () => {
     )
 }
 
-export default ScreenCreateLocation
+export default ScreenDtLocation
 
 const styles = StyleSheet.create({
     backgr: {
@@ -461,7 +472,7 @@ const styles = StyleSheet.create({
     TextLocation: {
         padding: 15, marginLeft: -10, flex: 1
     },
-    ChooseTextLocation:{
-        padding: 15, marginLeft: -10, flex: 1,color:'black'
+    ChooseTextLocation: {
+        padding: 15, marginLeft: -10, flex: 1, color: 'black'
     }
 })

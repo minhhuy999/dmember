@@ -36,7 +36,7 @@ import AnimTab1 from './AnimTab1'
 import ScreenStorePoint from '../Point/PointFuntion/ScreenStorePoint'
 import ScreenDtNews from '../DetailNews/ScreenDtNews'
 import ScreenCreateLocation from '../Account/AccountFuntion/ScreenCreateLocation'
-import ScreenChoosenLocation from '../Account/AccountFuntion/ScreenChoosenLocation'
+import ScreenDtLocation from '../DetailLocation/ScreenDtLocation'
 
 const Stack = createNativeStackNavigator()
 
@@ -83,7 +83,7 @@ const StackNavigation = () => {
                 <Stack.Screen name='ScreenStorePoint' component={ScreenStorePoint}/>
                 <Stack.Screen name='ScreenDtNews' component={ScreenDtNews}/>
                 <Stack.Screen name='ScreenCreateLocation' component={ScreenCreateLocation}/>
-                <Stack.Screen name='ScreenChoosenLocation' component={ScreenChoosenLocation}/>
+                <Stack.Screen name='ScreenDtLocation' component={ScreenDtLocation}/>
             </Stack.Navigator>
         </NavigationContainer>
     )
