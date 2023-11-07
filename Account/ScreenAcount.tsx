@@ -145,7 +145,7 @@ const ScreenAcount = () => {
                     </View>
                     <Text style={{ color: 'black', fontSize: 17, fontWeight: '500', marginTop: 10, marginBottom: 10 }}>Chức năng khác</Text>
                 </View>
-                <View style={{ width: '100%', height: 340, paddingTop: 1 }} >
+                <View style={{ width: '100%', paddingTop: 1 }} >
                     <FlatList
                         data={Item}
                         keyExtractor={(item) => item.id}

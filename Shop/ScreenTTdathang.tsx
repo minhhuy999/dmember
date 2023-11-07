@@ -1,103 +1,92 @@
 import { StyleSheet, Text, View, Image, FlatList, TextInput, TouchableOpacity, Dimensions } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import color from '../Color/color';
-import { useNavigation } from '@react-navigation/native';
-import { RadioButton } from 'react-native-paper';
-import { ScrollView } from 'react-native-gesture-handler';
-import realmHS from '../Realm/realmHistoryS';
-import ListitemTTdathang from './AnimationShop/ListitemTTdathang';
-import axios from 'axios';
-import { retrieveUserData } from '../AsysncStorage/AsysncUser';
-import Animated, { Extrapolate, interpolate, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
-import LottieView from 'lottie-react-native';
-import { removeAllData } from '../Realm/StorageServices';
+import color from '../Color/color'
+import { useNavigation } from '@react-navigation/native'
+import { RadioButton } from 'react-native-paper'
+import { ScrollView } from 'react-native-gesture-handler'
+import realmHS from '../Realm/realmHistoryS'
+import ListitemTTdathang from './AnimationShop/ListitemTTdathang'
+import axios from 'axios'
+import { retrieveUserData } from '../AsysncStorage/AsysncUser'
+import Animated, { Extrapolate, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
+import LottieView from 'lottie-react-native'
+import { removeAllData } from '../Realm/StorageServices'
+import { getAPIKeyAndDomainFromStorage } from '../AsysncStorage/AsysncAPI'
 
 
-const { height, width } = Dimensions.get('window');
+const { height, width } = Dimensions.get('window')
 
 const ScreenTTdathang = ({ route }: any) => {
 
     const navigation: any = useNavigation()
-    const { Domain, APIkey } = route.params
-    const addSP = realmHS.objects('AddProduct')
-    const datacheck = [
-        {
-            id: '1',
-            name: 'Thanh toán bằng ví Dcash',
-        },
-        {
-            id: '2',
-            name: 'Thanh toán bằng ví Dpoint',
-        },
-        {
-            id: '3',
-            name: 'Thanh toán bằng tien mat',
-        },
-    ]
+    const { Domain, APIkey, item } = route.params || {}
 
-    const renderCheck = ({ item, index }: any) => {
-        return (
-            <View style={styles.Boxcheck}>
-                <RadioButton
-                    value="first"
-                    status={checked === 'first' ? 'checked' : 'unchecked'}
-                    onPress={() => setChecked('first')}
-                />
-                <View style={{ paddingHorizontal: 20 }}>
-                    <Text style={styles.Text1}>{item.name}</Text>
-                    <View style={{ flexDirection: 'row' }}>
-                        <Text style={styles.Text2}>Số dư hiện tại: </Text>
-                        <Text style={{ color: color.green, fontSize: 12, fontWeight: '400' }}>434,403</Text>
-                    </View>
-                </View>
-            </View>
-        )
-    }
+    const [token, settoken] = useState('')
+    const addSP = realmHS.objects('AddProduct')
 
     const items = Array.from(addSP).map((item: any) => ({
         amount: item.soluong.toString(),
         price: item.price.toString(),
         product_id: item.id,
-    }));
+    }))
 
     const opacity = useSharedValue(0)
-    const [showAnimatedBox, setShowAnimatedBox] = useState(false);
-    const [isPlaying, setIsPlaying] = useState(false);
+    const [showAnimatedBox, setShowAnimatedBox] = useState(false)
+    const [isPlaying, setIsPlaying] = useState(false)
 
-    const [nameTT, setnameTT] = useState('Thùy Linh')
-    const [phoneTT, setphoneTT] = useState('0909078111')
-    const [address, setaddress] = useState('256 Bạch Đằng, Phường 24, Q.Bình Thạnh, Thành phố Hồ Chí Minh')
-    const [checked, setChecked] = React.useState('first');
-    const [token, settoken] = useState('')
+    useEffect(() => {
+        setnameTT(item.fullname)
+        setphoneTT(item.mobile)
+        setaddress(item.address + ", " + item.ward + ", " + item.district + ", " + item.country + ", " + item.city)
+    }, [Domain, APIkey, item])
+
+    const [nameTT, setnameTT] = useState('')
+    const [phoneTT, setphoneTT] = useState('')
+    const [address, setaddress] = useState('')
+    const [checked, setChecked] = React.useState('first')
 
     const CartUrl = `${Domain}/client_order/checkout?apikey=${APIkey}`
     const formData = new FormData()
     formData.append('app_name', 'khttest')
 
-    let totalPrice = 0;
-    for (const item of addSP as unknown as { id: string; soluong: number, price: number }[]) {
-        totalPrice += item.price * item.soluong;
+    let totalPrice = 0
+    for (const item of addSP as unknown as { id: string, soluong: number, price: number }[]) {
+        totalPrice += item.price * item.soluong
     }
     const formattedTotalPrice = totalPrice.toLocaleString('vi-VN', {
         style: 'currency',
         currency: 'VND'
-    });
+    })
 
     useEffect(() => {
         gettoken()
     }, [token])
+
+    // useEffect(() => {
+    //     getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain })
+    // }, [Domain, APIkey])
+
+    // useEffect(() => {
+    //     getAPIlocation().then(()=>{
+    //         if (datalocationVP && datalocationVP.length > 0) {
+    //             const filteredItems = datalocationVP.filter((item: any) => item.is_default === '1');
+    //             setitem(filteredItems);
+    //             if (item.length > 0 && !first) {
+    //                 const firstItem = item[0];
+    //                 setnameTT(firstItem.fullname)
+    //                 setphoneTT(firstItem.mobile)
+    //                 setaddress(firstItem.address+", "+firstItem.ward+", "+firstItem.district+", "+firstItem.country+", "+firstItem.city)
+    //                 setfirst(true);
+    //             }
+    //         }
+    //     })
+    // }, [datalocationVP])
 
     const gettoken = async () => {
         const userData = await retrieveUserData()
         if (userData) {
             const { session_token } = userData
             settoken(session_token)
-            formData.append('token', token)
-            formData.append('ship_name', nameTT)
-            formData.append('ship_mobile', phoneTT)
-            formData.append('ship_address', address)
-            formData.append('ship_note', '')
-            formData.append('lItems', JSON.stringify(items))
         } else {
             settoken('')
         }
@@ -105,7 +94,7 @@ const ScreenTTdathang = ({ route }: any) => {
 
     const get = () => {
         if (token == '')
-            console.log('vui long dang nhap');
+            console.log('vui long dang nhap')
         else {
             handleCart()
         }
@@ -115,6 +104,12 @@ const ScreenTTdathang = ({ route }: any) => {
         opacity.value = withTiming(1000)
         setShowAnimatedBox(false)
         setIsPlaying(true)
+        formData.append('token', token)
+        formData.append('ship_name', nameTT)
+        formData.append('ship_mobile', phoneTT)
+        formData.append('ship_address', address)
+        formData.append('ship_note', '')
+        formData.append('lItems', JSON.stringify(items))
         try {
             const response = await axios.post(CartUrl, formData)
             if (response.status == 200) {
@@ -122,14 +117,14 @@ const ScreenTTdathang = ({ route }: any) => {
                 console.log(JSON.stringify(response.data))
             }
             if (response.data.message) {
-                opacity.value = withTiming(0);
-                setShowAnimatedBox(true);
+                opacity.value = withTiming(0)
+                setShowAnimatedBox(true)
                 setIsPlaying(false)
                 removeAllData()
                 navigation.navigate('ScreenShop')
             }
             else {
-                console.log('Sai', response.data);
+                console.log('Sai', response.data)
                 console.log(response.data.message)
             }
         } catch (error) {
@@ -159,13 +154,13 @@ const ScreenTTdathang = ({ route }: any) => {
                 <Text style={styles.title}>Thông tin đặt hàng</Text>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
-                <TouchableOpacity onPress={() => navigation.navigate('ScreenDSdiachi')} style={styles.buttonDc}>
+                <View style={styles.buttonDc}>
                     <Text style={styles.muc}>Địa chỉ nhận hàng</Text>
                     <Image source={require('../Icon/arrow.png')} style={{ height: 13, width: 7, marginRight: 5 }} />
-                </TouchableOpacity>
-                <View style={styles.boxlocation}>
+                </View>
+                <TouchableOpacity onPress={() => navigation.navigate('ScreenDSdiachi', { Domain, APIkey })} style={styles.boxlocation}>
                     <Image source={require('../Icon/location.png')} style={{ height: 35, width: 35, borderRadius: 35 }} />
-                    <View style={{ paddingHorizontal: 25 }}>
+                    <View style={{ paddingHorizontal: 25, flex: 1 }}>
                         <View style={{ flexDirection: 'row' }}>
                             <Text style={styles.Text1}>{nameTT}</Text>
                             <View style={{ backgroundColor: 'black', height: 20, width: 1, marginHorizontal: 10 }}></View>
@@ -173,7 +168,7 @@ const ScreenTTdathang = ({ route }: any) => {
                         </View>
                         <Text style={styles.Text2}>{address}</Text>
                     </View>
-                </View>
+                </TouchableOpacity>
                 <Text style={{ marginVertical: 20, color: 'black', fontSize: 17, fontWeight: '400' }}>Hình thức thanh toán</Text>
                 {/* <FlatList
                     data={datacheck}
@@ -191,7 +186,7 @@ const ScreenTTdathang = ({ route }: any) => {
                         <Text style={styles.Text1}>Thanh toán bằng ví Dcash</Text>
                         <View style={{ flexDirection: 'row' }}>
                             <Text style={styles.Text2}>Số dư hiện tại: </Text>
-                            <Text style={{ color: color.green, fontSize: 12, fontWeight: '400' }}>434,403</Text>
+                            <Text style={{ color: color.green, fontSize: 12, fontWeight: '400', marginTop: 5 }}>434,403</Text>
                         </View>
                     </View>
                 </View>
@@ -205,7 +200,7 @@ const ScreenTTdathang = ({ route }: any) => {
                         <Text style={styles.Text1}>Thanh toán bằng ví Dpoint</Text>
                         <View style={{ flexDirection: 'row' }}>
                             <Text style={styles.Text2}>Số dư hiện tại: </Text>
-                            <Text style={{ color: color.green, fontSize: 12, fontWeight: '400' }}>434,403</Text>
+                            <Text style={{ color: color.green, fontSize: 12, fontWeight: '400', marginTop: 5 }}>434,403</Text>
                         </View>
                     </View>
                 </View>
@@ -218,7 +213,7 @@ const ScreenTTdathang = ({ route }: any) => {
                         data={addSP}
                         keyExtractor={(item: any) => item.id.toString()}
                         renderItem={({ item }) => {
-                            return <ListitemTTdathang item={item} APIkey={APIkey} Domain={Domain} />
+                            return <ListitemTTdathang item={item} />
                         }}
                         scrollEnabled={false}
                     />
@@ -303,7 +298,8 @@ const styles = StyleSheet.create({
     Text2: {
         fontSize: 12,
         fontWeight: '500',
-        color: 'black'
+        color: 'black',
+        marginTop: 5,
     },
     Boxcheck: {
         backgroundColor: 'white',

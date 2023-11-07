@@ -2,15 +2,19 @@ import { Image, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import color from '../../Color/color'
 import { getAPIDetail } from '../../AsysncStorage/AsysncStore'
+import { getAPIKeyAndDomainFromStorage } from '../../AsysncStorage/AsysncAPI'
 
-const ListitemTTdathang = ({ item, APIkey, Domain }: any) => {
+const ListitemTTdathang = ({ item }: any) => {
 
     const [data, setdata] = useState<any>([])
     const [image, setimage] = useState('')
+    const [APIkey, setAPIkey] = useState<any>(null)
+    const [Domain, setDomain] = useState<any>(null)
 
     useEffect(() => {
+        getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain })
         getAPIDetail({ item, Domain, APIkey, setdata, setimage })
-    }, [])
+    }, [Domain, APIkey])
 
     const fotmatedmonney = ((item: any) => {
         const monney = parseFloat(item)

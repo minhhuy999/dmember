@@ -1,17 +1,33 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import color from '../Color/color';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import realmHS from '../Realm/realmHistoryS';
 import { loadAddSPData, } from '../Realm/StorageServices';
 import DeletedAnimation from './AnimationShop/DeletedAnimation';
 import { ScrollView } from 'react-native-gesture-handler';
+import axios from 'axios';
+import { retrieveUserData } from '../AsysncStorage/AsysncUser';
 
 const ScreenStore = ({ route }: any) => {
 
     const { Domain, APIkey } = route.params
 
     const scrollRef = useRef(null);
+    const [token, settoken] = useState('')
+    const [datalocationVP, setdatalocationVP] = useState<any>([])
+    const [item, setitem] = useState<any>([])
+    const [first, setfirst] = useState(false)
+    const apilocation = `${Domain}/location/list?apikey=${APIkey}`
+    const formData = new FormData()
+
+    const [DataSrore, setDataSrore] = useState([])
+
+    const addSP = realmHS.objects('AddProduct')
+    const navigation: any = useNavigation();
+
+    let totalPrice = 0;
+    let totalnumber = 0;
 
     useEffect(() => {
         addSP.addListener(listener);
@@ -28,14 +44,6 @@ const ScreenStore = ({ route }: any) => {
             })
     };
 
-    const [DataSrore, setDataSrore] = useState([])
-
-    const addSP = realmHS.objects('AddProduct')
-    const navigation: any = useNavigation();
-
-    let totalPrice = 0;
-    let totalnumber = 0;
-
     for (const item of addSP as unknown as { id: string; soluong: number, price: number }[]) {
         totalPrice += item.price * item.soluong;
         totalnumber += item.soluong
@@ -44,7 +52,56 @@ const ScreenStore = ({ route }: any) => {
     const formattedTotalPrice = totalPrice.toLocaleString('vi-VN', {
         style: 'currency',
         currency: 'VND'
-    });
+    })
+
+    useFocusEffect(
+        React.useCallback(() => {
+            gettoken()
+        }, [])
+    )
+
+    const gettoken = async () => {
+        const userData = await retrieveUserData()
+        if (userData) {
+            const { session_token, point } = userData
+            settoken(session_token)
+            formData.append('token', token)
+        } else {
+            settoken('')
+        }
+    }
+
+
+    const getAPIlocation = async () => {
+        await gettoken()
+        try {
+            const response = await axios.post(apilocation, formData, {
+                headers: {
+                    'Accept': 'application/x-www-form-urlencoded',
+                },
+            })
+            if (response.status === 200) {
+                const dataLocation = response.data.data
+                setdatalocationVP(dataLocation)
+            } else {
+                throw new Error('Network response was not ok')
+            }
+        } catch (error) {
+            console.error('There was a problem with the operation:', error)
+        }
+    }
+
+    useEffect(() => {
+        getAPIlocation()
+        if (datalocationVP && datalocationVP.length > 0) {
+            const filteredItems = datalocationVP.filter((item: any) => item.is_default === '1');
+            if (filteredItems.length > 0 && !first) {
+                const firstItem = filteredItems[0]
+                setitem(firstItem)
+                setfirst(true);
+            }
+        }
+    }, [datalocationVP])
 
     return (
         <View style={styles.backgr}>
@@ -80,7 +137,7 @@ const ScreenStore = ({ route }: any) => {
                             <Text style={{ marginLeft: 20, color: color.organge, fontSize: 21, fontWeight: '600' }}>{formattedTotalPrice}</Text>
                         </View>
                         <TouchableOpacity
-                            onPress={() => navigation.navigate('ScreenTTdathang', { Domain, APIkey })}
+                            onPress={() => navigation.navigate('ScreenTTdathang', { Domain, APIkey, item })}
                             style={{
                                 backgroundColor: 'black',
                                 width: 100,
@@ -159,8 +216,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'red',
         height: 22, width: 22,
         borderRadius: 10,
-        borderWidth:2,
-        borderColor:'white',
+        borderWidth: 2,
+        borderColor: 'white',
         alignItems: 'center', justifyContent: 'center',
         position: 'absolute',
         left: 20,
