@@ -37,6 +37,7 @@ import ScreenStorePoint from '../Point/PointFuntion/ScreenStorePoint'
 import ScreenDtNews from '../DetailNews/ScreenDtNews'
 import ScreenCreateLocation from '../Account/AccountFuntion/ScreenCreateLocation'
 import ScreenDtLocation from '../DetailLocation/ScreenDtLocation'
+import ScreenListNotifile from '../Shop/AnimationShop/ScreenListNotifile'
 
 const Stack = createNativeStackNavigator()
 
@@ -84,6 +85,7 @@ const StackNavigation = () => {
                 <Stack.Screen name='ScreenDtNews' component={ScreenDtNews}/>
                 <Stack.Screen name='ScreenCreateLocation' component={ScreenCreateLocation}/>
                 <Stack.Screen name='ScreenDtLocation' component={ScreenDtLocation}/>
+                <Stack.Screen name='ScreenListNotifile' component={ScreenListNotifile}/>
             </Stack.Navigator>
         </NavigationContainer>
     )

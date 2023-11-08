@@ -259,7 +259,7 @@ const ScreenPoint = () => {
                     />
                 </View>
             ) : (
-                <View style={{ flex: 1, marginBottom: 50 }}>
+                <View style={{ flex: 1, marginBottom: 70 }}>
                     <Animated.FlatList
                         data={dataSearch}
                         showsVerticalScrollIndicator={false}

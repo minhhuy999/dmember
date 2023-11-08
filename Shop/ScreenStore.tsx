@@ -113,7 +113,7 @@ const ScreenStore = ({ route }: any) => {
             </View>
             {addSP.length > 0 ? (
                 <View style={styles.hienthi}>
-                    <ScrollView ref={scrollRef} style={{ paddingHorizontal: 20, flex: 1 }}>
+                    <ScrollView ref={scrollRef} style={{ paddingHorizontal: 20, flex: 1 }} showsVerticalScrollIndicator={false}>
                         <FlatList
                             data={addSP}
                             keyExtractor={(item: any) => item.id.toString()}

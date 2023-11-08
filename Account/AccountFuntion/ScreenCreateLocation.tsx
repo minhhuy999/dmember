@@ -110,7 +110,7 @@ const ScreenCreateLocation = () => {
                 })
                 if (response.status === 200) {
                     const dataLocation = response.data
-                    const [updateLocation, setupdateLocation] = useState(name)
+                    const updateLocation = name
                     console.log(dataLocation)
                     navigation.navigate('ScreenQldiachi',{updateLocation})
                     // console.log(dataLocation)
