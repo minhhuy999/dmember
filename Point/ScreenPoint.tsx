@@ -241,7 +241,7 @@ const ScreenPoint = () => {
                         placeholder='Immune Boost'
                         returnKeyType="search"
                         onSubmitEditing={() => handleSearch()}
-                        style={{ paddingLeft: 10 }} />
+                        style={{ paddingLeft: 10 }}/>
                 </View>
                 <TouchableOpacity onPress={() => navigation.navigate('ScreenStorePoint', { Domain, APIkey })}>
                     <Image source={require('../Icon/cart.png')} style={{ height: 25, width: 25, marginLeft: 10 }} />

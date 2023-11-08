@@ -7,14 +7,16 @@ import { getAPIKeyAndDomainFromStorage } from '../../AsysncStorage/AsysncAPI';
 import { retrieveUserData } from '../../AsysncStorage/AsysncUser';
 import axios from 'axios';
 
-const ScreenQldiachi = () => {
+const ScreenQldiachi = ({ route }: any) => {
 
     const navigation: any = useNavigation()
+    const { updateLocation } = route.params
 
     const [APIkey, setAPIkey] = useState<string>('')
     const [Domain, setDomain] = useState<string>('')
     const [token, settoken] = useState('')
     const [datalocation, setdatalocation] = useState<any>([])
+    const [Updatedata, setUpdatedata] = useState(updateLocation)
 
     const formData = new FormData()
     formData.append('app_name', 'khttest')
@@ -37,12 +39,19 @@ const ScreenQldiachi = () => {
     useEffect(() => {
         getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain })
         getAPIlocation()
-    }, [Domain, APIkey])
+        setUpdatedata(updateLocation)
+    }, [Domain, APIkey,updateLocation])
 
     useFocusEffect(
         React.useCallback(() => {
             gettoken()
         }, [])
+    )
+
+    useFocusEffect(
+        React.useCallback(() => {
+            getAPIlocation()
+        }, [ Updatedata])
     )
 
     const gettoken = async () => {
@@ -94,7 +103,7 @@ const ScreenQldiachi = () => {
     const renderLocation = ({ item, index }: any) => {
         return (
             <Swipeable renderRightActions={delet}>
-                <TouchableOpacity onPress={()=>navigation.navigate('ScreenDtLocation',{item})} style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, marginBottom: 10, elevation: 5 }}>
+                <TouchableOpacity onPress={() => navigation.navigate('ScreenDtLocation', { item })} style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, marginBottom: 10, elevation: 5 }}>
                     <Text style={{ color: 'black', paddingVertical: 5 }}>{item.fullname} - {item.mobile}</Text>
                     <Text>{item.address}, {item.ward}, {item.district}, {item.country}, {item.city}</Text>
                     {/* <Text>{item.is_default}</Text> */}

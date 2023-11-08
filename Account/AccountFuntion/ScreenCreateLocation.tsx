@@ -31,6 +31,7 @@ const ScreenCreateLocation = () => {
     const [ErrorMessage, setErrorMessage] = useState('')
     const [showAnimatedBox, setShowAnimatedBox] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+  
 
     const [APIkey, setAPIkey] = useState<string>('')
     const [Domain, setDomain] = useState<string>('')
@@ -91,7 +92,7 @@ const ScreenCreateLocation = () => {
     }
 
     const getAPICreateLocation = async () => {
-
+       
         formData.append('fullname', name)
         formData.append('mobile', phone)
         formData.append('city_id', idtinhthanh)
@@ -109,8 +110,9 @@ const ScreenCreateLocation = () => {
                 })
                 if (response.status === 200) {
                     const dataLocation = response.data
+                    const [updateLocation, setupdateLocation] = useState(name)
                     console.log(dataLocation)
-                    navigation.navigate('ScreenQldiachi')
+                    navigation.navigate('ScreenQldiachi',{updateLocation})
                     // console.log(dataLocation)
                 } else {
                     throw new Error('Network response was not ok')

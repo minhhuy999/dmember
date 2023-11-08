@@ -9,12 +9,12 @@ const ScreenAcount = () => {
 
     const navigation:any = useNavigation()
 
-    const [isModal, setisModal] = useState(false)
     const [fullname, setfullname] = useState('')
     const [email, setemail] = useState('')
     const [userId, setuserId] = useState('')
     const [Sex, setSex] = useState('')
     const [Mobile, setMobile] = useState('')
+    const updateLocation = ''
 
     const logout1 = async () => {
         logout()
@@ -86,13 +86,12 @@ const ScreenAcount = () => {
         return (
             <TouchableOpacity onPress={() => {
                 if (item.id === '1') {
-                    setisModal(true)
                 }
                 if (item.id === '2') {
                     navigation.navigate('ScreenBaoMat')
                 }
                 if (item.id === '3') {
-                    navigation.navigate('ScreenQldiachi')
+                    navigation.navigate('ScreenQldiachi',{updateLocation})
                 }
                 if (item.id === '4') {
                     navigation.navigate('ScreenDsviec')

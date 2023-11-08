@@ -39,6 +39,7 @@ const ScreenDtLocation = ({ route }: any) => {
     const [ErrorMessage, setErrorMessage] = useState('')
     const [showAnimatedBox, setShowAnimatedBox] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const updateLocation = item.id
 
     const [APIkey, setAPIkey] = useState<string>('')
     const [Domain, setDomain] = useState<string>('')
@@ -53,7 +54,7 @@ const ScreenDtLocation = ({ route }: any) => {
     const apitinhthanh = `${Domain}/location/city?apikey=${APIkey}`
     const apiquanhuyen = `${Domain}/location/district?apikey=${APIkey}`
     const apiphuongxa = `${Domain}/location/ward?apikey=${APIkey}`
-    const apicreateLocation = `${Domain}/location/new?apikey=${APIkey}`
+    const apiupdateLocation = `${Domain}/location/update?apikey=${APIkey}`
 
     const check = () => {
         if (!name || !phone || !idtinhthanh || !idquanhuyen || !idphuongxa) {
@@ -63,6 +64,7 @@ const ScreenDtLocation = ({ route }: any) => {
         }
         else {
             setErrorMessage('')
+            getAPIUpdateLocation()
             return
         }
     }
@@ -70,7 +72,7 @@ const ScreenDtLocation = ({ route }: any) => {
     useEffect(() => {
         ischeck()
     })
-    
+
     useEffect(() => {
         getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain })
         getAPItinhthanh()
@@ -101,36 +103,36 @@ const ScreenDtLocation = ({ route }: any) => {
         }
     }
 
-    // const getAPICreateLocation = async () => {
+    const getAPIUpdateLocation = async () => {
 
-    //     formData.append('fullname', name)
-    //     formData.append('mobile', phone)
-    //     formData.append('city_id', idtinhthanh)
-    //     formData.append('district_id', idquanhuyen)
-    //     formData.append('ward_id', idphuongxa)
-    //     formData.append('address', diachi)
-    //     formData.append('is_default', isChecked ? 1 : 0);
-    //     if (APIkey && Domain) {
-    //         await gettoken()
-    //         try {
-    //             const response = await axios.post(apicreateLocation, formData, {
-    //                 headers: {
-    //                     'Accept': 'application/x-www-form-urlencoded',
-    //                 },
-    //             })
-    //             if (response.status === 200) {
-    //                 const dataLocation = response.data
-    //                 console.log(dataLocation)
-    //                 navigation.navigate('ScreenQldiachi')
-    //                 // console.log(dataLocation)
-    //             } else {
-    //                 throw new Error('Network response was not ok')
-    //             }
-    //         } catch (error) {
-    //             console.error('There was a problem with the operation:', error)
-    //         }
-    //     }
-    // }
+        formData.append('id', item.id)
+        formData.append('fullname', name)
+        formData.append('mobile', phone)
+        formData.append('city_id', idtinhthanh)
+        formData.append('district_id', idquanhuyen)
+        formData.append('ward_id', idphuongxa)
+        formData.append('address', diachi)
+        formData.append('is_default', isChecked ? 1 : 0);
+        if (APIkey && Domain) {
+            await gettoken()
+            try {
+                const response = await axios.post(apiupdateLocation, formData, {
+                    headers: {
+                        'Accept': 'application/x-www-form-urlencoded',
+                    },
+                })
+                if (response.status === 200) {
+                    const dataLocation = response.data
+                    console.log(dataLocation)
+                    navigation.navigate('ScreenQldiachi',{updateLocation})
+                } else {
+                    throw new Error('Network response was not ok')
+                }
+            } catch (error) {
+                console.error('There was a problem with the operation:', error)
+            }
+        }
+    }
 
 
     const getAPItinhthanh = async () => {
@@ -297,6 +299,8 @@ const ScreenDtLocation = ({ route }: any) => {
                             setErrorMessage('Vui lòng chọn quận/ huyện')
                         }
                         else {
+                            getAPIquanhuyen()
+                            getAPIphuongxa()
                             setSelectedLocationType(item.value)
                             setshowview(true)
                         }
@@ -326,109 +330,111 @@ const ScreenDtLocation = ({ route }: any) => {
     })
 
     return (
-        <View style={styles.backgr}>
-            <View style={styles.BoxTitile}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', left: 0, top: 10 }}>
-                    <Image source={require('../Icon/arrowback.png')} />
-                </TouchableOpacity>
-                <Text style={styles.title}>Sữa địa chỉ</Text>
-            </View>
-            <Text style={{ color: 'black', padding: 5 }}>Họ và Tên</Text>
-            <View style={styles.ItemInput}>
-                <TextInput placeholder={'Nhập Họ Tên'} style={{ color: 'black', flex: 1 }}
-                    value={name}
-                    onChangeText={(text) => setname(text)}>
-                </TextInput>
-            </View>
-            <Text style={{ color: 'black', padding: 5 }}>Số điện thoại</Text>
-            <View style={styles.ItemInput}>
-                <TextInput placeholder={'Nhập Số Điện Thoại'} style={{ color: 'black', flex: 1 }}
-                    value={phone}
-                    onChangeText={(text) => setphone(text)}
-                    keyboardType='number-pad'>
-                </TextInput>
-            </View>
-            <View>
-                <FlatList
-                    data={dataLocation}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={renderLocation}
-                    scrollEnabled={false} />
-            </View>
-            <Text style={{ color: 'black', paddingTop: 5, paddingLeft: 5 }}>Địa chỉ cụ thể</Text>
-            <Text style={{ color: 'black', padding: 4 }}>Số nhà, tên tòa nhà, tên đường,tên khu vực</Text>
-            <View style={styles.ItemInput}>
-                <TextInput placeholder={'Nhập địa chỉ cụ thể'} style={{ color: 'black', flex: 1 }}
-                    value={diachi}
-                    onChangeText={(text) => setdiachi(text)}>
-                </TextInput>
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 5 }}>
-                <CheckBox
-                    value={isChecked}
-                    onValueChange={(newValue) => setIsChecked(newValue)}
-                />
-                <Text>Đặt làm mặt định</Text>
-            </View>
-            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
-                <TouchableOpacity
-                    style={{
-                        backgroundColor: 'black',
-                        width: 150,
-                        alignItems: 'center',
-                        padding: 15,
-                        borderRadius: 10,
-                    }} onPress={check}>
-                    <Text style={{ color: 'white', fontSize: 15, fontWeight: '600' }}>
-                        Sữa địa chỉ
-                    </Text>
-                </TouchableOpacity>
-            </View>
-            {showview == true ?
-                <View style={{ position: 'absolute', height: height, width: width, backgroundColor: 'white' }}>
-                    <View style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 }}>
-                        <TouchableOpacity onPress={() => setshowview(false)} style={{ position: 'absolute', left: 10, top: 5 }} >
-                            <Image source={require('../Icon/arrowback.png')} />
-                        </TouchableOpacity>
-                        <Text style={{ padding: 10, color: color.background, fontWeight: 'bold' }}>Sổ địa chỉ</Text>
-                        <View style={{ flexDirection: 'row', borderRadius: 20, borderColor: color.background, borderWidth: 1, alignItems: 'center' }}>
-                            <Image source={require('../Icon/search.png')} style={{ marginLeft: 10 }} />
-                            <TextInput
-                                style={{ width: '100%' }}
-                                placeholder='Tìm kiếm...'
-                                onChangeText={(text) => setSearchQuery(text)}
-                                value={searchQuery} />
+        <ScrollView>
+            <View style={styles.backgr}>
+                <View style={styles.BoxTitile}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', left: 0, top: 10 }}>
+                        <Image source={require('../Icon/arrowback.png')} />
+                    </TouchableOpacity>
+                    <Text style={styles.title}>Sữa địa chỉ</Text>
+                </View>
+                <Text style={{ color: 'black', padding: 5 }}>Họ và Tên</Text>
+                <View style={styles.ItemInput}>
+                    <TextInput placeholder={'Nhập Họ Tên'} style={{ color: 'black', flex: 1 }}
+                        value={name}
+                        onChangeText={(text) => setname(text)}>
+                    </TextInput>
+                </View>
+                <Text style={{ color: 'black', padding: 5 }}>Số điện thoại</Text>
+                <View style={styles.ItemInput}>
+                    <TextInput placeholder={'Nhập Số Điện Thoại'} style={{ color: 'black', flex: 1 }}
+                        value={phone}
+                        onChangeText={(text) => setphone(text)}
+                        keyboardType='number-pad'>
+                    </TextInput>
+                </View>
+                <View>
+                    <FlatList
+                        data={dataLocation}
+                        keyExtractor={(item) => item.id.toString()}
+                        renderItem={renderLocation}
+                        scrollEnabled={false} />
+                </View>
+                <Text style={{ color: 'black', paddingTop: 5, paddingLeft: 5 }}>Địa chỉ cụ thể</Text>
+                <Text style={{ color: 'black', padding: 4 }}>Số nhà, tên tòa nhà, tên đường,tên khu vực</Text>
+                <View style={styles.ItemInput}>
+                    <TextInput placeholder={'Nhập địa chỉ cụ thể'} style={{ color: 'black', flex: 1 }}
+                        value={diachi}
+                        onChangeText={(text) => setdiachi(text)}>
+                    </TextInput>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 5 }}>
+                    <CheckBox
+                        value={isChecked}
+                        onValueChange={(newValue) => setIsChecked(newValue)}
+                    />
+                    <Text>Đặt làm mặt định</Text>
+                </View>
+                <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
+                    <TouchableOpacity
+                        style={{
+                            backgroundColor: 'black',
+                            width: 150,
+                            alignItems: 'center',
+                            padding: 15,
+                            borderRadius: 10,
+                        }} onPress={check}>
+                        <Text style={{ color: 'white', fontSize: 15, fontWeight: '600' }}>
+                            Sữa địa chỉ
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+                {showview == true ?
+                    <View style={{ position: 'absolute', height: height, width: width, backgroundColor: 'white' }}>
+                        <View style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 }}>
+                            <TouchableOpacity onPress={() => setshowview(false)} style={{ position: 'absolute', left: 10, top: 5 }} >
+                                <Image source={require('../Icon/arrowback.png')} />
+                            </TouchableOpacity>
+                            <Text style={{ padding: 10, color: color.background, fontWeight: 'bold' }}>Sổ địa chỉ</Text>
+                            <View style={{ flexDirection: 'row', borderRadius: 20, borderColor: color.background, borderWidth: 1, alignItems: 'center' }}>
+                                <Image source={require('../Icon/search.png')} style={{ marginLeft: 10 }} />
+                                <TextInput
+                                    style={{ width: '100%' }}
+                                    placeholder='Tìm kiếm...'
+                                    onChangeText={(text) => setSearchQuery(text)}
+                                    value={searchQuery} />
+                            </View>
                         </View>
-                    </View>
-                    <ScrollView>
-                        <FlatList
-                            data={getSelectedLocationData()}
-                            keyExtractor={(item: any) => item.id.toString()}
-                            renderItem={renderItem}
-                            scrollEnabled={false}
-                            showsVerticalScrollIndicator={false}
-                        />
-                    </ScrollView>
-                </View> : null}
-            <Animated.View style={[showAnimatedBox ? {} : { display: 'none' }, {
-                width: width, height: height, backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'absolute',
-                justifyContent: 'center', alignItems: 'center'
-            }, rStyle]}>
-                <Animated.View style={[
-                    { width: 250, height: 140, backgroundColor: 'white', borderRadius: 10, alignItems: 'center', elevation: 10 }
-                    ,]}>
-                    <View style={{ backgroundColor: color.background, width: '100%', height: 35, borderTopLeftRadius: 10, borderTopRightRadius: 10 }} />
-                    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                        <Text style={{ paddingBottom: 10 }}>{ErrorMessage}</Text>
-                        <TouchableOpacity
-                            onPress={() => opacity.value = withTiming(0)}
-                            style={{ backgroundColor: 'black', paddingVertical: 10, paddingHorizontal: 40, borderRadius: 15 }}>
-                            <Text style={{ color: 'white' }}>OK</Text>
-                        </TouchableOpacity>
-                    </View>
+                        <ScrollView>
+                            <FlatList
+                                data={getSelectedLocationData()}
+                                keyExtractor={(item: any) => item.id.toString()}
+                                renderItem={renderItem}
+                                scrollEnabled={false}
+                                showsVerticalScrollIndicator={false}
+                            />
+                        </ScrollView>
+                    </View> : null}
+                <Animated.View style={[showAnimatedBox ? {} : { display: 'none' }, {
+                    width: width, height: height, backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'absolute',
+                    justifyContent: 'center', alignItems: 'center'
+                }, rStyle]}>
+                    <Animated.View style={[
+                        { width: 250, height: 140, backgroundColor: 'white', borderRadius: 10, alignItems: 'center', elevation: 10 }
+                        ,]}>
+                        <View style={{ backgroundColor: color.background, width: '100%', height: 35, borderTopLeftRadius: 10, borderTopRightRadius: 10 }} />
+                        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                            <Text style={{ paddingBottom: 10 }}>{ErrorMessage}</Text>
+                            <TouchableOpacity
+                                onPress={() => opacity.value = withTiming(0)}
+                                style={{ backgroundColor: 'black', paddingVertical: 10, paddingHorizontal: 40, borderRadius: 15 }}>
+                                <Text style={{ color: 'white' }}>OK</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </Animated.View>
                 </Animated.View>
-            </Animated.View>
-        </View>
+            </View>
+        </ScrollView>
     )
 }
 

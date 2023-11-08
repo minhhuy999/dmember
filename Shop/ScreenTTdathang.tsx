@@ -62,26 +62,6 @@ const ScreenTTdathang = ({ route }: any) => {
         gettoken()
     }, [token])
 
-    // useEffect(() => {
-    //     getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain })
-    // }, [Domain, APIkey])
-
-    // useEffect(() => {
-    //     getAPIlocation().then(()=>{
-    //         if (datalocationVP && datalocationVP.length > 0) {
-    //             const filteredItems = datalocationVP.filter((item: any) => item.is_default === '1');
-    //             setitem(filteredItems);
-    //             if (item.length > 0 && !first) {
-    //                 const firstItem = item[0];
-    //                 setnameTT(firstItem.fullname)
-    //                 setphoneTT(firstItem.mobile)
-    //                 setaddress(firstItem.address+", "+firstItem.ward+", "+firstItem.district+", "+firstItem.country+", "+firstItem.city)
-    //                 setfirst(true);
-    //             }
-    //         }
-    //     })
-    // }, [datalocationVP])
-
     const gettoken = async () => {
         const userData = await retrieveUserData()
         if (userData) {
