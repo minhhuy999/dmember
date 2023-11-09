@@ -7,7 +7,6 @@ import { addSPStore, addTask, getListTasks, removeAllTask, removeTask } from '..
 import realmHS from '../Realm/realmHistoryS'
 import unidecode from 'unidecode'
 import Animated, { Extrapolate, FadeIn, FadeOut, Layout, interpolate, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
-import { MotiView } from 'moti'
 import LottieView from 'lottie-react-native'
 import axios from 'axios'
 import { getAPIKeyAndDomainFromStorage } from '../AsysncStorage/AsysncAPI'
@@ -23,6 +22,7 @@ const ScreenSproduct = ({ navigation }: any) => {
     const History: any = realmHS.objects('HistorySreach')
 
     const initialMode = useRef<boolean>(true)
+    const [searchHistory, setsearchHistory] = useState(false)
     const [animateHistory, setAnimateHistory] = useState(true)
     const [sortedHistory, setSortedHistory] = useState([])
     const [showAnimatedBox, setShowAnimatedBox] = useState(false);
@@ -32,7 +32,7 @@ const ScreenSproduct = ({ navigation }: any) => {
     const [dataProduct, setDataProduct] = useState<any>([]);
     const [dataSearch, setdataSearch] = useState<any>([])
     const [searchedOnce, setSearchedOnce] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false)
 
     const [APIkey, setAPIkey] = useState<any>(null)
     const [Domain, setDomain] = useState<any>(null)
@@ -57,7 +57,14 @@ const ScreenSproduct = ({ navigation }: any) => {
         return () => {
             History.removeListener(listener);
         }
-    }, [dataProduct, searchedOnce]);
+    }, [dataProduct, searchedOnce,]);
+
+    useEffect(()=>{
+        if(searchHistory == true){
+            handleSearch()
+            setsearchHistory(false)
+        }
+    },[searchHistory])
 
     const getAPIShop = async () => {
         if (APIkey && Domain) {
@@ -194,7 +201,9 @@ const ScreenSproduct = ({ navigation }: any) => {
     }
     const handleHistoryItemClick = (itemName: string) => {
         setName(itemName)
+        setsearchHistory(true)
     }
+
     const handleAddToCart = (item: any) => {
         const existingProduct: any = addSP.filtered(`id == '${item.product_id}'`)[0]
         if (existingProduct) {
@@ -270,7 +279,7 @@ const ScreenSproduct = ({ navigation }: any) => {
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={{ marginVertical: 10, flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text style={{ color: 'black', fontSize: 15, fontWeight: '500' }}>Tìm kiếm gần đây</Text>
-                    <Text style={{color:'red'}} onPress={removeAllTask}>deleted all</Text>
+                    <Text style={{ color: 'red' }} onPress={removeAllTask}>deleted all</Text>
                 </View>
                 <View>
                     <FlatList
@@ -320,7 +329,7 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         color: 'black',
         marginTop: 10,
-        height:40
+        height: 40
     },
     ItemtextSP: {
         color: 'black',

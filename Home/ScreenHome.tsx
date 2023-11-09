@@ -78,7 +78,7 @@ const ScreenHome = ({ navigation }: any) => {
             id: '4',
             icon: require('../Icon/QR.png'),
             name: 'QR',
-            navigate: 'ScreenRdcash'
+            navigate: 'ScreenScanQR'
         },
         {
             id: '5',

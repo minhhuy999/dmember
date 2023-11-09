@@ -67,3 +67,37 @@
             chietkhau: '53,000'
         },
     ]
+
+      const dataimg = [
+        {
+            id: '1',
+            img: require('../SanPham/NTTpink.png')
+        },
+        {
+            id: '2',
+            img: require('../SanPham/NTTpink.png')
+        },
+        {
+            id: '3',
+            img: require('../SanPham/NTTpink.png')
+        },
+        {
+            id: '4',
+            img: require('../SanPham/NTTpink.png')
+        },
+        {
+            id: '5',
+            img: require('../SanPham/NTTpink.png')
+        },
+    ]
+    const datalist = [
+        {
+            id: '1',
+            ma: '002220321D9M',
+            day: '25/03/2022 - 17:40',
+            name: 'Luxe Intense 75ml - Nước hoa nữ phiên bản đặc biệt',
+            giaban: '1,100,000',
+            soluong: '2',
+            tongtien: '2,200,000',
+        }
+    ]

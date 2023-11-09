@@ -7,13 +7,14 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native'
 
 const ScreenAcount = () => {
 
-    const navigation:any = useNavigation()
+    const navigation: any = useNavigation()
 
     const [fullname, setfullname] = useState('')
     const [email, setemail] = useState('')
     const [userId, setuserId] = useState('')
     const [Sex, setSex] = useState('')
     const [Mobile, setMobile] = useState('')
+    const [QRcode, setQRcode] = useState('')
     const updateLocation = ''
 
     const logout1 = async () => {
@@ -24,15 +25,17 @@ const ScreenAcount = () => {
     const fetchData = async () => {
         const userData = await retrieveUserData()
         if (userData) {
-            const { fullname, email, user_id, sex, mobile } = userData
+            const { fullname, email, user_id, sex, mobile, QRCode } = userData
             setfullname(fullname)
             setemail(email)
             setuserId(user_id)
             setSex(sex)
             setMobile(mobile)
-        }else{
+            setQRcode(QRCode)
+        } else {
             setfullname('')
             setemail('')
+            setQRcode('')
         }
     }
 
@@ -41,7 +44,7 @@ const ScreenAcount = () => {
             fetchData()
         }, [])
     )
-    
+
 
     const Item = [
         {
@@ -79,6 +82,11 @@ const ScreenAcount = () => {
             icon: require('../Icon/Order.png'),
             textitem: 'Tin tức',
         },
+        {
+            id: '8',
+            icon: require('../Icon/QR.png'),
+            textitem: 'Hồ sơ cá nhân',
+        },
     ]
 
     const renderItem = ({ item, index }: any) => {
@@ -91,7 +99,7 @@ const ScreenAcount = () => {
                     navigation.navigate('ScreenBaoMat')
                 }
                 if (item.id === '3') {
-                    navigation.navigate('ScreenQldiachi',{updateLocation})
+                    navigation.navigate('ScreenQldiachi', { updateLocation })
                 }
                 if (item.id === '4') {
                     navigation.navigate('ScreenDsviec')
@@ -104,6 +112,9 @@ const ScreenAcount = () => {
                 }
                 if (item.id === '7') {
                     navigation.navigate('ScreenTintuc')
+                }
+                if (item.id === '8') {
+                    navigation.navigate('ScreenQRcode',{QRcode})
                 }
             }}>
                 <MotiView
@@ -144,7 +155,7 @@ const ScreenAcount = () => {
                     </View>
                     <Text style={{ color: 'black', fontSize: 17, fontWeight: '500', marginTop: 10, marginBottom: 10 }}>Chức năng khác</Text>
                 </View>
-                <View style={{ width: '100%', paddingTop: 1 }} >
+                <View style={{ width: '100%', paddingTop: 1, height: 400 }} >
                     <FlatList
                         data={Item}
                         keyExtractor={(item) => item.id}

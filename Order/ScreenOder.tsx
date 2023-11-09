@@ -1,47 +1,27 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import color from '../Color/color'
 import { FlatList } from 'react-native-gesture-handler';
+import { retrieveUserData } from '../AsysncStorage/AsysncUser';
+import { getAPIKeyAndDomainFromStorage } from '../AsysncStorage/AsysncAPI';
+import { useFocusEffect } from '@react-navigation/native';
+import axios from 'axios';
+import moment from 'moment';
 
 const ScreenOder = ({ navigation }: any) => {
 
     const [selectedCategory1, setSelectedCategory1] = useState('Hoàn thành');
     const [selectedCategory2, setSelectedCategory2] = useState('Tất cả');
+    const [dataorder, setdataorder] = useState<any>([])
+    const [datalItems1, setdatalItems1] = useState<any>([])
+    const [token, settoken] = useState('')
+    const [APIkey, setAPIkey] = useState<any>(null)
+    const [Domain, setDomain] = useState<any>(null)
 
+    const formData = new FormData()
+    formData.append('app_name', 'khttest')
+    const apiOrder = `${Domain}/client_order/history?apikey=${APIkey}`;
 
-    const dataimg = [
-        {
-            id: '1',
-            img: require('../SanPham/NTTpink.png')
-        },
-        {
-            id: '2',
-            img: require('../SanPham/NTTpink.png')
-        },
-        {
-            id: '3',
-            img: require('../SanPham/NTTpink.png')
-        },
-        {
-            id: '4',
-            img: require('../SanPham/NTTpink.png')
-        },
-        {
-            id: '5',
-            img: require('../SanPham/NTTpink.png')
-        },
-    ]
-    const datalist = [
-        {
-            id: '1',
-            ma: '002220321D9M',
-            day: '25/03/2022 - 17:40',
-            name: 'Luxe Intense 75ml - Nước hoa nữ phiên bản đặc biệt',
-            giaban: '1,100,000',
-            soluong: '2',
-            tongtien: '2,200,000',
-        }
-    ]
     const datatinhtrang = [
         { id: '1', name: 'Chờ thanh toán' },
         { id: '2', name: 'Hoàn thành' },
@@ -63,16 +43,26 @@ const ScreenOder = ({ navigation }: any) => {
         setSelectedCategory2(category);
     };
 
+    const fotmatedmonney = ((item: any) => {
+        const monney = parseFloat(item)
+        const formattedMonney = monney.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+        return formattedMonney;
+    })
+
     const renderimg = ({ item, index }: any) => {
         if (index < 4) {
             return (
-                <View style={{ alignItems: 'center', justifyContent: 'center', width: 40, height: 40, backgroundColor: color.bluemedium, borderRadius: 40, marginRight: 5, marginBottom: 10 }}>
-                    <Image source={item.img} style={{ width: 34, height: 34 }} />
+                <View style={{ alignItems: 'center', justifyContent: 'center', width: 40, height: 40, backgroundColor: color.bluemedium, borderRadius: 20, marginRight: 5, marginBottom: 10 }}>
+                    {item.image ? (
+                        <Image source={{ uri: item.image }} style={{ width: 40, height: 40, borderRadius: 20 }} />
+                    ) : (
+                        <Text>cb</Text>
+                    )}
                 </View>
             )
         } else if (index == 4) {
             return (
-                <View style={{ alignItems: 'center', justifyContent: 'center', width: 40, height: 40, backgroundColor: color.bluemedium, borderRadius: 40, marginRight: 5, marginBottom: 10 }}>
+                <View style={{ alignItems: 'center', justifyContent: 'center', width: 40, height: 40, backgroundColor: color.bluemedium, borderRadius: 20, marginRight: 5, marginBottom: 10 }}>
                     <Text>+1</Text>
                 </View>
             )
@@ -84,7 +74,56 @@ const ScreenOder = ({ navigation }: any) => {
         }
     }
 
+    useEffect(() => {
+        getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain })
+        getAPIOrder()
+    }, [APIkey, Domain])
+
+    useFocusEffect(
+        React.useCallback(() => {
+            gettoken()
+        }, [])
+    )
+
+    const gettoken = async () => {
+        const userData = await retrieveUserData()
+        if (userData) {
+            const { session_token } = userData
+            settoken(session_token)
+            formData.append('token', token)
+        } else {
+            settoken('')
+        }
+    }
+
+    const getAPIOrder = async () => {
+        formData.append('payment_type', 'dcash')
+        formData.append('type', 'done')
+        formData.append('page', '1')
+        if (APIkey && Domain) {
+            await gettoken()
+            try {
+                const response = await axios.post(apiOrder, formData, {
+                    headers: {
+                        'Accept': 'application/x-www-form-urlencoded',
+                    },
+                })
+                if (response.status === 200) {
+                    const dataOrder = response.data.data.data
+                    setdataorder(dataOrder)
+                } else {
+                    throw new Error('Network response was not ok')
+                }
+            } catch (error) {
+                console.error('There was a problem with the operation:', error)
+            }
+        }
+    }
+
     const renderlist = ({ item, index }: any) => {
+        const formattedDate = moment.unix(item.created_at).format('d DD/MM/YYYY HH:mm:ss');
+        const data1 = item.lItems.slice(0,1)
+        const dataget1 =data1[0]
         return (
             <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailorder')} style={styles.boxrenderlist}>
                 <View style={{ flexDirection: 'row' }}>
@@ -92,25 +131,25 @@ const ScreenOder = ({ navigation }: any) => {
                         <Image source={require('../Image/humangh.png')} style={{ width: 28, height: 28 }} />
                     </View>
                     <View>
-                        <Text style={styles.Text1}>Mã đơn hàng: {item.ma}</Text>
-                        <Text style={styles.Text2}>{item.day}</Text>
+                        <Text style={styles.Text1}>Mã đơn hàng: {item.id}</Text>
+                        <Text style={styles.Text2}>{formattedDate}</Text>
                     </View>
                 </View>
                 <View style={styles.line}></View>
                 <View style={{ flexDirection: 'row' }}>
                     <View style={{ width: '90%' }}>
                         <FlatList
-                            data={dataimg}
+                            data={item.lItems}
                             keyExtractor={(item) => item.id}
                             renderItem={renderimg}
                             horizontal={true}
                             scrollEnabled={false}
                         />
                         <View>
-                            <Text style={styles.Text1}>{item.name}</Text>
+                            <Text style={styles.Text1}>{dataget1.name}</Text>
                             <View style={{ flexDirection: 'row', marginTop: 5 }}>
                                 <Text style={styles.Text2}>Giá bán: </Text>
-                                <Text style={{ color: color.organge, fontSize: 12, fontWeight: '600' }}>{item.giaban}</Text>
+                                <Text style={{ color: color.organge, fontSize: 12, fontWeight: '600' }}>{fotmatedmonney(dataget1.retail_price)}</Text>
                             </View>
                         </View>
                     </View>
@@ -120,8 +159,8 @@ const ScreenOder = ({ navigation }: any) => {
                 </View>
                 <View style={styles.line}></View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={styles.Text2}>{item.soluong} sản phẩm</Text>
-                    <Text style={{ fontSize: 15, fontWeight: '600', color: color.green }}>{item.tongtien}</Text>
+                    <Text style={styles.Text2}>{item.lItems.length} sản phẩm</Text>
+                    <Text style={{ fontSize: 15, fontWeight: '600', color: color.green }}>{fotmatedmonney(item.total)}</Text>
                 </View>
             </TouchableOpacity>
         )
@@ -174,11 +213,12 @@ const ScreenOder = ({ navigation }: any) => {
             {/* <View style={{ flex: 1, alignItems: 'center', paddingTop: '40%' }}>
                 <Image source={require('../Icon/Box.png')} style={{ width: 103, height: 103 }} />
             </View> */}
-            <Text style={{ marginVertical: 10, color: 'black', fontSize: 17, fontWeight: '400' }}>Đã giao</Text>
+            <Text onPress={() => getAPIOrder()} style={{ marginVertical: 10, color: 'black', fontSize: 17, fontWeight: '400' }}>Đã giao</Text>
             <FlatList
-                data={datalist}
+                data={dataorder}
                 keyExtractor={(item) => item.id}
                 renderItem={renderlist}
+                showsVerticalScrollIndicator={false}
             />
         </View>
     )
@@ -190,7 +230,8 @@ const styles = StyleSheet.create({
     backgr: {
         backgroundColor: color.background,
         flex: 1,
-        paddingHorizontal: 20
+        paddingHorizontal: 20,
+        paddingBottom:50
     },
     titleBox: {
         height: 50, width: '100%', alignItems: 'center'
@@ -230,16 +271,28 @@ const styles = StyleSheet.create({
     },
     Text2: {
         fontSize: 12,
-        color: 'black',
         fontWeight: '400'
     },
     boxrenderlist: {
-        borderRadius: 10, backgroundColor: 'white', width: '100%', padding: 20
+        borderRadius: 10, 
+        backgroundColor: 'white', 
+        width: '100%', 
+        padding: 20, 
+        marginBottom: 10, 
+        elevation: 3
     },
     boximglist: {
-        alignItems: 'center', justifyContent: 'center', width: 40, height: 40, backgroundColor: color.bluemedium, borderRadius: 40, marginRight: 15
+        alignItems: 'center', justifyContent: 'center', 
+        width: 40, height: 40, 
+        backgroundColor: color.bluemedium, 
+        borderRadius: 40, 
+        marginRight: 15 , 
+        elevation:3
     },
     line: {
-        width: '100%', height: 1, backgroundColor: color.gray, marginVertical: 10
+        width: '100%', 
+        height: 1, 
+        backgroundColor: color.gray, 
+        marginVertical: 10
     }
 })
