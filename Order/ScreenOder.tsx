@@ -125,7 +125,7 @@ const ScreenOder = ({ navigation }: any) => {
         const data1 = item.lItems.slice(0,1)
         const dataget1 =data1[0]
         return (
-            <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailorder')} style={styles.boxrenderlist}>
+            <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailorder',{item})} style={styles.boxrenderlist}>
                 <View style={{ flexDirection: 'row' }}>
                     <View style={styles.boximglist}>
                         <Image source={require('../Image/humangh.png')} style={{ width: 28, height: 28 }} />

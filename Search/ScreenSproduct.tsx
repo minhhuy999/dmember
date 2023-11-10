@@ -27,6 +27,7 @@ const ScreenSproduct = ({ navigation }: any) => {
     const [sortedHistory, setSortedHistory] = useState([])
     const [showAnimatedBox, setShowAnimatedBox] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [showList, setShowList] = useState(false);
 
     const [currentPage, setCurrentPage] = useState(1)
     const [dataProduct, setDataProduct] = useState<any>([]);
@@ -44,6 +45,13 @@ const ScreenSproduct = ({ navigation }: any) => {
     const scale = useSharedValue(0)
 
     useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowList(true);
+        }, 2500);
+        return () => clearTimeout(timer);
+    }, []);
+
+    useEffect(() => {
         getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain });
         getAPIShop();
     }, [APIkey, Domain]);
@@ -59,12 +67,12 @@ const ScreenSproduct = ({ navigation }: any) => {
         }
     }, [dataProduct, searchedOnce,]);
 
-    useEffect(()=>{
-        if(searchHistory == true){
+    useEffect(() => {
+        if (searchHistory == true) {
             handleSearch()
             setsearchHistory(false)
         }
-    },[searchHistory])
+    }, [searchHistory])
 
     const getAPIShop = async () => {
         if (APIkey && Domain) {
@@ -282,13 +290,14 @@ const ScreenSproduct = ({ navigation }: any) => {
                     <Text style={{ color: 'red' }} onPress={removeAllTask}>deleted all</Text>
                 </View>
                 <View>
-                    <FlatList
-                        data={sortedHistory}
-                        keyExtractor={(item: any) => item.id.toString()}
-                        renderItem={renderHistory}
-                        initialNumToRender={1}
-                        scrollEnabled={false}
-                    />
+                    {showList && (
+                        <FlatList
+                            data={sortedHistory}
+                            keyExtractor={(item: any) => item.id.toString()}
+                            renderItem={renderHistory}
+                            initialNumToRender={1}
+                            scrollEnabled={false}
+                        />)}
                 </View>
                 <Text style={{ marginVertical: 20, color: 'black', fontSize: 17, fontWeight: '400' }}>Kết quả liên quan</Text>
                 <View style={{ width: '100%', }}>

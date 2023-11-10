@@ -40,7 +40,7 @@ const ScreenQldiachi = ({ route }: any) => {
         getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain })
         getAPIlocation()
         setUpdatedata(updateLocation)
-    }, [Domain, APIkey,updateLocation])
+    }, [Domain, APIkey, updateLocation])
 
     useFocusEffect(
         React.useCallback(() => {
@@ -51,7 +51,7 @@ const ScreenQldiachi = ({ route }: any) => {
     useFocusEffect(
         React.useCallback(() => {
             getAPIlocation()
-        }, [ Updatedata])
+        }, [Updatedata])
     )
 
     const gettoken = async () => {
@@ -100,7 +100,7 @@ const ScreenQldiachi = ({ route }: any) => {
         )
     }
 
-    const renderLocation = ({ item, index }: any) => {
+    const RenderLocationItem = React.memo(({ item, index }:any) => {
         return (
             <Swipeable renderRightActions={delet}>
                 <TouchableOpacity onPress={() => navigation.navigate('ScreenDtLocation', { item })} style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, marginBottom: 10, elevation: 5 }}>
@@ -110,7 +110,11 @@ const ScreenQldiachi = ({ route }: any) => {
                 </TouchableOpacity>
             </Swipeable>
         )
-    }
+    })
+
+    const renderLocation = ({ item, index }:any) => {
+        return <RenderLocationItem item={item} index={index} />;
+    };
 
     return (
         <ScrollView style={styles.backgr} showsVerticalScrollIndicator={false}>
