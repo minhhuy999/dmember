@@ -65,8 +65,8 @@ const ScreenSproduct = ({ navigation }: any) => {
         return () => {
             History.removeListener(listener);
         }
-    }, [dataProduct, searchedOnce,]);
-
+    }, [dataProduct, searchedOnce,])
+    
     useEffect(() => {
         if (searchHistory == true) {
             handleSearch()
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
     ItemnameSP: {
         textAlign: 'center',
         fontSize: 10,
-        fontWeight: '500',
+        fontWeight: 'bold',
         color: 'black',
         marginTop: 10,
         height: 40

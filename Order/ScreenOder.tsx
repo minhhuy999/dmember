@@ -35,6 +35,13 @@ const ScreenOder = ({ navigation }: any) => {
         { id: '4', name: 'Dcredit' }
     ]
 
+    function limitText(text: any, maxLength: any) {
+        if (text.length <= maxLength) {
+            return text;
+        }
+        return text.slice(0, maxLength) + '...';
+    }
+
     const handleCategorySelect1 = (category: any) => {
         setSelectedCategory1(category);
     };
@@ -122,17 +129,17 @@ const ScreenOder = ({ navigation }: any) => {
 
     const renderlist = ({ item, index }: any) => {
         const formattedDate = moment.unix(item.created_at).format('d DD/MM/YYYY HH:mm:ss');
-        const data1 = item.lItems.slice(0,1)
-        const dataget1 =data1[0]
+        const data1 = item.lItems.slice(0, 1)
+        const dataget1 = data1[0]
         return (
-            <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailorder',{item})} style={styles.boxrenderlist}>
+            <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailorder', { item })} style={styles.boxrenderlist}>
                 <View style={{ flexDirection: 'row' }}>
                     <View style={styles.boximglist}>
                         <Image source={require('../Image/humangh.png')} style={{ width: 28, height: 28 }} />
                     </View>
                     <View>
                         <Text style={styles.Text1}>Mã đơn hàng: {item.id}</Text>
-                        <Text style={styles.Text2}>{formattedDate}</Text>
+                        <Text style={styles.Text2}>Thu {formattedDate}</Text>
                     </View>
                 </View>
                 <View style={styles.line}></View>
@@ -146,7 +153,7 @@ const ScreenOder = ({ navigation }: any) => {
                             scrollEnabled={false}
                         />
                         <View>
-                            <Text style={styles.Text1}>{dataget1.name}</Text>
+                            <Text style={styles.Text1}>{limitText(dataget1.name,70)}</Text>
                             <View style={{ flexDirection: 'row', marginTop: 5 }}>
                                 <Text style={styles.Text2}>Giá bán: </Text>
                                 <Text style={{ color: color.organge, fontSize: 12, fontWeight: '600' }}>{fotmatedmonney(dataget1.retail_price)}</Text>
@@ -231,7 +238,7 @@ const styles = StyleSheet.create({
         backgroundColor: color.background,
         flex: 1,
         paddingHorizontal: 20,
-        paddingBottom:50
+        paddingBottom: 50
     },
     titleBox: {
         height: 50, width: '100%', alignItems: 'center'
@@ -274,25 +281,25 @@ const styles = StyleSheet.create({
         fontWeight: '400'
     },
     boxrenderlist: {
-        borderRadius: 10, 
-        backgroundColor: 'white', 
-        width: '100%', 
-        padding: 20, 
-        marginBottom: 10, 
+        borderRadius: 10,
+        backgroundColor: 'white',
+        width: '100%',
+        padding: 20,
+        marginBottom: 10,
         elevation: 3
     },
     boximglist: {
-        alignItems: 'center', justifyContent: 'center', 
-        width: 40, height: 40, 
-        backgroundColor: color.bluemedium, 
-        borderRadius: 40, 
-        marginRight: 15 , 
-        elevation:3
+        alignItems: 'center', justifyContent: 'center',
+        width: 40, height: 40,
+        backgroundColor: color.bluemedium,
+        borderRadius: 40,
+        marginRight: 15,
+        elevation: 3
     },
     line: {
-        width: '100%', 
-        height: 1, 
-        backgroundColor: color.gray, 
+        width: '100%',
+        height: 1,
+        backgroundColor: color.gray,
         marginVertical: 10
     }
 })

@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
     ItemnameSP: {
         textAlign: 'center',
         fontSize: 10,
-        fontWeight: '500',
+        fontWeight: 'bold',
         color: 'black',
         marginTop: 10,
         height: 30
