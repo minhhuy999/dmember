@@ -5,6 +5,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import { getAPIKeyAndDomainFromStorage } from '../../AsysncStorage/AsysncAPI';
 import axios from 'axios';
+import moment from 'moment';
 
 const ScreenTintuc = () => {
 
@@ -15,6 +16,7 @@ const ScreenTintuc = () => {
     const [dataNew, setdataNew] = useState<any>([])
     const [firtname, setfirtname] = useState('')
     const [firstimg, setfirstimg] = useState('')
+    const [firstday, setfirstday] = useState('')
     const [isLoading, setIsLoading] = useState(false);
 
     const formData = new FormData()
@@ -44,6 +46,7 @@ const ScreenTintuc = () => {
     ]
 
     const renderNews = ({ item, index }: any) => {
+        const formattedDate = moment.unix(item.created_at).format('d DD/MM/YYYY HH:mm');
         return (
             <TouchableOpacity
                 onPress={()=>navigation.navigate('ScreenDtNews',{item})}
@@ -51,7 +54,7 @@ const ScreenTintuc = () => {
                 <View style={{ width: '71%', paddingHorizontal: 22, paddingVertical: 8, justifyContent: 'space-between' }}>
                     <Text style={{ fontSize: 15, fontWeight: '400', color: 'black' }}>{item.name}</Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Text>22:46 12/03/2022</Text>
+                        <Text>Thu {formattedDate}</Text>
                         <Image source={require('../../IconUser/user.png')} style={{ height: 16, width: 16, marginLeft: 20 }} />
                         <Text style={{ marginLeft: 10, color: color.organrelow }}>{item.views}</Text>
                     </View>
@@ -108,15 +111,17 @@ const ScreenTintuc = () => {
                         // Kết hợp dữ liệu mới và dữ liệu cũ
                         const combinedData = [...prevData, ...newData];
                         // Sắp xếp danh sách theo trường 'views' từ lớn đến nhỏ
-                        combinedData.sort((a, b) => b.views - a.views);
+                        combinedData.sort((a, b) => b.created_at - a.created_at);
                         return combinedData;
                     });
                     setCurrentPage(nextPage);
                     if (dataNew.length > 0) {
-                        const firstName = dataNew[0].name;
+                        const firstName = dataNew[0].name
                         const firstImg = dataNew[0].avatar
+                        const firstday =dataNew[0].created_at
                         setfirtname(firstName)
                         setfirstimg(firstImg)
+                        setfirstday(moment.unix(firstday).format('d DD/MM/YYYY HH:mm'))
                     }
                 } else {
                     throw new Error('Network response was not ok');
@@ -154,7 +159,7 @@ const ScreenTintuc = () => {
                     <Image source={{ uri: firstimg }} style={{ width: 353, height: 166, borderRadius: 15 }} />}
                 <View style={{ paddingVertical: 10, paddingHorizontal: 20 }}>
                     <Text style={{ fontSize: 19, fontWeight: '400', color: 'black' }}>{firtname}</Text>
-                    <Text>22:46 12/03/2022</Text>
+                    <Text>Thu {firstday}</Text>
                 </View>
             </View>
             <Text style={{ marginVertical: 20, color: 'black', fontSize: 17, fontWeight: '400' }}>Tin khác</Text>

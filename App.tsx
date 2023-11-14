@@ -10,7 +10,7 @@ import NetInfo from "@react-native-community/netinfo";
 const App = () => {
 
   // chuc nang kiem tra ket noi mang NetInfo
-  
+
   // useEffect(() => {
   //   const checkNetworkConnection = async () => {
   //     const netInfo = await NetInfo.fetch();
@@ -31,7 +31,7 @@ const App = () => {
   return (
     <Provider store={store}>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <StackNavigation />
+          <StackNavigation />
       </GestureHandlerRootView>
     </Provider>
   )

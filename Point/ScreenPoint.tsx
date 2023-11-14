@@ -274,6 +274,9 @@ const ScreenPoint = () => {
                         onEndReached={loadMoreData}
                         onEndReachedThreshold={0.1}
                         ListFooterComponent={renderFooter}
+                        pagingEnabled={true}
+                        snapToInterval={127}
+                        keyboardDismissMode={'on-drag'}
                     />
                 </View>
             )}

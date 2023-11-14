@@ -226,6 +226,7 @@ const ScreenOder = ({ navigation }: any) => {
                 keyExtractor={(item) => item.id}
                 renderItem={renderlist}
                 showsVerticalScrollIndicator={false}
+                removeClippedSubviews={true}
             />
         </View>
     )

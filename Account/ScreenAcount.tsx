@@ -138,7 +138,7 @@ const ScreenAcount = () => {
                     <Image source={require('../Icon/logout.png')} style={{ height: 30, width: 30 }} />
                 </TouchableOpacity>
             </View>
-            <Image source={require('../Image/imgAccount.png')} style={styles.avata} />
+            <Image source={require('../Image/imgAccount.png')} style={styles.avata}/>
             <View style={{ padding: 24, height: '100%', width: '100%', backgroundColor: 'white', borderTopLeftRadius: 30, borderTopRightRadius: 30 }}>
                 <View style={{ marginTop: 40, width: '100%' }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'center', marginLeft: '9%' }}>

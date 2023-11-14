@@ -66,6 +66,8 @@ const ScreenLogin = ({ navigation }: any) => {
     })
 
     const handleLogin = async () => {
+        console.log(Domain,APIkey);
+        
         const loginUrl = `${Domain}/client_init/login?apikey=${APIkey}`
         try {
             const response = await axios.post(loginUrl, formData, {

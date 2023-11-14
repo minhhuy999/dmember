@@ -6,8 +6,6 @@ import { ScrollView } from 'react-native-gesture-handler';
 const ScreenDtNews = ({ route }: any) => {
 
     const { item } = route.params
-
-    console.log(item);
     
     const customHTMLElementModels: any = {
         iframe: {

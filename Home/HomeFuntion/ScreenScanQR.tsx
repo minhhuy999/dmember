@@ -6,15 +6,13 @@ const ScreenScanQR = () => {
     const cameraRef = useRef(null);
     return (
         <View style={styles.container}>
-            <View style={styles.container}>
-                <RNCamera
-                    ref={cameraRef}
-                    style={{
-                        flex: 1,
-                        width: '100%',
-                    }}
-                />
-            </View>
+            <RNCamera
+                ref={cameraRef}
+                style={{
+                    height: 200,
+                    width: '100%',
+                }}
+            />
         </View>
     );
 };
@@ -22,6 +20,8 @@ const ScreenScanQR = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
 });
 

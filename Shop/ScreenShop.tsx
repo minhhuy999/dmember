@@ -1,13 +1,13 @@
 import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity } from 'react-native'
 import React, { useState, useRef, useEffect } from 'react'
 import color from '../Color/color'
-import realmHS from '../Realm/realmHistoryS';
-import { addSPStore } from '../Realm/StorageServices';
-import SearchAnimation from './AnimationShop/SearchAnimation';
-import Animated, { runOnJS, useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
-import { getAPIKeyAndDomainFromStorage, getAPIandDOMAIN } from '../AsysncStorage/AsysncAPI';
-import axios from 'axios';
-import CustomImageCarousalLandscape from './AnimationShop/CustomImageCarousalLandscape';
+import realmHS from '../Realm/realmHistoryS'
+import { addSPStore } from '../Realm/StorageServices'
+import SearchAnimation from './AnimationShop/SearchAnimation'
+import Animated, { runOnJS, useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated'
+import { getAPIKeyAndDomainFromStorage, getAPIandDOMAIN } from '../AsysncStorage/AsysncAPI'
+import axios from 'axios'
+import CustomImageCarousalLandscape from './AnimationShop/CustomImageCarousalLandscape'
 
 
 const ScreenShop = ({ navigation }: any) => {
@@ -18,15 +18,15 @@ const ScreenShop = ({ navigation }: any) => {
 
     const formData = new FormData()
     formData.append('app_name', 'khttest')
-    formData.append('page', currentPage);
-    formData.append('for_point', 0);
-    const apiProductlist = `${Domain}/client_product/list_all?apikey=${APIkey}`;
+    formData.append('page', currentPage)
+    formData.append('for_point', 0)
+    const apiProductlist = `${Domain}/client_product/list_all?apikey=${APIkey}`
 
-    const [currentIndex2, setCurrentIndex2] = useState(0);
+    const [currentIndex2, setCurrentIndex2] = useState(0)
 
-    const [activeDotIndex2, setActiveDotIndex2] = useState(0);
-    const flatListRef: any = useRef(null);
-    const flatListRef2: any = useRef(null);
+    const [activeDotIndex2, setActiveDotIndex2] = useState(0)
+    const flatListRef: any = useRef(null)
+    const flatListRef2: any = useRef(null)
 
     const [dataProduct, setdataProduct] = useState<any>([])
     const [dataicontopic1, setdataicontopic1] = useState<any>([])
@@ -34,28 +34,28 @@ const ScreenShop = ({ navigation }: any) => {
 
     const addSP = realmHS.objects('AddProduct')
 
-    const translateY: any = useSharedValue(0);
-    const [pagingEnabled, setPagingEnabled] = useState(false);
+    const translateY: any = useSharedValue(0)
+    const [pagingEnabled, setPagingEnabled] = useState(false)
 
     function limitText(text: any, maxLength: any) {
         if (text.length <= maxLength) {
-            return text;
+            return text
         }
-        return text.slice(0, maxLength) + '...';
+        return text.slice(0, maxLength) + '...'
     }
 
     const scrollHandler = useAnimatedScrollHandler({
         onScroll: (event) => {
-            translateY.value = event.contentOffset.y;
+            translateY.value = event.contentOffset.y
         },
         onEndDrag: (e) => {
             if (translateY.value < 100) {
-                runOnJS(setPagingEnabled)(true);
+                runOnJS(setPagingEnabled)(true)
             } else {
-                runOnJS(setPagingEnabled)(false);
+                runOnJS(setPagingEnabled)(false)
             }
         },
-    });
+    })
 
     const DataImg2 = [
         {
@@ -157,10 +157,10 @@ const ScreenShop = ({ navigation }: any) => {
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
                         renderItem={({ item: product }) => {
-                            const price = parseFloat(product.price);
-                            const pricecal = parseFloat(product.price_cal_commission);
-                            const formattedPrice = price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-                            const formattedDiscount = pricecal.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                            const price = parseFloat(product.price)
+                            const pricecal = parseFloat(product.price_cal_commission)
+                            const formattedPrice = price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+                            const formattedDiscount = pricecal.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
                             return (
                                 <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { item: product })}>
                                     <View style={styles.ItemTopSP}>
@@ -197,10 +197,10 @@ const ScreenShop = ({ navigation }: any) => {
     }
 
     const renderSP = ({ item, index }: any) => {
-        const price = parseFloat(item.price);
-        const pricecal = parseFloat(item.price_cal_commission);
-        const formattedPrice = price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-        const formattedDiscount = pricecal.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+        const price = parseFloat(item.price)
+        const pricecal = parseFloat(item.price_cal_commission)
+        const formattedPrice = price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+        const formattedDiscount = pricecal.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
         // if (index < 5) {
         return (
             <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { item })}>
@@ -238,7 +238,7 @@ const ScreenShop = ({ navigation }: any) => {
 
     const renderDot2 = () => {
         return DataImg2.map((dot, index) => {
-            const isActive = index === activeDotIndex2;
+            const isActive = index === activeDotIndex2
             return (
                 <View
                     key={index}
@@ -283,8 +283,8 @@ const ScreenShop = ({ navigation }: any) => {
                 existingProduct.soluong += 1
             })
         } else {
-            const product = dataProduct.find((productItem: any) => productItem.product_id === item.product_id);
-            const price = parseFloat(product.price);
+            const product = dataProduct.find((productItem: any) => productItem.product_id === item.product_id)
+            const price = parseFloat(product.price)
             addSPStore(item.product_id, 1,price)
         }
         console.log('Sản phẩm đã được thêm vào cơ sở dữ liệu Realm.')
@@ -293,24 +293,24 @@ const ScreenShop = ({ navigation }: any) => {
 
     useEffect(() => {
         const timer = setInterval(() => {
-            const nextIndex2 = (currentIndex2 + 1) % DataImg2.length;
-            setCurrentIndex2(nextIndex2);
-            setActiveDotIndex2(nextIndex2);
-            flatListRef2.current.scrollToIndex({ index: nextIndex2 });
-        }, 3000);
-        return () => clearInterval(timer);
-    }, [currentIndex2]);
+            const nextIndex2 = (currentIndex2 + 1) % DataImg2.length
+            setCurrentIndex2(nextIndex2)
+            setActiveDotIndex2(nextIndex2)
+            flatListRef2.current.scrollToIndex({ index: nextIndex2 })
+        }, 3000)
+        return () => clearInterval(timer)
+    }, [currentIndex2])
 
     useEffect(() => {
         const fetchData = async () => {
             await getAPIandDOMAIN({ setAPIkey, setDomain }).then(() => {
                 if (APIkey != null && Domain != null) {
-                    getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain });
-                    getAPIShop();
+                    getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain })
+                    getAPIShop()
                 }
-            });
-        };
-        fetchData();
+            })
+        }
+        fetchData()
     }, [APIkey,Domain])
 
     const getAPIShop = async () => {
@@ -320,57 +320,57 @@ const ScreenShop = ({ navigation }: any) => {
                     headers: {
                         'Accept': 'application/x-www-form-urlencoded',
                     },
-                });
+                })
                 if (response.status === 200) {
-                    const dataProduct = response.data.data.l;
+                    const dataProduct = response.data.data.l
                     const icontopic1 = response.data.data.theme
-                    setdataProduct(dataProduct);
+                    setdataProduct(dataProduct)
                     setdataicontopic1(icontopic1)
                 } else {
-                    throw new Error('Network response was not ok');
+                    throw new Error('Network response was not ok')
                 }
             } catch (error) {
-                console.error('There was a problem with the operation:', error);
+                console.error('There was a problem with the operation:', error)
             }
         }
-    };
+    }
 
     const loadMoreData = async () => {
-        if (loadingmore) return;
+        if (loadingmore) return
     
         try {
-            setloadingmore(true);
+            setloadingmore(true)
     
-            const newPage = currentPage + 1;
-            const newFormData = new FormData();
-            newFormData.append('app_name', 'khttest');
-            newFormData.append('page', newPage);
-            newFormData.append('for_point', 0);
+            const newPage = currentPage + 1
+            const newFormData = new FormData()
+            newFormData.append('app_name', 'khttest')
+            newFormData.append('page', newPage)
+            newFormData.append('for_point', 0)
             const response = await axios.post(apiProductlist, newFormData, {
                 headers: {
                     'Accept': 'application/x-www-form-urlencoded',
                 },
-            });
+            })
     
             if (response.status === 200) {
-                const newData = response.data.data.l;
-                setdataProduct((prevData: any) => [...prevData, ...newData]);
-                setCurrentPage(newPage);
+                const newData = response.data.data.l
+                setdataProduct((prevData: any) => [...prevData, ...newData])
+                setCurrentPage(newPage)
             } else {
-                throw new Error('Network response was not ok');
+                throw new Error('Network response was not ok')
             }
         } catch (error) {
-            console.error('There was a problem with the operation:', error);
+            console.error('There was a problem with the operation:', error)
         } finally {
-            setloadingmore(false);
+            setloadingmore(false)
         }
-    };
+    }
 
     return (
 
         <View style={styles.backgr}>
             <SearchAnimation translateY={translateY} Domain={Domain} APIkey={APIkey}/>
-            <Animated.ScrollView showsVerticalScrollIndicator={false} onScroll={scrollHandler} pagingEnabled={pagingEnabled}>
+            <Animated.ScrollView showsVerticalScrollIndicator={false} onScroll={scrollHandler} pagingEnabled={pagingEnabled} fadingEdgeLength={100}>
                 <View style={{ width: '100%', marginTop: 15 }}>
                     <FlatList
                         ref={flatListRef}
