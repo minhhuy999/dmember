@@ -6,7 +6,7 @@ import { FlatList, ScrollView } from 'react-native-gesture-handler'
 import { addSPStore, addTask, getListTasks, removeAllTask, removeTask } from '../Realm/StorageServices'
 import realmHS from '../Realm/realmHistoryS'
 import unidecode from 'unidecode'
-import Animated, { Extrapolate, FadeIn, FadeOut, Layout, interpolate, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
+import Animated, { Extrapolate, FadeIn, FadeInDown, FadeOut, Layout, interpolate, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import LottieView from 'lottie-react-native'
 import axios from 'axios'
 import { getAPIKeyAndDomainFromStorage } from '../AsysncStorage/AsysncAPI'
@@ -66,7 +66,7 @@ const ScreenSproduct = ({ navigation }: any) => {
             History.removeListener(listener);
         }
     }, [dataProduct, searchedOnce,])
-    
+
     useEffect(() => {
         if (searchHistory == true) {
             handleSearch()
@@ -172,7 +172,7 @@ const ScreenSproduct = ({ navigation }: any) => {
             return (
                 <Animated.View
                     key={item.id}
-                    entering={FadeIn.delay(100 * index)}
+                    entering={FadeInDown}
                     exiting={FadeOut}
                     layout={Layout.delay(100)}
                 >
