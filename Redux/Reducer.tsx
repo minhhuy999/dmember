@@ -1,4 +1,4 @@
-import { FETCH_POSTS_SUCCESS } from "./Action";
+import { FETCH_POSTS, FETCH_POSTS_SUCCESS } from "./Action";
 
 const initialState = {
     posts: [],
@@ -9,7 +9,7 @@ const Reducer = (state = initialState, action: any) => {
         case FETCH_POSTS_SUCCESS:
             return {
                 ...state,
-                posts: action.payload, 
+                posts: action.payload,
             };
         default:
             return state;

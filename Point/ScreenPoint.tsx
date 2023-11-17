@@ -172,6 +172,7 @@ const ScreenPoint = () => {
                 const formData = new FormData();
                 formData.append('app_name', 'khttest');
                 formData.append('page', nextPage);
+                // formData.append('for_point', 1)
                 const response = await axios.post(apiProductlist, formData, {
                     headers: {
                         'Accept': 'application/x-www-form-urlencoded',

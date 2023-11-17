@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'reac
 import React, { useState } from 'react'
 import color from '../../Color/color'
 import { useNavigation } from '@react-navigation/native';
-import { FlatList, ScrollView } from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native-gesture-handler';
 import CheckBox from '@react-native-community/checkbox';
 import { SelectList } from 'react-native-dropdown-select-list';
 

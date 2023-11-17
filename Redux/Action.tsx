@@ -7,5 +7,6 @@ export const fetchPosts = () => ({
 
 export const fetchPostsSuccess = (posts: any) => ({
     type: FETCH_POSTS_SUCCESS,
+    payload: posts,
 });
 

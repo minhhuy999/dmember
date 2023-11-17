@@ -25,45 +25,45 @@ const ScreenSproduct = ({ navigation }: any) => {
     const [searchHistory, setsearchHistory] = useState(false)
     const [animateHistory, setAnimateHistory] = useState(true)
     const [sortedHistory, setSortedHistory] = useState([])
-    const [showAnimatedBox, setShowAnimatedBox] = useState(false);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [showList, setShowList] = useState(false);
+    const [showAnimatedBox, setShowAnimatedBox] = useState(false)
+    const [isPlaying, setIsPlaying] = useState(false)
+    const [showList, setShowList] = useState(false)
 
     const [currentPage, setCurrentPage] = useState(1)
-    const [dataProduct, setDataProduct] = useState<any>([]);
+    const [dataProduct, setDataProduct] = useState<any>([])
     const [dataSearch, setdataSearch] = useState<any>([])
-    const [searchedOnce, setSearchedOnce] = useState(false);
+    const [searchedOnce, setSearchedOnce] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
 
     const [APIkey, setAPIkey] = useState<any>(null)
     const [Domain, setDomain] = useState<any>(null)
-    const formData = new FormData();
-    formData.append('app_name', 'khttest');
-    formData.append('page', currentPage);
-    const apiProductlist = `${Domain}/client_product/list_all?apikey=${APIkey}`;
+    const formData = new FormData()
+    formData.append('app_name', 'khttest')
+    formData.append('page', currentPage)
+    const apiProductlist = `${Domain}/client_product/list_all?apikey=${APIkey}`
 
     const scale = useSharedValue(0)
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            setShowList(true);
-        }, 2500);
-        return () => clearTimeout(timer);
-    }, []);
+            setShowList(true)
+        }, 2500)
+        return () => clearTimeout(timer)
+    }, [])
 
     useEffect(() => {
-        getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain });
-        getAPIShop();
-    }, [APIkey, Domain]);
+        getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain })
+        getAPIShop()
+    }, [APIkey, Domain])
 
     useEffect(() => {
-        initialMode.current = false;
-        History.addListener(listener);
+        initialMode.current = false
+        History.addListener(listener)
         if (!searchedOnce && dataProduct.length > 0 && name == '') {
-            handleSearch();
+            handleSearch()
         }
         return () => {
-            History.removeListener(listener);
+            History.removeListener(listener)
         }
     }, [dataProduct, searchedOnce,])
 
@@ -81,46 +81,46 @@ const ScreenSproduct = ({ navigation }: any) => {
                     headers: {
                         'Accept': 'application/x-www-form-urlencoded',
                     },
-                });
+                })
                 if (response.status === 200) {
-                    const dataProduct1 = response.data.data.l;
-                    setDataProduct(dataProduct1);
+                    const dataProduct1 = response.data.data.l
+                    setDataProduct(dataProduct1)
                 } else {
-                    throw new Error('Network response was not ok');
+                    throw new Error('Network response was not ok')
                 }
             } catch (error) {
-                console.error('There was a problem with the operation:', error);
+                console.error('There was a problem with the operation:', error)
             }
         }
-    };
+    }
 
     const loadMoreData = async () => {
         if (APIkey && Domain && !isLoading) {
-            setIsLoading(true); // Set loading state to prevent multiple requests
+            setIsLoading(true) // Set loading state to prevent multiple requests
             try {
-                const nextPage = currentPage + 1;
-                const formData = new FormData();
-                formData.append('app_name', 'khttest');
-                formData.append('page', nextPage);
+                const nextPage = currentPage + 1
+                const formData = new FormData()
+                formData.append('app_name', 'khttest')
+                formData.append('page', nextPage)
                 const response = await axios.post(apiProductlist, formData, {
                     headers: {
                         'Accept': 'application/x-www-form-urlencoded',
                     },
-                });
+                })
                 if (response.status === 200) {
-                    const newData = response.data.data.l;
-                    setDataProduct((prevData: any) => [...prevData, ...newData]);
-                    setCurrentPage(nextPage);
+                    const newData = response.data.data.l
+                    setDataProduct((prevData: any) => [...prevData, ...newData])
+                    setCurrentPage(nextPage)
                 } else {
-                    throw new Error('Network response was not ok');
+                    throw new Error('Network response was not ok')
                 }
             } catch (error) {
-                console.error('There was a problem with the operation:', error);
+                console.error('There was a problem with the operation:', error)
             } finally {
-                setIsLoading(false); // Reset loading state
+                setIsLoading(false) // Reset loading state
             }
         }
-    };
+    }
 
 
     const renderFooter = () => {
@@ -134,10 +134,10 @@ const ScreenSproduct = ({ navigation }: any) => {
         return null
     }
     const renderSP = ({ item, index }: any) => {
-        const price = parseFloat(item.price);
-        const pricecal = parseFloat(item.price_cal_commission);
-        const formattedPrice = price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-        const formattedDiscount = pricecal.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+        const price = parseFloat(item.price)
+        const pricecal = parseFloat(item.price_cal_commission)
+        const formattedPrice = price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+        const formattedDiscount = pricecal.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
         return (
             <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { item })}>
                 <Animated.View
@@ -219,19 +219,19 @@ const ScreenSproduct = ({ navigation }: any) => {
                 existingProduct.soluong += 1
             })
         } else {
-            const product = dataProduct.find((productItem: any) => productItem.product_id === item.product_id);
-            const price = parseFloat(product.price);
+            const product = dataProduct.find((productItem: any) => productItem.product_id === item.product_id)
+            const price = parseFloat(product.price)
             addSPStore(item.product_id, 1, price)
         }
         scale.value = withSpring(1, { duration: 1500 }, () => {
-            scale.value = withTiming(0);
-        });
-        setShowAnimatedBox(true);
-        setIsPlaying(true);
+            scale.value = withTiming(0)
+        })
+        setShowAnimatedBox(true)
+        setIsPlaying(true)
 
         setTimeout(() => {
-            setIsPlaying(false);
-        }, 1500);
+            setIsPlaying(false)
+        }, 1500)
 
         console.log('Sản phẩm đã được thêm vào cơ sở dữ liệu Realm.')
     }
@@ -240,31 +240,31 @@ const ScreenSproduct = ({ navigation }: any) => {
     }
     function limitText(text: any, maxLength: any) {
         if (text.length <= maxLength) {
-            return text;
+            return text
         }
-        return text.slice(0, maxLength) + '...';
+        return text.slice(0, maxLength) + '...'
     }
 
     const rStyle = useAnimatedStyle(() => ({
         opacity: interpolate(scale.value, [0, 1], [0, 1], Extrapolate.CLAMP),
         display: scale.value === 0 ? 'none' : 'flex',
-    }));
+    }))
 
     const filteredProducts = dataProduct.filter((product: any) =>
         unidecode(product.product_name.toLowerCase()).includes(unidecode(name.toLowerCase()))
-    );
+    )
     const handleSearch = () => {
-        setdataSearch(filteredProducts);
-    };
+        setdataSearch(filteredProducts)
+    }
     const addHistory = () => {
         if (name != '') {
             addTask(name)
         }
     }
     const searchProducts = () => {
-        handleSearch();
-        addHistory();
-        setSearchedOnce(true);
+        handleSearch()
+        addHistory()
+        setSearchedOnce(true)
     }
 
     return (

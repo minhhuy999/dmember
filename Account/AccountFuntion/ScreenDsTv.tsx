@@ -1,29 +1,79 @@
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import color from '../../Color/color'
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { FlatList, Swipeable } from 'react-native-gesture-handler';
+import { getAPIKeyAndDomainFromStorage } from '../../AsysncStorage/AsysncAPI';
+import { retrieveUserData } from '../../AsysncStorage/AsysncUser';
+import axios from 'axios';
 
-const ScreenDsTv = ({ navigation }: any) => {
+const ScreenDsTv = () => {
 
-    const navigationGoback = useNavigation();
+    const navigation: any = useNavigation()
+    
+    const [token, settoken] = useState('')
+    const [datacustomer, setdatacustomer] = useState<any>([])
+    const [APIkey, setAPIkey] = useState<any>(null)
+    const [Domain, setDomain] = useState<any>(null)
+    const formData = new FormData();
+    formData.append('app_name', 'khttest');
+    const apiCustomer = `${Domain}/client_info/detail_member_by_mobile_or_name?apikey=${APIkey}`;
 
-    const member = [
-        {
-            id: '1',
-            avata: require('../../Image/NVA.png'),
-            name: 'Nguyễn Văn A',
-            no: '0',
-            mua: '0'
-        },
-        {
-            id: '2',
-            avata: require('../../Image/NVB.png'),
-            name: 'Nguyễn Văn B',
-            no: '0',
-            mua: '0'
+    useFocusEffect(
+        React.useCallback(() => {
+            gettoken()
+        }, [])
+    )
+
+    useEffect(() => {
+        getAPIKeyAndDomainFromStorage({ setAPIkey, setDomain })
+        getAPICustomer()
+    }, [APIkey, Domain]);
+
+    const gettoken = async () => {
+        const userData = await retrieveUserData()
+        if (userData) {
+            const { session_token, point } = userData
+            settoken(session_token)
+            formData.append('token', token)
+        } else {
+            settoken('')
         }
-    ]
+    }
+
+    const getAPICustomer = async () => {
+        if (APIkey && Domain) {
+            await gettoken()
+            try {
+                const response = await axios.post(apiCustomer, formData, {
+                    headers: {
+                        'Accept': 'application/x-www-form-urlencoded',
+                    },
+                })
+                if (response.status === 200) {
+                    const data = response.data.data
+                    setdatacustomer(data)
+                } else {
+                    throw new Error('Network response was not ok')
+                }
+            } catch (error) {
+                console.error('There was a problem with the operation:', error)
+            }
+        }
+    }
+
+    const fotmatedmonney = ((item: any) => {
+        const monney = parseFloat(item)
+        const navigationtedMonney = monney.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+        return navigationtedMonney;
+    })
+
+    const generateRandomColor = () => {
+        const red = Math.floor(Math.random() * 256);
+        const green = Math.floor(Math.random() * 256);
+        const blue = Math.floor(Math.random() * 256);
+        return `rgba(${red}, ${green}, ${blue}, 1)`;
+    };
 
     const delet = () => {
         return (
@@ -40,15 +90,23 @@ const ScreenDsTv = ({ navigation }: any) => {
     }
 
     const renderMember = ({ item, index }: any) => {
+        const fullName = item.fullname;
+        const lastWord = fullName.split(' ').pop();
+        const abbreviatedName = lastWord ? lastWord.charAt(0) : '';
+        
         return (
             <Swipeable renderRightActions={delet}>
-                <TouchableOpacity  onPress={()=>navigation.navigate('ScreenDtmember')}>
-                    <View style={{ backgroundColor: 'white', paddingHorizontal: 20, paddingTop: 20, paddingBottom: 10, borderRadius: 10, marginBottom: 10, flexDirection: 'row', elevation: 5 }}>
-                        <Image source={item.avata} style={{ width: 44, height: 44, borderRadius: 44 }} />
+                <TouchableOpacity onPress={() => navigation.navigate('ScreenDtmember', { item })}>
+                    <View style={{ backgroundColor: 'white', paddingHorizontal: 20, paddingTop: 15, paddingBottom: 10, borderRadius: 10, marginBottom: 10, flexDirection: 'row', elevation: 3 }}>
+                        {item.avatar == "" ?
+                            <View style={{ width: 44, height: 44, borderRadius: 44, backgroundColor: 'rgba(151, 255, 255, 1)', alignItems: 'center', justifyContent: 'center' }}>
+                                <Text style={{ fontWeight: 'bold' }}>{abbreviatedName}</Text>
+                            </View> :
+                            <Image source={{ uri: item.avatar }} style={{ width: 44, height: 44, borderRadius: 44 }} />}
                         <View style={{ marginLeft: 20 }}>
-                            <Text style={{ fontSize: 15, fontWeight: '500', color: 'black' }}>{item.name}</Text>
-                            <Text>Công nợ: {item.no}đ</Text>
-                            <Text>Đã mua: {item.mua}đ</Text>
+                            <Text style={{ fontSize: 15, fontWeight: '500', color: 'black' }}>{item.fullname}</Text>
+                            <Text>Công nợ: {fotmatedmonney(item.referral_revenue)}đ</Text>
+                            <Text>Đã mua: {fotmatedmonney(item.total_spent)}đ</Text>
                         </View>
                     </View>
                 </TouchableOpacity>
@@ -59,7 +117,7 @@ const ScreenDsTv = ({ navigation }: any) => {
     return (
         <View style={styles.backgr}>
             <View style={styles.BoxTitile}>
-                <TouchableOpacity onPress={() => navigationGoback.goBack()} style={{ position: 'absolute', left: 0, top: 10 }}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', left: 0, top: 10 }}>
                     <Image source={require('../../Icon/arrowback.png')} />
                 </TouchableOpacity>
                 <Text style={styles.title}>Danh sách Thành Viên</Text>
@@ -78,9 +136,10 @@ const ScreenDsTv = ({ navigation }: any) => {
             <Text style={{ marginVertical: 20, color: 'black', fontSize: 17, fontWeight: '500' }}>Danh sách thành viên</Text>
             <View style={{ flex: 1 }}>
                 <FlatList
-                    data={member}
-                    keyExtractor={(item) => item.id}
+                    data={datacustomer}
+                    keyExtractor={(item) => item.user_id}
                     renderItem={renderMember}
+                    showsVerticalScrollIndicator={false}
                 />
             </View>
         </View>
