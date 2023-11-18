@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ScreenHome from '../Home/ScreenHome';
 import ScreenShop from '../Shop/ScreenShop';
 import ScreenPoint from '../Point/ScreenPoint';
@@ -9,6 +9,8 @@ import ScreenAcount from '../Account/ScreenAcount';
 import HomeBottomTab from './HomeBottomTab';
 import { useFocusEffect } from '@react-navigation/native';
 import { retrieveUserData } from '../AsysncStorage/AsysncUser';
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchPosts, getnew } from '../Redux/Action'
 
 const TabArr = [
     { route: 'ScreenHome', label: 'Home', type: require('../Icon/Home.png'), component: ScreenHome },
@@ -22,6 +24,22 @@ const Tab = createBottomTabNavigator();
 
 const AnimTab1 = () => {
 
+    const dispatch = useDispatch();
+    // const posts = useSelector((state: any) => state.app.posts);
+    // const apinew = useSelector((state: any) => state.app.apinew);
+
+    useEffect(() => {
+        dispatch(fetchPosts());
+        dispatch(getnew())
+    }, [dispatch]);
+
+    // useEffect(() => {
+    //     console.log(posts)
+    //     console.log(apinew)
+    // }, [
+    //     posts,
+    //     apinew
+    // ]);
 
     const [active, setactive] = useState(false)
 

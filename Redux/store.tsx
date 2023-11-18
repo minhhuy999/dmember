@@ -4,7 +4,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import Reducer from './Reducer';
 import epics from './epics';
 
-const rootEpic = combineEpics(epics);
+const rootEpic = combineEpics(...epics);
 const epicMiddleware = createEpicMiddleware();
 
 const rootReducer = combineReducers({

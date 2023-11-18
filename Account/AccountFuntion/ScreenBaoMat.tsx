@@ -1,12 +1,18 @@
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import color from '../../Color/color'
 import { useNavigation } from '@react-navigation/native';
 import { Switch } from 'react-native-gesture-handler';
+import { useSelector } from 'react-redux';
 
-const ScreenHistoryTH = ({ navigation }: any) => {
+const ScreenHistoryTH = () => {
 
-    const navigationGoback = useNavigation();
+    const navigation:any = useNavigation();
+    const apinew = useSelector((state: any) => state.app.apinew);
+
+    useEffect(() => {
+        console.log(apinew)
+    }, []);
 
     const [isEnabled, setIsEnabled] = useState(false);
 
@@ -17,7 +23,7 @@ const ScreenHistoryTH = ({ navigation }: any) => {
     return (
         <View style={styles.backgr}>
             <View style={styles.BoxTitile}>
-                <TouchableOpacity onPress={() => navigationGoback.goBack()} style={{ position: 'absolute', left: 0, top: 10 }}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', left: 0, top: 10 }}>
                     <Image source={require('../../Icon/arrowback.png')} />
                 </TouchableOpacity>
                 <Text style={styles.title}>Thiết lập bảo mật</Text>

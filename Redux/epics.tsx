@@ -1,7 +1,7 @@
 import { ofType } from 'redux-observable';
 import { mergeMap } from 'rxjs/operators';
-import { FETCH_POSTS, fetchPostsSuccess } from './Action';
-import { getPosts } from './api';
+import { API_NEW, FETCH_POSTS, fetchPostsSuccess, getnewSuccess } from './Action';
+import { APIkeyDomain, getApiPonit, getPosts } from './api';
 
 const fetchPostsEpic = (action$: any) =>
 
@@ -20,4 +20,16 @@ const fetchPostsEpic = (action$: any) =>
         })
     );
 
-export default fetchPostsEpic;
+const apinew = (action$:any) => action$.pipe(
+    ofType(API_NEW),
+    mergeMap(async (action) => {
+        try {
+            const response = await getApiPonit();
+            return getnewSuccess(response);
+        } catch (error) {
+            console.error('Error fetching posts:', error);
+            throw error; // Rethrow the error to maintain the observable chain
+        }
+    })
+)
+export default [fetchPostsEpic,apinew];

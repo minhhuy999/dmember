@@ -8,29 +8,12 @@ import Animated, { runOnJS, useAnimatedScrollHandler, useSharedValue } from 'rea
 import { getAPIKeyAndDomainFromStorage, getAPIandDOMAIN } from '../AsysncStorage/AsysncAPI'
 import axios from 'axios'
 import CustomImageCarousalLandscape from './AnimationShop/CustomImageCarousalLandscape'
-import { useDispatch, useSelector } from 'react-redux'
-import { fetchPosts } from '../Redux/Action'
-
 
 const ScreenShop = ({ navigation }: any) => {
 
     const [APIkey, setAPIkey] = useState<any>(null)
     const [Domain, setDomain] = useState<any>(null)
-    const [currentPage, setCurrentPage] = useState(1)
-    const dispatch = useDispatch();
-    const posts = useSelector((state: any) => state.app.posts);
-    const previousPostsRef = useRef(posts);
-
-    useEffect(() => {
-        dispatch(fetchPosts());
-    }, [dispatch, currentPage]);
-    
-    useEffect(() => {
-        // if (previousPostsRef.current !== posts) {
-            console.log(posts);
-        //     previousPostsRef.current = posts;
-        // }
-    }, [posts]);
+    const [currentPage, setCurrentPage] = useState(1)   
 
     const formData = new FormData()
     formData.append('app_name', 'khttest')
@@ -222,7 +205,7 @@ const ScreenShop = ({ navigation }: any) => {
             <TouchableOpacity onPress={() => navigation.navigate('ScreenDetailProduct', { item })}>
                 <View style={styles.renderSp}>
                     {item.img_1 == "" ? <View style={{ height: 130, width: 132, borderRadius: 5 }} /> :
-                    <Image source={{ uri: item.img_1 }} style={{ height: 130, width: 132, borderRadius: 5 }}/>}
+                        <Image source={{ uri: item.img_1 }} style={{ height: 130, width: 132, borderRadius: 5 }} />}
                     <Text style={styles.ItemnameSP}>{limitText(item.product_name, 40)}</Text>
                     <View style={{ flexDirection: 'row', marginTop: 2 }}>
                         <Text style={styles.ItemtextSP}>Giá bán: </Text>
@@ -302,7 +285,7 @@ const ScreenShop = ({ navigation }: any) => {
         } else {
             const product = dataProduct.find((productItem: any) => productItem.product_id === item.product_id)
             const price = parseFloat(product.price)
-            addSPStore(item.product_id, 1,price)
+            addSPStore(item.product_id, 1, price)
         }
         console.log('Sản phẩm đã được thêm vào cơ sở dữ liệu Realm.')
     }
@@ -328,10 +311,10 @@ const ScreenShop = ({ navigation }: any) => {
             })
         }
         fetchData()
-    }, [APIkey,Domain])
+    }, [APIkey, Domain])
 
     const getAPIShop = async () => {
-        if (APIkey && Domain ) {
+        if (APIkey && Domain) {
             try {
                 const response = await axios.post(apiProductlist, formData, {
                     headers: {
@@ -354,10 +337,10 @@ const ScreenShop = ({ navigation }: any) => {
 
     const loadMoreData = async () => {
         if (loadingmore) return
-    
+
         try {
             setloadingmore(true)
-    
+
             const newPage = currentPage + 1
             const newFormData = new FormData()
             newFormData.append('app_name', 'khttest')
@@ -368,7 +351,7 @@ const ScreenShop = ({ navigation }: any) => {
                     'Accept': 'application/x-www-form-urlencoded',
                 },
             })
-    
+
             if (response.status === 200) {
                 const newData = response.data.data.l
                 setdataProduct((prevData: any) => [...prevData, ...newData])
@@ -386,7 +369,7 @@ const ScreenShop = ({ navigation }: any) => {
     return (
 
         <View style={styles.backgr}>
-            <SearchAnimation translateY={translateY} Domain={Domain} APIkey={APIkey}/>
+            <SearchAnimation translateY={translateY} Domain={Domain} APIkey={APIkey} />
             <Animated.ScrollView showsVerticalScrollIndicator={false} onScroll={scrollHandler} pagingEnabled={pagingEnabled} fadingEdgeLength={100}>
                 <View style={{ width: '100%', marginTop: 15 }}>
                     <FlatList

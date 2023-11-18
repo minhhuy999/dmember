@@ -1,7 +1,8 @@
-import { FETCH_POSTS, FETCH_POSTS_SUCCESS } from "./Action";
+import { API_NEW_SUCCESS, FETCH_POSTS_SUCCESS } from "./Action";
 
 const initialState = {
     posts: [],
+    apinew: [],
 };
 
 const Reducer = (state = initialState, action: any) => {
@@ -10,6 +11,11 @@ const Reducer = (state = initialState, action: any) => {
             return {
                 ...state,
                 posts: action.payload,
+            };
+        case API_NEW_SUCCESS:
+            return {
+                ...state,
+                apinew: action.payload,
             };
         default:
             return state;
